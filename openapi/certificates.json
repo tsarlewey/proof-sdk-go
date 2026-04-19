@@ -1,0 +1,524 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Organization Certificates",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.fairfax.proof.com",
+      "description": "ProdMirror (Sandbox) API"
+    },
+    {
+      "url": "https://api.proof.com",
+      "description": "Production API"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    },
+    {
+      "OAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Issue Certificate"
+    },
+    {
+      "name": "Issue External Certificate"
+    },
+    {
+      "name": "List Certificates"
+    },
+    {
+      "name": "Show Certificate"
+    },
+    {
+      "name": "Sign with Certificate"
+    },
+    {
+      "name": "Revoke Certificate"
+    }
+  ],
+  "paths": {
+    "/v1/certificates": {
+      "post": {
+        "tags": [
+          "Issue Certificate"
+        ],
+        "summary": "Issue Certificate",
+        "description": "Create an Organization Certificate where Proof stores the private key. Your organization must be compliant to at least the requested Assurance Level (AL). A maximum of 100 active certificates can be issued.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "$ref": "#/components/schemas/OrganizationCertificateFullResponse"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "certificate_profile": {
+                    "type": "string",
+                    "description": "Requested Certificate Profile, corresponding to the Assurance Level at which your organization is compliant.",
+                    "enum": [
+                      "organization_authenticity_al1",
+                      "organization_authenticity_al2",
+                      "organization_authenticity_al3",
+                      "organization_authenticity_al4"
+                    ],
+                    "default": "organization_authenticity_al1"
+                  },
+                  "common_name *required": {
+                    "type": "string",
+                    "description": "CN field of subject. Use company name or something specific to the use-case."
+                  }
+                },
+                "example": {
+                  "certificate_profile": "organization_authenticity_al1",
+                  "common_name": "Acme Banking Co Signing Authority"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "List Certificates"
+        ],
+        "summary": "List Certificates",
+        "description": "View all certificates belonging to your organization, including revoked certificates. Results are sorted by created_at, most recent first.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Pagination parameter to set page size.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "int",
+              "default": "10"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Pagination parameter to set 0-based offset",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "int",
+              "default": "0"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OrganizationCertificateShortResponse"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/certificates": {
+      "post": {
+        "tags": [
+          "Issue External Certificate"
+        ],
+        "summary": "Issue External Certificate",
+        "description": "Create an Organization Certificate where you store the private key. Your organization must be compliant to at least the requested Assurance Level (AL). A maximum of 100 active certificates can be issued.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "$ref": "#/components/schemas/OrganizationCertificateFullResponse"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "certificate_profile": {
+                    "type": "string",
+                    "description": "Requested Certificate Profile, corresponding to the Assurance Level at which your organization is compliant.",
+                    "enum": [
+                      "organization_authenticity_al1",
+                      "organization_authenticity_al2",
+                      "organization_authenticity_al3",
+                      "organization_authenticity_al4"
+                    ],
+                    "default": "organization_authenticity_al1"
+                  },
+                  "csr *required": {
+                    "type": "string",
+                    "description": "PEM-encoded Certificate Signing Request. The Subject must be set in the CSR. The Country and Organization fields will be validated against your organization's records."
+                  }
+                },
+                "example": {
+                  "certificate_profile": "organization_authenticity_al1",
+                  "csr": "-----BEGIN CERTIFICATE REQUEST-----\nMIICizCCAXMCAQAwRjELMAkGA1UEBhMCVVMxETAPBgNVBAoMCFZpbmNpIFBEMSQw\nIgYDVQQDDBtSZWFsIEJhbmsgU2lnbmluZyBBdXRob3JpdHkwggEiMA0GCSqGSIb3\nDQEBAQUAA4IBDwAwggEKAoIBAQDLZJY5V89e5/Eeb+pQ3tyY7aHWtevxBXw9I/91\nOyxYoBpI/EnGrwyBphJ51C9iauS/ZdJ9erknlUha5+b8+RusOioZHAvgtOc27vZY\nSbugqzTMNRjDyWXjBXdzVn0LfPLpOS2haeA16nc2tMJDLIriCyNaO0XtZkd00loe\neLLzHh932qOIrEr/d81HMgi+dsdIgjsKj+siNKVUbSZgmqbIFtev2hCZbtADjlXS\nbxUk8bqXdA0yp5hPxsW+U+YO9Gbbou8WrRqhtl+HJUabYYYw8aiaJKYYs5qbpOgN\nGT6axEvkb3Ix62NFxkPriGp5vOjgGFF1pVl3OChhxuLdk7iPAgMBAAGgADANBgkq\nhkiG9w0BAQUFAAOCAQEAj+RtM3uLfchMkdAlvnGBySsRp7D7gJ5IVMGjfnou/9OB\nPBom7OTMEqSRH0r62Sw+R1cC5o4S8HTf9j/v/IPWnujgtwFyvAwzELYFXsZxmZEN\nVihSXVS1h7w5yJ6KzJJps1pUxlFEOWWDJWT9XMdVUlTnb4GDi0vBW+uQBPTvVfP/\nwadSB+e3jmTTsQFQTqi6XZmMA920uzONjVZsZGP0NwFApB4Q4SCX8HrL4ex2uQF8\nFgoq2Osc2KGnJN8aM/IdmM0H0B2X1XEtR+o+TG1B3ZQnCdchwJVhnQ1KyRpIxPeV\nkZ0wIv5Sf1XRqljr5UvT6J8w8aMA0S0TBC/mtveARQ==\n-----END CERTIFICATE REQUEST-----\n"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/certificates/{id}": {
+      "delete": {
+        "tags": [
+          "Revoke Certificate"
+        ],
+        "summary": "Revoke Certificate",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "reason",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "$ref": "#/components/schemas/OrganizationCertificateFullResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Already Revoked Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "example": "Credential has already been revoked"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Show Certificate"
+        ],
+        "summary": "Show Certificate",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "$ref": "#/components/schemas/OrganizationCertificateFullResponse"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/certificates/{id}/sign": {
+      "post": {
+        "tags": [
+          "Sign with Certificate"
+        ],
+        "summary": "Sign with Certificate",
+        "description": "Sign digests with your certificate. Not available for external certificates",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "description": "Base64-encoded signed digest",
+                        "example": "MEUCIQDM+zVwmYJeVJTIQGacXphjgXtbIjV9yhSpmMYbjl5u1QIgAS9aZWQ9yQJ3pPGEORiRlQv1Eq9IeMaFpElXLRxxEtc="
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "digests": {
+                    "type": "array",
+                    "description": "Base64-encoded SHA256 digests. A maximum of 25 digests can be signed in one request.",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "algorithm_oid": {
+                    "type": "string",
+                    "description": "The signing algorithm to use, specified by OID. Only ECDSA with SHA256 is currently supported.",
+                    "enum": [
+                      "1.2.840.10045.4.3.2"
+                    ]
+                  }
+                },
+                "example": {
+                  "digests": [
+                    "BOGQnhPlcpXqM7fAH6tvFPI4QOXsIyXMiBKtFpblmjU="
+                  ],
+                  "algorithm_oid": "1.2.840.10045.4.3.2"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "OrganizationCertificateFullResponse": {
+        "type": "object",
+        "description": "Fully detailed response object for an Organization Certificate",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "UUID",
+            "example": "719292ea-ddc0-4e7d-8a78-e1e3ee3c1433"
+          },
+          "external": {
+            "type": "boolean",
+            "example": false,
+            "description": "A certificate is external if its private key is stored by the customer."
+          },
+          "subject": {
+            "type": "string",
+            "example": "/C=US/O=Acme Banking Co/CN=Acme Banking Co Signing Authority",
+            "description": "OpenSSL-formatted subject"
+          },
+          "valid_from": {
+            "type": "string",
+            "example": "2026-02-06T18:37:41Z",
+            "description": "ISO-8601 timestamp"
+          },
+          "valid_to": {
+            "type": "string",
+            "example": "2028-02-06T19:37:41Z",
+            "description": "ISO-8601 timestamp"
+          },
+          "certificate_chain": {
+            "type": "string",
+            "example": "-----BEGIN CERTIFICATE-----\nM...",
+            "description": "PEM-encoded certificate chain, end entity certificate first."
+          },
+          "serial_number": {
+            "type": "string",
+            "example": "3D65B97C26CD6BF6749814BA9FF286AD",
+            "description": "Uppercase HEX-encoded X509 serial number"
+          },
+          "revoked_at": {
+            "type": "string",
+            "example": null,
+            "nullable": true,
+            "description": "ISO-8601 timestamp indicating certificate revocation time. Null unless certificate has been revoked."
+          },
+          "revocation_reason": {
+            "type": "string",
+            "example": null,
+            "nullable": true,
+            "description": "The reason the certificate was revoked. See RFC 5280 for possible values."
+          },
+          "created_at": {
+            "type": "string",
+            "example": "2026-02-06T19:37:42Z",
+            "description": "ISO-8601 timestamp indicating certificate creation time."
+          },
+          "issuer": {
+            "type": "string",
+            "example": "/C=US/O=Proof.com/CN=Proof Organization Authenticity Issuing CA R1 Development",
+            "description": "OpenSSL-encoded subject of issuing certificate."
+          }
+        }
+      },
+      "OrganizationCertificateShortResponse": {
+        "type": "object",
+        "description": "Short response object for an Organization Certificate (does not contain the certificate_chain).",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "UUID",
+            "example": "719292ea-ddc0-4e7d-8a78-e1e3ee3c1433"
+          },
+          "external": {
+            "type": "boolean",
+            "example": false,
+            "description": "A certificate is external if its private key is stored by the customer."
+          },
+          "subject": {
+            "type": "string",
+            "example": "/C=US/O=Acme Banking Co/CN=Acme Banking Co Signing Authority",
+            "description": "OpenSSL-formatted subject"
+          },
+          "valid_from": {
+            "type": "string",
+            "example": "2026-02-06T18:37:41Z",
+            "description": "ISO-8601 timestamp"
+          },
+          "valid_to": {
+            "type": "string",
+            "example": "2028-02-06T19:37:41Z",
+            "description": "ISO-8601 timestamp"
+          },
+          "serial_number": {
+            "type": "string",
+            "example": "3D65B97C26CD6BF6749814BA9FF286AD",
+            "description": "Uppercase HEX-encoded X509 serial number"
+          },
+          "revoked_at": {
+            "type": "string",
+            "example": null,
+            "nullable": true,
+            "description": "ISO-8601 timestamp indicating certificate revocation time. Null unless certificate has been revoked."
+          },
+          "revocation_reason": {
+            "type": "string",
+            "example": null,
+            "nullable": true,
+            "description": "The reason the certificate was revoked. See RFC 5280 for possible values."
+          },
+          "created_at": {
+            "type": "string",
+            "example": "2026-02-06T19:37:42Z",
+            "description": "ISO-8601 timestamp indicating certificate creation time."
+          },
+          "issuer": {
+            "type": "string",
+            "example": "/C=US/O=Proof.com/CN=Proof Organization Authenticity Issuing CA R1 Development",
+            "description": "OpenSSL-encoded subject of issuing certificate."
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "ApiKey"
+      },
+      "OAuth": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "/oauth/v2/token",
+            "scopes": {}
+          }
+        }
+      }
+    }
+  }
+}

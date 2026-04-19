@@ -1,0 +1,263 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Logs API Specification",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "https://api.staging.proof.com",
+      "description": "Public API URL"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "api_key": {
+        "type": "apiKey",
+        "name": "ApiKey",
+        "in": "header"
+      }
+    },
+    "schemas": {
+      "errors_object": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "security_event_object": {
+        "type": "object",
+        "properties": {
+          "class_uid": {
+            "type": "integer",
+            "description": "OCSF event class identifier"
+          },
+          "class_name": {
+            "type": "string",
+            "description": "OCSF event class name"
+          },
+          "activity_id": {
+            "type": "integer",
+            "description": "OCSF activity identifier"
+          },
+          "activity_name": {
+            "type": "string",
+            "description": "OCSF activity name"
+          },
+          "category_uid": {
+            "type": "integer",
+            "description": "OCSF category identifier"
+          },
+          "category_name": {
+            "type": "string",
+            "description": "OCSF category name"
+          },
+          "severity_id": {
+            "type": "integer",
+            "description": "OCSF severity identifier"
+          },
+          "severity": {
+            "type": "string",
+            "description": "OCSF severity label"
+          },
+          "type_uid": {
+            "type": "integer",
+            "description": "OCSF event type identifier"
+          },
+          "time": {
+            "type": "integer",
+            "description": "Event timestamp as Unix epoch"
+          },
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string",
+                "description": "OCSF schema version"
+              },
+              "product": {
+                "type": "object",
+                "properties": {
+                  "vendor_name": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "security_events_response": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/security_event_object"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "next_cursor": {
+                "type": "string",
+                "nullable": true,
+                "description": "Cursor for fetching the next page of results"
+              },
+              "has_more": {
+                "type": "boolean",
+                "description": "Whether more results are available"
+              },
+              "count": {
+                "type": "integer",
+                "description": "Number of events in this response"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/logs/v1/security-events": {
+      "get": {
+        "summary": "List Security Events",
+        "tags": [
+          "Security Events"
+        ],
+        "operationId": "listSecurityEvents",
+        "security": [
+          {
+            "api_key": []
+          }
+        ],
+        "description": "Returns a paginated list of security events in OCSF format for the authenticated organization. Requires Command Center Standard access.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Number of events to return per page (1-1000, default 100)",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "description": "Cursor for pagination. Use the next_cursor value from a previous response to fetch the next page.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "required": false,
+            "description": "ISO 8601 timestamp. Only return events ingested at or after this time. Maximum 90 days in the past. Ignored when cursor is provided.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "class_uid",
+            "in": "query",
+            "required": false,
+            "description": "Filter by OCSF event class identifier",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "severity_id",
+            "in": "query",
+            "required": false,
+            "description": "Filter by OCSF severity identifier",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "class_uid": 3002,
+                      "class_name": "Authentication",
+                      "activity_id": 1,
+                      "activity_name": "Logon",
+                      "category_uid": 3,
+                      "category_name": "Identity & Access Management",
+                      "severity_id": 1,
+                      "severity": "Informational",
+                      "type_uid": 300201,
+                      "time": 1775498832,
+                      "metadata": {
+                        "version": "1.8.0",
+                        "product": {
+                          "vendor_name": "Notarize",
+                          "name": "Notarize API"
+                        }
+                      }
+                    }
+                  ],
+                  "meta": {
+                    "next_cursor": null,
+                    "has_more": false,
+                    "count": 1
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/security_events_response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad request - invalid cursor",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    "Invalid cursor parameter"
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errors_object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "forbidden - no Command Center Standard",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    "Security Events API requires Command Center Standard access"
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errors_object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

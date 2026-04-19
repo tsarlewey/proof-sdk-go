@@ -1,0 +1,10 @@
+# No binaries yet — the SDK is a library — but leave room for tool installs.
+.DS_Store
+
+# Local editor directories
+.idea/
+.vscode/
+
+# Go coverage
+*.out
+coverage.out
