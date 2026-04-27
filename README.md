@@ -42,6 +42,49 @@ client, err := business.NewClientWithResponses(
 
 See `proof-cli`'s `pkg/utils/client.go` for a complete `AuthProvider` implementation covering both OAuth 2.0 client-credentials and API-key authentication.
 
+## User-Agent
+
+`AuthenticatedDoer` sets `User-Agent: proof-sdk-go/<version>` on every request, but only when the caller hasn't already set one. To brand requests for your own application, set `User-Agent` on the request (or via `WithRequestEditorFn`) before it reaches the doer; your value is preserved.
+
+The version is exported as `common.Version`.
+
+## Error helpers
+
+The generated clients return raw `*http.Response` (or typed response structs whose `.JSONxxx` fields are nil on error status). To uniformly extract a non-2xx response into a typed error:
+
+```go
+resp, err := client.GetTransactionWithResponse(ctx, id)
+if err != nil { return err }
+
+if apiErr := common.CheckResponse(resp.HTTPResponse); apiErr != nil {
+    var e *common.APIError
+    if errors.As(apiErr, &e) {
+        log.Printf("proof api %d: %s", e.StatusCode, e.Message)
+    }
+    return apiErr
+}
+```
+
+`AsAPIError(resp) (*APIError, bool)` is the comma-ok form. Both functions drain the response body and replace it with a re-readable buffer, so the body is captured on `APIError.Body` and still readable from `resp.Body` afterwards. `Message` is a best-effort extraction across the common Proof error shapes (`error`, `message`, `detail`, `errors[]`).
+
+## Retries
+
+`common.RetryDoer` wraps any `HTTPDoer` (including `AuthenticatedDoer`) with exponential-backoff retries on retryable status codes and network errors. It honors `Retry-After` (seconds form) and respects request context cancellation while sleeping.
+
+```go
+authDoer := common.NewAuthenticatedDoer(myAuthProvider)
+retrying := common.NewRetryDoer(authDoer, common.DefaultRetryConfig())
+
+client, _ := business.NewClientWithResponses(
+    "https://api.proof.com",
+    business.WithHTTPClient(retrying),
+)
+```
+
+`DefaultRetryConfig()` retries up to 3 times on 408/429/5xx and on transport errors, with full-jitter exponential backoff capped at 5s. Override `RetryConfig` fields to tune.
+
+Requests with bodies must be replayable (`req.GetBody` non-nil — the standard library populates this for the body types `oapi-codegen` uses). Otherwise the doer returns `common.ErrBodyNotReplayable` rather than a stale response, so callers can distinguish a real terminal status from an abandoned retry.
+
 ## Regenerating SDKs
 
 ```bash

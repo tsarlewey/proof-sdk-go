@@ -33,6 +33,13 @@ func (a *AuthenticatedDoer) Do(req *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 
+	// Set the default SDK User-Agent only when the caller hasn't supplied one,
+	// so server-side telemetry can attribute traffic without overriding
+	// downstream tools that need their own UA.
+	if req.Header.Get("User-Agent") == "" {
+		req.Header.Set("User-Agent", UserAgent)
+	}
+
 	// Execute the request using the underlying HTTP client
 	return a.client.HTTPClient().Do(req)
 }
