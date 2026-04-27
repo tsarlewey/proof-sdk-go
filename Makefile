@@ -25,7 +25,7 @@ check: fmt vet build test-race
 
 # Install tool dependencies
 tools:
-	go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
+	go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.6.0
 
 # Download OpenAPI specs from dev.proof.com and apply fixup scripts
 download-specs:
@@ -51,7 +51,7 @@ download-specs:
 	@echo "All specs downloaded and fixed!"
 
 # oapi-codegen command - use go run to avoid PATH issues
-OAPI_CODEGEN = go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
+OAPI_CODEGEN = go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.6.0
 
 # Generate SDK clients from OpenAPI specs
 generate:
