@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "https://api.staging.proof.com",
+      "url": "https://api.proof.com",
       "description": "Public API URL"
     }
   ],
@@ -139,7 +139,7 @@
             "api_key": []
           }
         ],
-        "description": "Returns a paginated list of security events in OCSF format for the authenticated organization. Requires Command Center Standard access.",
+        "description": "Returns a paginated list of security events in OCSF format for the authenticated organization. Requires Command Center access.",
         "parameters": [
           {
             "name": "limit",
@@ -204,7 +204,7 @@
                       "severity_id": 1,
                       "severity": "Informational",
                       "type_uid": 300201,
-                      "time": 1775498832,
+                      "time": 1778237535,
                       "metadata": {
                         "version": "1.8.0",
                         "product": {
@@ -247,7 +247,7 @@
               "application/json": {
                 "example": {
                   "errors": [
-                    "Security Events API requires Command Center Standard access"
+                    "Security Events API requires Command Center access"
                   ]
                 },
                 "schema": {

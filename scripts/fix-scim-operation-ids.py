@@ -15,14 +15,18 @@ import json
 import sys
 
 
+_PREFIX = "/scim/v1/organizations"
+
 OPERATION_ID_OVERRIDES = {
-    ("/{organization_id}/Users", "get"): "list-users",
-    ("/{organization_id}/Users/{user_id}", "get"): "get-user",
-    ("/{organization_id}/Users/{user_id}", "put"): "update-user",
-    ("/{organization_id}/Users/{user_id}", "patch"): "patch-user",
-    ("/{organization_id}/Users/{user_id}", "delete"): "delete-user",
-    ("/{organization_id}/ServiceProviderConfig", "get"): "get-service-provider-config",
-    ("/{organization_id}/ResourceTypes", "get"): "get-resource-types",
+    (f"{_PREFIX}/{{organization_id}}/Users/", "post"): "create-user",
+    (f"{_PREFIX}/{{organization_id}}/Users", "get"): "list-users",
+    (f"{_PREFIX}/{{organization_id}}/Users/{{user_id}}", "get"): "get-user",
+    (f"{_PREFIX}/{{organization_id}}/Users/{{user_id}}", "put"): "replace-user",
+    (f"{_PREFIX}/{{organization_id}}/Users/{{user_id}}", "patch"): "patch-user",
+    (f"{_PREFIX}/{{organization_id}}/Users/{{user_id}}", "delete"): "delete-user",
+    (f"{_PREFIX}/{{organization_id}}/Schemas/Users", "get"): "retrieve-users-schema",
+    (f"{_PREFIX}/{{organization_id}}/ServiceProviderConfig", "get"): "get-service-provider-config",
+    (f"{_PREFIX}/{{organization_id}}/ResourceTypes", "get"): "get-resource-types",
 }
 
 
