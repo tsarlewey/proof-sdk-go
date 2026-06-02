@@ -3977,6 +3977,9 @@ type AddMortgageDocumentJSONRequestBody = DocumentCreationParams
 // AddEnoteJSONRequestBody defines body for AddEnote for application/json ContentType.
 type AddEnoteJSONRequestBody = EnoteParams
 
+// PlaceOrderJSONRequestBody defines body for PlaceOrder for application/json ContentType.
+type PlaceOrderJSONRequestBody = ActivateDraftParams
+
 // AddMortgageExternalDocumentJSONRequestBody defines body for AddMortgageExternalDocument for application/json ContentType.
 type AddMortgageExternalDocumentJSONRequestBody AddMortgageExternalDocumentJSONBody
 
@@ -4256,8 +4259,10 @@ type ClientInterface interface {
 	// GetAllEligibleNotaries request
 	GetAllEligibleNotaries(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PlaceOrder request
-	PlaceOrder(ctx context.Context, id string, params *PlaceOrderParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// PlaceOrderWithBody request with any body
+	PlaceOrderWithBody(ctx context.Context, id string, params *PlaceOrderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PlaceOrder(ctx context.Context, id string, params *PlaceOrderParams, body PlaceOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// RecallTransaction request
 	RecallTransaction(ctx context.Context, id string, params *RecallTransactionParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -4782,8 +4787,20 @@ func (c *Client) GetAllEligibleNotaries(ctx context.Context, id string, reqEdito
 	return c.Client.Do(req)
 }
 
-func (c *Client) PlaceOrder(ctx context.Context, id string, params *PlaceOrderParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPlaceOrderRequest(c.Server, id, params)
+func (c *Client) PlaceOrderWithBody(ctx context.Context, id string, params *PlaceOrderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPlaceOrderRequestWithBody(c.Server, id, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PlaceOrder(ctx context.Context, id string, params *PlaceOrderParams, body PlaceOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPlaceOrderRequest(c.Server, id, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6785,8 +6802,19 @@ func NewGetAllEligibleNotariesRequest(server string, id string) (*http.Request, 
 	return req, nil
 }
 
-// NewPlaceOrderRequest generates requests for PlaceOrder
-func NewPlaceOrderRequest(server string, id string, params *PlaceOrderParams) (*http.Request, error) {
+// NewPlaceOrderRequest calls the generic PlaceOrder builder with application/json body
+func NewPlaceOrderRequest(server string, id string, params *PlaceOrderParams, body PlaceOrderJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPlaceOrderRequestWithBody(server, id, params, "application/json", bodyReader)
+}
+
+// NewPlaceOrderRequestWithBody generates requests for PlaceOrder with any type of body
+func NewPlaceOrderRequestWithBody(server string, id string, params *PlaceOrderParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -6833,10 +6861,12 @@ func NewPlaceOrderRequest(server string, id string, params *PlaceOrderParams) (*
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -7539,8 +7569,10 @@ type ClientWithResponsesInterface interface {
 	// GetAllEligibleNotariesWithResponse request
 	GetAllEligibleNotariesWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetAllEligibleNotariesResponse, error)
 
-	// PlaceOrderWithResponse request
-	PlaceOrderWithResponse(ctx context.Context, id string, params *PlaceOrderParams, reqEditors ...RequestEditorFn) (*PlaceOrderResponse, error)
+	// PlaceOrderWithBodyWithResponse request with any body
+	PlaceOrderWithBodyWithResponse(ctx context.Context, id string, params *PlaceOrderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PlaceOrderResponse, error)
+
+	PlaceOrderWithResponse(ctx context.Context, id string, params *PlaceOrderParams, body PlaceOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*PlaceOrderResponse, error)
 
 	// RecallTransactionWithResponse request
 	RecallTransactionWithResponse(ctx context.Context, id string, params *RecallTransactionParams, reqEditors ...RequestEditorFn) (*RecallTransactionResponse, error)
@@ -8935,9 +8967,17 @@ func (c *ClientWithResponses) GetAllEligibleNotariesWithResponse(ctx context.Con
 	return ParseGetAllEligibleNotariesResponse(rsp)
 }
 
-// PlaceOrderWithResponse request returning *PlaceOrderResponse
-func (c *ClientWithResponses) PlaceOrderWithResponse(ctx context.Context, id string, params *PlaceOrderParams, reqEditors ...RequestEditorFn) (*PlaceOrderResponse, error) {
-	rsp, err := c.PlaceOrder(ctx, id, params, reqEditors...)
+// PlaceOrderWithBodyWithResponse request with arbitrary body returning *PlaceOrderResponse
+func (c *ClientWithResponses) PlaceOrderWithBodyWithResponse(ctx context.Context, id string, params *PlaceOrderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PlaceOrderResponse, error) {
+	rsp, err := c.PlaceOrderWithBody(ctx, id, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePlaceOrderResponse(rsp)
+}
+
+func (c *ClientWithResponses) PlaceOrderWithResponse(ctx context.Context, id string, params *PlaceOrderParams, body PlaceOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*PlaceOrderResponse, error) {
+	rsp, err := c.PlaceOrder(ctx, id, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
