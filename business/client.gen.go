@@ -3475,6 +3475,9 @@ type UpdateDraftTransactionJSONRequestBody = TransactionParams
 // AddDocumentJSONRequestBody defines body for AddDocument for application/json ContentType.
 type AddDocumentJSONRequestBody = DocumentCreationParams
 
+// ActivateDraftTransactionJSONRequestBody defines body for ActivateDraftTransaction for application/json ContentType.
+type ActivateDraftTransactionJSONRequestBody = ActivateDraftParams
+
 // ResendTransactionSMSJSONRequestBody defines body for ResendTransactionSMS for application/json ContentType.
 type ResendTransactionSMSJSONRequestBody ResendTransactionSMSJSONBody
 
@@ -3818,8 +3821,10 @@ type ClientInterface interface {
 	// GetAllEligibleNotaries request
 	GetAllEligibleNotaries(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// ActivateDraftTransaction request
-	ActivateDraftTransaction(ctx context.Context, id string, params *ActivateDraftTransactionParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// ActivateDraftTransactionWithBody request with any body
+	ActivateDraftTransactionWithBody(ctx context.Context, id string, params *ActivateDraftTransactionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ActivateDraftTransaction(ctx context.Context, id string, params *ActivateDraftTransactionParams, body ActivateDraftTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// RecallTransaction request
 	RecallTransaction(ctx context.Context, id string, params *RecallTransactionParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -4342,8 +4347,20 @@ func (c *Client) GetAllEligibleNotaries(ctx context.Context, id string, reqEdito
 	return c.Client.Do(req)
 }
 
-func (c *Client) ActivateDraftTransaction(ctx context.Context, id string, params *ActivateDraftTransactionParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewActivateDraftTransactionRequest(c.Server, id, params)
+func (c *Client) ActivateDraftTransactionWithBody(ctx context.Context, id string, params *ActivateDraftTransactionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewActivateDraftTransactionRequestWithBody(c.Server, id, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ActivateDraftTransaction(ctx context.Context, id string, params *ActivateDraftTransactionParams, body ActivateDraftTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewActivateDraftTransactionRequest(c.Server, id, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6093,8 +6110,19 @@ func NewGetAllEligibleNotariesRequest(server string, id string) (*http.Request, 
 	return req, nil
 }
 
-// NewActivateDraftTransactionRequest generates requests for ActivateDraftTransaction
-func NewActivateDraftTransactionRequest(server string, id string, params *ActivateDraftTransactionParams) (*http.Request, error) {
+// NewActivateDraftTransactionRequest calls the generic ActivateDraftTransaction builder with application/json body
+func NewActivateDraftTransactionRequest(server string, id string, params *ActivateDraftTransactionParams, body ActivateDraftTransactionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewActivateDraftTransactionRequestWithBody(server, id, params, "application/json", bodyReader)
+}
+
+// NewActivateDraftTransactionRequestWithBody generates requests for ActivateDraftTransaction with any type of body
+func NewActivateDraftTransactionRequestWithBody(server string, id string, params *ActivateDraftTransactionParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -6141,10 +6169,12 @@ func NewActivateDraftTransactionRequest(server string, id string, params *Activa
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -6957,8 +6987,10 @@ type ClientWithResponsesInterface interface {
 	// GetAllEligibleNotariesWithResponse request
 	GetAllEligibleNotariesWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetAllEligibleNotariesResponse, error)
 
-	// ActivateDraftTransactionWithResponse request
-	ActivateDraftTransactionWithResponse(ctx context.Context, id string, params *ActivateDraftTransactionParams, reqEditors ...RequestEditorFn) (*ActivateDraftTransactionResponse, error)
+	// ActivateDraftTransactionWithBodyWithResponse request with any body
+	ActivateDraftTransactionWithBodyWithResponse(ctx context.Context, id string, params *ActivateDraftTransactionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ActivateDraftTransactionResponse, error)
+
+	ActivateDraftTransactionWithResponse(ctx context.Context, id string, params *ActivateDraftTransactionParams, body ActivateDraftTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*ActivateDraftTransactionResponse, error)
 
 	// RecallTransactionWithResponse request
 	RecallTransactionWithResponse(ctx context.Context, id string, params *RecallTransactionParams, reqEditors ...RequestEditorFn) (*RecallTransactionResponse, error)
@@ -8335,9 +8367,17 @@ func (c *ClientWithResponses) GetAllEligibleNotariesWithResponse(ctx context.Con
 	return ParseGetAllEligibleNotariesResponse(rsp)
 }
 
-// ActivateDraftTransactionWithResponse request returning *ActivateDraftTransactionResponse
-func (c *ClientWithResponses) ActivateDraftTransactionWithResponse(ctx context.Context, id string, params *ActivateDraftTransactionParams, reqEditors ...RequestEditorFn) (*ActivateDraftTransactionResponse, error) {
-	rsp, err := c.ActivateDraftTransaction(ctx, id, params, reqEditors...)
+// ActivateDraftTransactionWithBodyWithResponse request with arbitrary body returning *ActivateDraftTransactionResponse
+func (c *ClientWithResponses) ActivateDraftTransactionWithBodyWithResponse(ctx context.Context, id string, params *ActivateDraftTransactionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ActivateDraftTransactionResponse, error) {
+	rsp, err := c.ActivateDraftTransactionWithBody(ctx, id, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseActivateDraftTransactionResponse(rsp)
+}
+
+func (c *ClientWithResponses) ActivateDraftTransactionWithResponse(ctx context.Context, id string, params *ActivateDraftTransactionParams, body ActivateDraftTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*ActivateDraftTransactionResponse, error) {
+	rsp, err := c.ActivateDraftTransaction(ctx, id, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
