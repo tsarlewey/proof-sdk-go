@@ -171,6 +171,27 @@ func (e NotarizationRecordObjectNotarizedDocumentsNotorialActs) Valid() bool {
 	}
 }
 
+// Defines values for NotarizationRecordObjectNotarySource.
+const (
+	CustomPanel     NotarizationRecordObjectNotarySource = "Custom Panel"
+	InHouseNotary   NotarizationRecordObjectNotarySource = "In-house notary"
+	NotarizeNetwork NotarizationRecordObjectNotarySource = "Notarize Network"
+)
+
+// Valid indicates whether the value is a known member of the NotarizationRecordObjectNotarySource enum.
+func (e NotarizationRecordObjectNotarySource) Valid() bool {
+	switch e {
+	case CustomPanel:
+		return true
+	case InHouseNotary:
+		return true
+	case NotarizeNetwork:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for NotarizationRecordObjectSignersSignatoryCapacitiesType.
 const (
 	NotarizationRecordObjectSignersSignatoryCapacitiesTypeAttorneyInFact        NotarizationRecordObjectSignersSignatoryCapacitiesType = "attorney_in_fact"
@@ -303,6 +324,42 @@ func (e NotaryStatuses) Valid() bool {
 	case NeedsReview:
 		return true
 	case NotCompliant:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OpenidConnectTransactionRequestParameterName.
+const (
+	OpenidConnectTransactionRequestParameterNameFirstName OpenidConnectTransactionRequestParameterName = "first_name"
+	OpenidConnectTransactionRequestParameterNameLastName  OpenidConnectTransactionRequestParameterName = "last_name"
+)
+
+// Valid indicates whether the value is a known member of the OpenidConnectTransactionRequestParameterName enum.
+func (e OpenidConnectTransactionRequestParameterName) Valid() bool {
+	switch e {
+	case OpenidConnectTransactionRequestParameterNameFirstName:
+		return true
+	case OpenidConnectTransactionRequestParameterNameLastName:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OpenidConnectTransactionWorkflowId.
+const (
+	ProofCaDefault  OpenidConnectTransactionWorkflowId = "proof.ca.default"
+	ProofKbaDefault OpenidConnectTransactionWorkflowId = "proof.kba.default"
+)
+
+// Valid indicates whether the value is a known member of the OpenidConnectTransactionWorkflowId enum.
+func (e OpenidConnectTransactionWorkflowId) Valid() bool {
+	switch e {
+	case ProofCaDefault:
+		return true
+	case ProofKbaDefault:
 		return true
 	default:
 		return false
@@ -785,103 +842,103 @@ func (e SignersVestingType) Valid() bool {
 
 // Defines values for SigningDesignationType.
 const (
-	AddressCity                SigningDesignationType = "address_city"
-	AddressLine1               SigningDesignationType = "address_line1"
-	AddressLine2               SigningDesignationType = "address_line2"
-	AddressState               SigningDesignationType = "address_state"
-	AddressZip5                SigningDesignationType = "address_zip5"
-	Checkmark                  SigningDesignationType = "checkmark"
-	CommissionCounty           SigningDesignationType = "commission_county"
-	CommissionExpirationDate   SigningDesignationType = "commission_expiration_date"
-	CommissionState            SigningDesignationType = "commission_state"
-	County                     SigningDesignationType = "county"
-	DateSigned                 SigningDesignationType = "date_signed"
-	DaySigned                  SigningDesignationType = "day_signed"
-	Disclosure                 SigningDesignationType = "disclosure"
-	Dob                        SigningDesignationType = "dob"
-	Email                      SigningDesignationType = "email"
-	FirstName                  SigningDesignationType = "first_name"
-	FreeText                   SigningDesignationType = "free_text"
-	FullName                   SigningDesignationType = "full_name"
-	Initials                   SigningDesignationType = "initials"
-	LastName                   SigningDesignationType = "last_name"
-	MiddleName                 SigningDesignationType = "middle_name"
-	MonthSigned                SigningDesignationType = "month_signed"
-	NotaryCity                 SigningDesignationType = "notary_city"
-	NotaryId                   SigningDesignationType = "notary_id"
-	PrincipalIdType            SigningDesignationType = "principal_id_type"
-	RadioCheckmark             SigningDesignationType = "radio_checkmark"
-	RepresentativeCapacityType SigningDesignationType = "representative_capacity_type"
-	Seal                       SigningDesignationType = "seal"
-	Signature                  SigningDesignationType = "signature"
-	SignatureAndDate           SigningDesignationType = "signature_and_date"
-	YearSigned                 SigningDesignationType = "year_signed"
+	SigningDesignationTypeAddressCity                SigningDesignationType = "address_city"
+	SigningDesignationTypeAddressLine1               SigningDesignationType = "address_line1"
+	SigningDesignationTypeAddressLine2               SigningDesignationType = "address_line2"
+	SigningDesignationTypeAddressState               SigningDesignationType = "address_state"
+	SigningDesignationTypeAddressZip5                SigningDesignationType = "address_zip5"
+	SigningDesignationTypeCheckmark                  SigningDesignationType = "checkmark"
+	SigningDesignationTypeCommissionCounty           SigningDesignationType = "commission_county"
+	SigningDesignationTypeCommissionExpirationDate   SigningDesignationType = "commission_expiration_date"
+	SigningDesignationTypeCommissionState            SigningDesignationType = "commission_state"
+	SigningDesignationTypeCounty                     SigningDesignationType = "county"
+	SigningDesignationTypeDateSigned                 SigningDesignationType = "date_signed"
+	SigningDesignationTypeDaySigned                  SigningDesignationType = "day_signed"
+	SigningDesignationTypeDisclosure                 SigningDesignationType = "disclosure"
+	SigningDesignationTypeDob                        SigningDesignationType = "dob"
+	SigningDesignationTypeEmail                      SigningDesignationType = "email"
+	SigningDesignationTypeFirstName                  SigningDesignationType = "first_name"
+	SigningDesignationTypeFreeText                   SigningDesignationType = "free_text"
+	SigningDesignationTypeFullName                   SigningDesignationType = "full_name"
+	SigningDesignationTypeInitials                   SigningDesignationType = "initials"
+	SigningDesignationTypeLastName                   SigningDesignationType = "last_name"
+	SigningDesignationTypeMiddleName                 SigningDesignationType = "middle_name"
+	SigningDesignationTypeMonthSigned                SigningDesignationType = "month_signed"
+	SigningDesignationTypeNotaryCity                 SigningDesignationType = "notary_city"
+	SigningDesignationTypeNotaryId                   SigningDesignationType = "notary_id"
+	SigningDesignationTypePrincipalIdType            SigningDesignationType = "principal_id_type"
+	SigningDesignationTypeRadioCheckmark             SigningDesignationType = "radio_checkmark"
+	SigningDesignationTypeRepresentativeCapacityType SigningDesignationType = "representative_capacity_type"
+	SigningDesignationTypeSeal                       SigningDesignationType = "seal"
+	SigningDesignationTypeSignature                  SigningDesignationType = "signature"
+	SigningDesignationTypeSignatureAndDate           SigningDesignationType = "signature_and_date"
+	SigningDesignationTypeYearSigned                 SigningDesignationType = "year_signed"
 )
 
 // Valid indicates whether the value is a known member of the SigningDesignationType enum.
 func (e SigningDesignationType) Valid() bool {
 	switch e {
-	case AddressCity:
+	case SigningDesignationTypeAddressCity:
 		return true
-	case AddressLine1:
+	case SigningDesignationTypeAddressLine1:
 		return true
-	case AddressLine2:
+	case SigningDesignationTypeAddressLine2:
 		return true
-	case AddressState:
+	case SigningDesignationTypeAddressState:
 		return true
-	case AddressZip5:
+	case SigningDesignationTypeAddressZip5:
 		return true
-	case Checkmark:
+	case SigningDesignationTypeCheckmark:
 		return true
-	case CommissionCounty:
+	case SigningDesignationTypeCommissionCounty:
 		return true
-	case CommissionExpirationDate:
+	case SigningDesignationTypeCommissionExpirationDate:
 		return true
-	case CommissionState:
+	case SigningDesignationTypeCommissionState:
 		return true
-	case County:
+	case SigningDesignationTypeCounty:
 		return true
-	case DateSigned:
+	case SigningDesignationTypeDateSigned:
 		return true
-	case DaySigned:
+	case SigningDesignationTypeDaySigned:
 		return true
-	case Disclosure:
+	case SigningDesignationTypeDisclosure:
 		return true
-	case Dob:
+	case SigningDesignationTypeDob:
 		return true
-	case Email:
+	case SigningDesignationTypeEmail:
 		return true
-	case FirstName:
+	case SigningDesignationTypeFirstName:
 		return true
-	case FreeText:
+	case SigningDesignationTypeFreeText:
 		return true
-	case FullName:
+	case SigningDesignationTypeFullName:
 		return true
-	case Initials:
+	case SigningDesignationTypeInitials:
 		return true
-	case LastName:
+	case SigningDesignationTypeLastName:
 		return true
-	case MiddleName:
+	case SigningDesignationTypeMiddleName:
 		return true
-	case MonthSigned:
+	case SigningDesignationTypeMonthSigned:
 		return true
-	case NotaryCity:
+	case SigningDesignationTypeNotaryCity:
 		return true
-	case NotaryId:
+	case SigningDesignationTypeNotaryId:
 		return true
-	case PrincipalIdType:
+	case SigningDesignationTypePrincipalIdType:
 		return true
-	case RadioCheckmark:
+	case SigningDesignationTypeRadioCheckmark:
 		return true
-	case RepresentativeCapacityType:
+	case SigningDesignationTypeRepresentativeCapacityType:
 		return true
-	case Seal:
+	case SigningDesignationTypeSeal:
 		return true
-	case Signature:
+	case SigningDesignationTypeSignature:
 		return true
-	case SignatureAndDate:
+	case SigningDesignationTypeSignatureAndDate:
 		return true
-	case YearSigned:
+	case SigningDesignationTypeYearSigned:
 		return true
 	default:
 		return false
@@ -1973,6 +2030,11 @@ type DocumentParams struct {
 // DocumentParamsDocumentUrlVersion Optional param to test v2 document urls.
 type DocumentParamsDocumentUrlVersion string
 
+// ErrorsArray defines model for errors_array.
+type ErrorsArray struct {
+	Errors *[]string `json:"errors,omitempty"`
+}
+
 // ErrorsObject defines model for errors_object.
 type ErrorsObject struct {
 	Errors *ErrorsObject_Errors `json:"errors,omitempty"`
@@ -2031,11 +2093,14 @@ type NotarizationRecordObject struct {
 		NotorialActs *[]NotarizationRecordObjectNotarizedDocumentsNotorialActs `json:"notorial_acts,omitempty"`
 		TrackingId   *NotarizationRecordObject_NotarizedDocuments_TrackingId   `json:"tracking_id,omitempty"`
 	} `json:"notarized_documents,omitempty"`
-	NotaryCountyCity          *string              `json:"notary_county_city,omitempty"`
-	NotaryName                *string              `json:"notary_name,omitempty"`
-	NotaryRegistration        *string              `json:"notary_registration,omitempty"`
-	SignerInfo                *Signer              `json:"signer_info,omitempty"`
-	SignerPhotoIdentification *PhotoIdentification `json:"signer_photo_identification,omitempty"`
+	NotaryCountyCity   *string `json:"notary_county_city,omitempty"`
+	NotaryName         *string `json:"notary_name,omitempty"`
+	NotaryRegistration *string `json:"notary_registration,omitempty"`
+
+	// NotarySource Indicates how the notary who fulfilled this session was sourced: In-house notary, Custom Panel, or Notarize Network. Reflects actual session fulfillment, not original routing.
+	NotarySource              *NotarizationRecordObjectNotarySource `json:"notary_source,omitempty"`
+	SignerInfo                *Signer                               `json:"signer_info,omitempty"`
+	SignerPhotoIdentification *PhotoIdentification                  `json:"signer_photo_identification,omitempty"`
 	Signers                   *[]struct {
 		Address *Address `json:"address,omitempty"`
 
@@ -2165,6 +2230,9 @@ type NotarizationRecordObject_NotarizedDocuments_TrackingId struct {
 	union json.RawMessage
 }
 
+// NotarizationRecordObjectNotarySource Indicates how the notary who fulfilled this session was sourced: In-house notary, Custom Panel, or Notarize Network. Reflects actual session fulfillment, not original routing.
+type NotarizationRecordObjectNotarySource string
+
 // NotarizationRecordObjectSignersSignatoryCapacitiesType defines model for NotarizationRecordObject.Signers.SignatoryCapacities.Type.
 type NotarizationRecordObjectSignersSignatoryCapacitiesType string
 
@@ -2232,6 +2300,56 @@ type NotaryStatusDescriptions string
 
 // NotaryStatuses defines model for notary_statuses.
 type NotaryStatuses string
+
+// OauthRedirect defines model for oauth_redirect.
+type OauthRedirect struct {
+	// ClientId OAuth client ID to issue resulting tokens to
+	ClientId *string `json:"client_id,omitempty"`
+
+	// RedirectUri Registered OAuth redirect URL for redirecting the user to after the transaction is completed
+	RedirectUri *string `json:"redirect_uri,omitempty"`
+
+	// Scope Set to the OpenId Connect standard value 'openid' to receive an ID token after OAuth code exchange
+	Scope *string `json:"scope,omitempty"`
+
+	// State OAuth state parameter; a string returned intact on the query string of the resulting redirect
+	State *string `json:"state,omitempty"`
+}
+
+// OpenidConnectTransactionCreateParams defines model for openid_connect_transaction_create_params.
+type OpenidConnectTransactionCreateParams struct {
+	ExternalUserId *string                           `json:"external_user_id,omitempty"`
+	Request        *OauthRedirect                    `json:"request,omitempty"`
+	Workflow       *OpenidConnectTransactionWorkflow `json:"workflow,omitempty"`
+}
+
+// OpenidConnectTransactionObject defines model for openid_connect_transaction_object.
+type OpenidConnectTransactionObject struct {
+	// AccessLink The generated access link to send a user to for verification
+	AccessLink *string `json:"access_link,omitempty"`
+
+	// TransactionId The resulting transaction ID for the created transaction
+	TransactionId *string `json:"transaction_id,omitempty"`
+}
+
+// OpenidConnectTransactionRequestParameter defines model for openid_connect_transaction_request_parameter.
+type OpenidConnectTransactionRequestParameter struct {
+	Locked *bool                                         `json:"locked,omitempty"`
+	Name   *OpenidConnectTransactionRequestParameterName `json:"name,omitempty"`
+	Value  *string                                       `json:"value,omitempty"`
+}
+
+// OpenidConnectTransactionRequestParameterName defines model for OpenidConnectTransactionRequestParameter.Name.
+type OpenidConnectTransactionRequestParameterName string
+
+// OpenidConnectTransactionWorkflow defines model for openid_connect_transaction_workflow.
+type OpenidConnectTransactionWorkflow struct {
+	Id         *OpenidConnectTransactionWorkflowId         `json:"id,omitempty"`
+	Parameters *[]OpenidConnectTransactionRequestParameter `json:"parameters,omitempty"`
+}
+
+// OpenidConnectTransactionWorkflowId defines model for OpenidConnectTransactionWorkflow.Id.
+type OpenidConnectTransactionWorkflowId string
 
 // OrganizationObject defines model for organization_object.
 type OrganizationObject struct {
@@ -3451,6 +3569,9 @@ type CreateIntegrationJSONRequestBody = IntegrationParams
 // CreateNotaryJSONRequestBody defines body for CreateNotary for application/json ContentType.
 type CreateNotaryJSONRequestBody = NotaryParams
 
+// CreateOpenIdConnectTransactionJSONRequestBody defines body for CreateOpenIdConnectTransaction for application/json ContentType.
+type CreateOpenIdConnectTransactionJSONRequestBody = OpenidConnectTransactionCreateParams
+
 // CreatePartnerOrganizationJSONRequestBody defines body for CreatePartnerOrganization for application/json ContentType.
 type CreatePartnerOrganizationJSONRequestBody = OrganizationObject
 
@@ -3757,6 +3878,11 @@ type ClientInterface interface {
 	// GetOrganizationInformation request
 	GetOrganizationInformation(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// CreateOpenIdConnectTransactionWithBody request with any body
+	CreateOpenIdConnectTransactionWithBody(ctx context.Context, organizationId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateOpenIdConnectTransaction(ctx context.Context, organizationId string, body CreateOpenIdConnectTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreatePartnerOrganizationWithBody request with any body
 	CreatePartnerOrganizationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -4049,6 +4175,30 @@ func (c *Client) GetNotarizationRecord(ctx context.Context, id string, params *G
 
 func (c *Client) GetOrganizationInformation(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetOrganizationInformationRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateOpenIdConnectTransactionWithBody(ctx context.Context, organizationId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateOpenIdConnectTransactionRequestWithBody(c.Server, organizationId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateOpenIdConnectTransaction(ctx context.Context, organizationId string, body CreateOpenIdConnectTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateOpenIdConnectTransactionRequest(c.Server, organizationId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -5144,6 +5294,53 @@ func NewGetOrganizationInformationRequest(server string) (*http.Request, error) 
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewCreateOpenIdConnectTransactionRequest calls the generic CreateOpenIdConnectTransaction builder with application/json body
+func NewCreateOpenIdConnectTransactionRequest(server string, organizationId string, body CreateOpenIdConnectTransactionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateOpenIdConnectTransactionRequestWithBody(server, organizationId, "application/json", bodyReader)
+}
+
+// NewCreateOpenIdConnectTransactionRequestWithBody generates requests for CreateOpenIdConnectTransaction with any type of body
+func NewCreateOpenIdConnectTransactionRequestWithBody(server string, organizationId string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "organization_id", organizationId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/organizations/%s/transactions/identity", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -6923,6 +7120,11 @@ type ClientWithResponsesInterface interface {
 	// GetOrganizationInformationWithResponse request
 	GetOrganizationInformationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetOrganizationInformationResponse, error)
 
+	// CreateOpenIdConnectTransactionWithBodyWithResponse request with any body
+	CreateOpenIdConnectTransactionWithBodyWithResponse(ctx context.Context, organizationId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOpenIdConnectTransactionResponse, error)
+
+	CreateOpenIdConnectTransactionWithResponse(ctx context.Context, organizationId string, body CreateOpenIdConnectTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOpenIdConnectTransactionResponse, error)
+
 	// CreatePartnerOrganizationWithBodyWithResponse request with any body
 	CreatePartnerOrganizationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePartnerOrganizationResponse, error)
 
@@ -7294,6 +7496,30 @@ func (r GetOrganizationInformationResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetOrganizationInformationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateOpenIdConnectTransactionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *OpenidConnectTransactionObject
+	JSON400      *ErrorsArray
+	JSON403      *ErrorsArray
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateOpenIdConnectTransactionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateOpenIdConnectTransactionResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -8159,6 +8385,23 @@ func (c *ClientWithResponses) GetOrganizationInformationWithResponse(ctx context
 	return ParseGetOrganizationInformationResponse(rsp)
 }
 
+// CreateOpenIdConnectTransactionWithBodyWithResponse request with arbitrary body returning *CreateOpenIdConnectTransactionResponse
+func (c *ClientWithResponses) CreateOpenIdConnectTransactionWithBodyWithResponse(ctx context.Context, organizationId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOpenIdConnectTransactionResponse, error) {
+	rsp, err := c.CreateOpenIdConnectTransactionWithBody(ctx, organizationId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateOpenIdConnectTransactionResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateOpenIdConnectTransactionWithResponse(ctx context.Context, organizationId string, body CreateOpenIdConnectTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOpenIdConnectTransactionResponse, error) {
+	rsp, err := c.CreateOpenIdConnectTransaction(ctx, organizationId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateOpenIdConnectTransactionResponse(rsp)
+}
+
 // CreatePartnerOrganizationWithBodyWithResponse request with arbitrary body returning *CreatePartnerOrganizationResponse
 func (c *ClientWithResponses) CreatePartnerOrganizationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePartnerOrganizationResponse, error) {
 	rsp, err := c.CreatePartnerOrganizationWithBody(ctx, contentType, body, reqEditors...)
@@ -8894,6 +9137,46 @@ func ParseGetOrganizationInformationResponse(rsp *http.Response) (*GetOrganizati
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateOpenIdConnectTransactionResponse parses an HTTP response from a CreateOpenIdConnectTransactionWithResponse call
+func ParseCreateOpenIdConnectTransactionResponse(rsp *http.Response) (*CreateOpenIdConnectTransactionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateOpenIdConnectTransactionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OpenidConnectTransactionObject
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorsArray
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorsArray
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
 
 	}
 

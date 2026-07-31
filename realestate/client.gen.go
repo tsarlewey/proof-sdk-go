@@ -192,6 +192,27 @@ func (e EnoteParamsType) Valid() bool {
 	}
 }
 
+// Defines values for NotarizationRecordObjectNotarySource.
+const (
+	CustomPanel     NotarizationRecordObjectNotarySource = "Custom Panel"
+	InHouseNotary   NotarizationRecordObjectNotarySource = "In-house notary"
+	NotarizeNetwork NotarizationRecordObjectNotarySource = "Notarize Network"
+)
+
+// Valid indicates whether the value is a known member of the NotarizationRecordObjectNotarySource enum.
+func (e NotarizationRecordObjectNotarySource) Valid() bool {
+	switch e {
+	case CustomPanel:
+		return true
+	case InHouseNotary:
+		return true
+	case NotarizeNetwork:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for NotarizationRecordObjectSignersSignatoryCapacitiesType.
 const (
 	NotarizationRecordObjectSignersSignatoryCapacitiesTypeAttorneyInFact        NotarizationRecordObjectSignersSignatoryCapacitiesType = "attorney_in_fact"
@@ -2424,17 +2445,20 @@ type IdAllowListByCountry = map[string]interface{}
 // NotarizationRecordObject defines model for notarization_record_object.
 type NotarizationRecordObject struct {
 	// ChatUrl Download URL of the chat transcript of the meeting.
-	ChatUrl                   *string              `json:"chat_url,omitempty"`
-	CosignerInfo              *Signer              `json:"cosigner_info,omitempty"`
-	Id                        *string              `json:"id,omitempty"`
-	MeetingEnd                *time.Time           `json:"meeting_end,omitempty"`
-	MeetingStart              *time.Time           `json:"meeting_start,omitempty"`
-	NotarizedDocuments        *[]Document          `json:"notarized_documents,omitempty"`
-	NotaryCountyCity          *string              `json:"notary_county_city,omitempty"`
-	NotaryName                *string              `json:"notary_name,omitempty"`
-	NotaryRegistration        *string              `json:"notary_registration,omitempty"`
-	SignerInfo                *Signer              `json:"signer_info,omitempty"`
-	SignerPhotoIdentification *PhotoIdentification `json:"signer_photo_identification,omitempty"`
+	ChatUrl            *string     `json:"chat_url,omitempty"`
+	CosignerInfo       *Signer     `json:"cosigner_info,omitempty"`
+	Id                 *string     `json:"id,omitempty"`
+	MeetingEnd         *time.Time  `json:"meeting_end,omitempty"`
+	MeetingStart       *time.Time  `json:"meeting_start,omitempty"`
+	NotarizedDocuments *[]Document `json:"notarized_documents,omitempty"`
+	NotaryCountyCity   *string     `json:"notary_county_city,omitempty"`
+	NotaryName         *string     `json:"notary_name,omitempty"`
+	NotaryRegistration *string     `json:"notary_registration,omitempty"`
+
+	// NotarySource Indicates how the notary who fulfilled this session was sourced: In-house notary, Custom Panel, or Notarize Network. Reflects actual session fulfillment, not original routing.
+	NotarySource              *NotarizationRecordObjectNotarySource `json:"notary_source,omitempty"`
+	SignerInfo                *Signer                               `json:"signer_info,omitempty"`
+	SignerPhotoIdentification *PhotoIdentification                  `json:"signer_photo_identification,omitempty"`
 	Signers                   *[]struct {
 		Address *Address `json:"address,omitempty"`
 
@@ -2548,6 +2572,9 @@ type NotarizationRecordObject struct {
 	VideoUrl  *string    `json:"video_url,omitempty"`
 	Witnesses *[]Witness `json:"witnesses,omitempty"`
 }
+
+// NotarizationRecordObjectNotarySource Indicates how the notary who fulfilled this session was sourced: In-house notary, Custom Panel, or Notarize Network. Reflects actual session fulfillment, not original routing.
+type NotarizationRecordObjectNotarySource string
 
 // NotarizationRecordObjectSignersSignatoryCapacitiesType defines model for NotarizationRecordObject.Signers.SignatoryCapacities.Type.
 type NotarizationRecordObjectSignersSignatoryCapacitiesType string
