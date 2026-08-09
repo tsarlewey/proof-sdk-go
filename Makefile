@@ -40,12 +40,15 @@ download-specs:
 	@curl -sL "https://dev.proof.com/openapi/proof-logs-api-specification.json" -o openapi/logs.json
 	@echo "Downloading Certificates API spec..."
 	@curl -sL "https://dev.proof.com/openapi/organization-certificates-openapi-specification.json" -o openapi/certificates.json
+	@echo "Downloading Verifiable Credentials API spec..."
+	@curl -sL "https://dev.proof.com/openapi/verifiable-credentials-api.json" -o openapi/credentials.json
 	@echo "Fixing deep \$$ref references in specs..."
 	@python3 scripts/fix-openapi-refs.py openapi/business.json
 	@python3 scripts/fix-openapi-refs.py openapi/realestate.json
 	@python3 scripts/fix-openapi-refs.py openapi/scim.json
 	@python3 scripts/fix-openapi-refs.py openapi/logs.json
 	@python3 scripts/fix-openapi-refs.py openapi/certificates.json
+	@python3 scripts/fix-openapi-refs.py openapi/credentials.json
 	@echo "Fixing SCIM operationIds..."
 	@python3 scripts/fix-scim-operation-ids.py openapi/scim.json
 	@echo "All specs downloaded and fixed!"
@@ -65,6 +68,8 @@ generate:
 	@$(OAPI_CODEGEN) --config logs/oapi-codegen.yaml openapi/logs.json
 	@echo "Generating Certificates SDK..."
 	@$(OAPI_CODEGEN) --config certificates/oapi-codegen.yaml openapi/certificates.json
+	@echo "Generating Verifiable Credentials SDK..."
+	@$(OAPI_CODEGEN) --config credentials/oapi-codegen.yaml openapi/credentials.json
 	@echo "SDK generation complete!"
 
 # Download specs, regenerate all SDKs, then build + test

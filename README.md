@@ -13,6 +13,7 @@ This module contains the SDK pieces extracted from [proof-cli](https://github.co
 | `scim` | SCIM identity management client |
 | `logs` | Security Events API client |
 | `certificates` | Organization Certificates API client |
+| `credentials` | Verifiable Credentials presentation authorize endpoint (browser redirect — use `NewAuthorizeVerifiableCredentialPresentationRequest` to build the URL, not the client) |
 | `common` | `AuthenticatedDoer` + `AuthProvider` interface shared across SDK packages |
 
 All of the per-API clients are generated from OpenAPI specs via [`oapi-codegen`](https://github.com/oapi-codegen/oapi-codegen). Do not edit `*/client.gen.go` by hand — regenerate instead (see below).
