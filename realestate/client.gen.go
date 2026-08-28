@@ -639,6 +639,45 @@ func (e ProofRequirementMultiFactorAuthenticationType) Valid() bool {
 	}
 }
 
+// Defines values for RecipientDetailsConfigDisplay.
+const (
+	Hidden   RecipientDetailsConfigDisplay = "hidden"
+	Locked   RecipientDetailsConfigDisplay = "locked"
+	Optional RecipientDetailsConfigDisplay = "optional"
+	Required RecipientDetailsConfigDisplay = "required"
+)
+
+// Valid indicates whether the value is a known member of the RecipientDetailsConfigDisplay enum.
+func (e RecipientDetailsConfigDisplay) Valid() bool {
+	switch e {
+	case Hidden:
+		return true
+	case Locked:
+		return true
+	case Optional:
+		return true
+	case Required:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RecipientDetailsConfigField.
+const (
+	Name RecipientDetailsConfigField = "name"
+)
+
+// Valid indicates whether the value is a known member of the RecipientDetailsConfigField enum.
+func (e RecipientDetailsConfigField) Valid() bool {
+	switch e {
+	case Name:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for SignerSignatoryCapacitiesType.
 const (
 	SignerSignatoryCapacitiesTypeAttorneyInFact        SignerSignatoryCapacitiesType = "attorney_in_fact"
@@ -948,6 +987,24 @@ func (e TransactionCreateParamsDocumentUrlVersion) Valid() bool {
 	}
 }
 
+// Defines values for TransactionCreateParamsIdvUseCase.
+const (
+	TransactionCreateParamsIdvUseCaseACCOUNTRECOVERY TransactionCreateParamsIdvUseCase = "ACCOUNT_RECOVERY"
+	TransactionCreateParamsIdvUseCaseSTANDARD        TransactionCreateParamsIdvUseCase = "STANDARD"
+)
+
+// Valid indicates whether the value is a known member of the TransactionCreateParamsIdvUseCase enum.
+func (e TransactionCreateParamsIdvUseCase) Valid() bool {
+	switch e {
+	case TransactionCreateParamsIdvUseCaseACCOUNTRECOVERY:
+		return true
+	case TransactionCreateParamsIdvUseCaseSTANDARD:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for TransactionCreateParamsTransactionType.
 const (
 	TransactionCreateParamsTransactionTypeHeloc                   TransactionCreateParamsTransactionType = "heloc"
@@ -1017,6 +1074,7 @@ const (
 	TransactionObjectDetailedStatusAddDocument               TransactionObjectDetailedStatus = "add_document"
 	TransactionObjectDetailedStatusAttempted                 TransactionObjectDetailedStatus = "attempted"
 	TransactionObjectDetailedStatusAwaitingPayment           TransactionObjectDetailedStatus = "awaiting_payment"
+	TransactionObjectDetailedStatusCanceled                  TransactionObjectDetailedStatus = "canceled"
 	TransactionObjectDetailedStatusComplete                  TransactionObjectDetailedStatus = "complete"
 	TransactionObjectDetailedStatusCompleteWithRejections    TransactionObjectDetailedStatus = "complete_with_rejections"
 	TransactionObjectDetailedStatusConvertedToWetSign        TransactionObjectDetailedStatus = "converted_to_wet_sign"
@@ -1055,6 +1113,8 @@ func (e TransactionObjectDetailedStatus) Valid() bool {
 	case TransactionObjectDetailedStatusAttempted:
 		return true
 	case TransactionObjectDetailedStatusAwaitingPayment:
+		return true
+	case TransactionObjectDetailedStatusCanceled:
 		return true
 	case TransactionObjectDetailedStatusComplete:
 		return true
@@ -1113,9 +1173,28 @@ func (e TransactionObjectDetailedStatus) Valid() bool {
 	}
 }
 
+// Defines values for TransactionObjectIdvUseCase.
+const (
+	TransactionObjectIdvUseCaseACCOUNTRECOVERY TransactionObjectIdvUseCase = "ACCOUNT_RECOVERY"
+	TransactionObjectIdvUseCaseSTANDARD        TransactionObjectIdvUseCase = "STANDARD"
+)
+
+// Valid indicates whether the value is a known member of the TransactionObjectIdvUseCase enum.
+func (e TransactionObjectIdvUseCase) Valid() bool {
+	switch e {
+	case TransactionObjectIdvUseCaseACCOUNTRECOVERY:
+		return true
+	case TransactionObjectIdvUseCaseSTANDARD:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for TransactionObjectOrderProgress.
 const (
 	TransactionObjectOrderProgressAwaitingLenderApproval TransactionObjectOrderProgress = "awaiting_lender_approval"
+	TransactionObjectOrderProgressCustomerPreparingOrder TransactionObjectOrderProgress = "customer_preparing_order"
 	TransactionObjectOrderProgressInQc                   TransactionObjectOrderProgress = "in_qc"
 	TransactionObjectOrderProgressOnHoldEnote            TransactionObjectOrderProgress = "on_hold_enote"
 	TransactionObjectOrderProgressOnHoldFinalCd          TransactionObjectOrderProgress = "on_hold_final_cd"
@@ -1129,6 +1208,8 @@ const (
 func (e TransactionObjectOrderProgress) Valid() bool {
 	switch e {
 	case TransactionObjectOrderProgressAwaitingLenderApproval:
+		return true
+	case TransactionObjectOrderProgressCustomerPreparingOrder:
 		return true
 	case TransactionObjectOrderProgressInQc:
 		return true
@@ -1161,6 +1242,24 @@ func (e TransactionParamsDocumentUrlVersion) Valid() bool {
 	case TransactionParamsDocumentUrlVersionV1:
 		return true
 	case TransactionParamsDocumentUrlVersionV2:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for TransactionParamsIdvUseCase.
+const (
+	ACCOUNTRECOVERY TransactionParamsIdvUseCase = "ACCOUNT_RECOVERY"
+	STANDARD        TransactionParamsIdvUseCase = "STANDARD"
+)
+
+// Valid indicates whether the value is a known member of the TransactionParamsIdvUseCase enum.
+func (e TransactionParamsIdvUseCase) Valid() bool {
+	switch e {
+	case ACCOUNTRECOVERY:
+		return true
+	case STANDARD:
 		return true
 	default:
 		return false
@@ -1350,6 +1449,7 @@ const (
 	WebhookV2EventEventNotaryNonCompliant                                                    WebhookV2EventEvent = "notary.non_compliant"
 	WebhookV2EventEventNotarySignerReady                                                     WebhookV2EventEvent = "notary.signer_ready"
 	WebhookV2EventEventTransaction                                                           WebhookV2EventEvent = "transaction.*"
+	WebhookV2EventEventTransactionCanceled                                                   WebhookV2EventEvent = "transaction.canceled"
 	WebhookV2EventEventTransactionCompleted                                                  WebhookV2EventEvent = "transaction.completed"
 	WebhookV2EventEventTransactionCompletedWithRejections                                    WebhookV2EventEvent = "transaction.completed_with_rejections"
 	WebhookV2EventEventTransactionCreated                                                    WebhookV2EventEvent = "transaction.created"
@@ -1401,6 +1501,8 @@ func (e WebhookV2EventEvent) Valid() bool {
 	case WebhookV2EventEventNotarySignerReady:
 		return true
 	case WebhookV2EventEventTransaction:
+		return true
+	case WebhookV2EventEventTransactionCanceled:
 		return true
 	case WebhookV2EventEventTransactionCompleted:
 		return true
@@ -2765,6 +2867,21 @@ type ProofRequirementMultiFactorAuthentication struct {
 // ProofRequirementMultiFactorAuthenticationType Signer enters authentication code sent to their mobile phone.
 type ProofRequirementMultiFactorAuthenticationType string
 
+// RecipientDetailsConfig defines model for recipient_details_config.
+type RecipientDetailsConfig struct {
+	// Display Property of the field
+	Display *RecipientDetailsConfigDisplay `json:"display,omitempty"`
+
+	// Field The field name
+	Field *RecipientDetailsConfigField `json:"field,omitempty"`
+}
+
+// RecipientDetailsConfigDisplay Property of the field
+type RecipientDetailsConfigDisplay string
+
+// RecipientDetailsConfigField The field name
+type RecipientDetailsConfigField string
+
 // RecipientGroup defines model for recipient_group.
 type RecipientGroup struct {
 	// SharedInboxEmail The email address that is shared by a group.  Whomever has access to this email address can claim the transaction for themself.
@@ -3115,6 +3232,9 @@ type TransactionCreateParams struct {
 	// ActivationTime An ISO-8601 formatted DateTime String, optionally including a timezone offset. If timezone offset is not provided, the Proof account’s default timezone settings will be applied. This param sets the time after which the signer is permitted to connect with a notary to complete the transaction. If a signer attempts to connect with a notary before this time is reached, the signer will be only permitted to review documents.
 	ActivationTime *string `json:"activation_time,omitempty"`
 
+	// AllowedNotaryStates A non-empty array of 2-letter US state abbreviations, e.g. ["VA","TX"]. Restricts the transaction to notaries commissioned in the given states. Must be enabled for your organization. Can be changed or removed later via transaction update.
+	AllowedNotaryStates *[]string `json:"allowed_notary_states,omitempty"`
+
 	// CcRecipientEmails An array of email addresses to CC on the transaction. They will receive notification when it is sent and completed and be able to view the completed documents.
 	CcRecipientEmails *[]CcRecipientEmail `json:"cc_recipient_emails,omitempty"`
 
@@ -3140,8 +3260,11 @@ type TransactionCreateParams struct {
 	ExternalId *string `json:"external_id,omitempty"`
 
 	// FileNumber Unique value used to map transactions to a title agency’s records and systems. Including this value helps streamline communications with the title company who is supporting the transaction.
-	FileNumber                     *string `json:"file_number,omitempty"`
-	JurisdictionEligibilityConsent *string `json:"jurisdiction_eligibility_consent,omitempty"`
+	FileNumber *string `json:"file_number,omitempty"`
+
+	// IdvUseCase The identity verification use case for the transaction. Only available on identify transactions
+	IdvUseCase                     *TransactionCreateParamsIdvUseCase `json:"idv_use_case,omitempty"`
+	JurisdictionEligibilityConsent *string                            `json:"jurisdiction_eligibility_consent,omitempty"`
 
 	// LoanNumber Unique value used to map transactions to your own records and systems. Providing loan_number as part of a create transaction request ensures it is visible to all users to manage the transaction.
 	LoanNumber *string `json:"loan_number,omitempty"`
@@ -3174,6 +3297,9 @@ type TransactionCreateParams struct {
 
 	// PdfBookmarked Split the document by bookmarks if it is a pdf
 	PdfBookmarked *bool `json:"pdf_bookmarked,omitempty"`
+
+	// RecipientDetailsConfig An array of recipient details configuration objects. This is used to configure the recipients experience
+	RecipientDetailsConfig *[]RecipientDetailsConfig `json:"recipient_details_config,omitempty"`
 
 	// RecordingJurisdictionId RECOMMENDED: The id of the recording jurisdiction the property address is within. If this is not provided we will attempt to find the jurisdiction based on the provided street_address.
 	RecordingJurisdictionId *string   `json:"recording_jurisdiction_id,omitempty"`
@@ -3214,20 +3340,26 @@ type TransactionCreateParams struct {
 // TransactionCreateParamsDocumentUrlVersion Optional param to test v2 document urls.
 type TransactionCreateParamsDocumentUrlVersion string
 
+// TransactionCreateParamsIdvUseCase The identity verification use case for the transaction. Only available on identify transactions
+type TransactionCreateParamsIdvUseCase string
+
 // TransactionCreateParamsTransactionType Accepted values: refinance, trailing_docs, purchase_seller, purchase_buyer_cash, purchase_buyer_loan, heloc, loan_mod_borrower, other, hybrid_refinance, hybrid_trailing_docs, hybrid_purchase_seller, hybrid_purchase_buyer_cash, hybrid_purchase_buyer_loan, hybrid_other, wet_sign, real_estate_esign, real_estate_proof. The refinance and purchase_buyer_loan transaction types require an eNote. Hybrid transactions are notarized off of the Notarize Network platform. Wet sign transactions do not require a `signers` parameter and can only have a document requirement of `esign_supervised`.
 type TransactionCreateParamsTransactionType string
 
 // TransactionObject defines model for transaction_object.
 type TransactionObject struct {
 	// ActivationTime An ISO-8601 formatted DateTime String.
-	ActivationTime     *string             `json:"activation_time,omitempty"`
-	Attachments        *[]Attachment       `json:"attachments,omitempty"`
-	AuditTrailUrl      *string             `json:"audit_trail_url,omitempty"`
-	CcRecipientEmails  *[]CcRecipientEmail `json:"cc_recipient_emails,omitempty"`
-	ChargeStatementUrl *string             `json:"charge_statement_url,omitempty"`
-	ConfigId           *string             `json:"config_id,omitempty"`
-	Contacts           *[]Contact          `json:"contacts,omitempty"`
-	CosignerInfo       *Signer             `json:"cosigner_info,omitempty"`
+	ActivationTime *string `json:"activation_time,omitempty"`
+
+	// AllowedNotaryStates The 2-letter US state abbreviations the transaction restricts notary routing to; absent when unrestricted.
+	AllowedNotaryStates *[]string           `json:"allowed_notary_states,omitempty"`
+	Attachments         *[]Attachment       `json:"attachments,omitempty"`
+	AuditTrailUrl       *string             `json:"audit_trail_url,omitempty"`
+	CcRecipientEmails   *[]CcRecipientEmail `json:"cc_recipient_emails,omitempty"`
+	ChargeStatementUrl  *string             `json:"charge_statement_url,omitempty"`
+	ConfigId            *string             `json:"config_id,omitempty"`
+	Contacts            *[]Contact          `json:"contacts,omitempty"`
+	CosignerInfo        *Signer             `json:"cosigner_info,omitempty"`
 
 	// Cost Cost of the transaction.
 	Cost *float32 `json:"cost,omitempty"`
@@ -3249,7 +3381,8 @@ type TransactionObject struct {
 		Name *string `json:"name,omitempty"`
 		Url  *string `json:"url,omitempty"`
 	} `json:"identity_report,omitempty"`
-	Lender *struct {
+	IdvUseCase *TransactionObjectIdvUseCase `json:"idv_use_case,omitempty"`
+	Lender     *struct {
 		Id   *string `json:"id,omitempty"`
 		Name *string `json:"name,omitempty"`
 	} `json:"lender,omitempty"`
@@ -3266,8 +3399,11 @@ type TransactionObject struct {
 	OrganizationId      *string                         `json:"organization_id,omitempty"`
 
 	// RecallReason Reason for recalling the transaction.
-	RecallReason          *string `json:"recall_reason,omitempty"`
-	RecordingJurisdiction *struct {
+	RecallReason *string `json:"recall_reason,omitempty"`
+
+	// RecipientDetailsConfig An array of recipient details configuration objects. This is used to configure the recipients experience
+	RecipientDetailsConfig *[]RecipientDetailsConfig `json:"recipient_details_config,omitempty"`
+	RecordingJurisdiction  *struct {
 		// Eligible Allowed legally and by organizations preferences.
 		Eligible *bool `json:"eligible,omitempty"`
 
@@ -3311,6 +3447,9 @@ type TransactionObject struct {
 // TransactionObjectDetailedStatus defines model for TransactionObject.DetailedStatus.
 type TransactionObjectDetailedStatus string
 
+// TransactionObjectIdvUseCase defines model for TransactionObject.IdvUseCase.
+type TransactionObjectIdvUseCase string
+
 // TransactionObjectOrderProgress defines model for TransactionObject.OrderProgress.
 type TransactionObjectOrderProgress string
 
@@ -3328,6 +3467,9 @@ type TransactionObjects struct {
 type TransactionParams struct {
 	// ActivationTime An ISO-8601 formatted DateTime String, optionally including a timezone offset. If timezone offset is not provided, the Proof account’s default timezone settings will be applied. This param sets the time after which the signer is permitted to connect with a notary to complete the transaction. If a signer attempts to connect with a notary before this time is reached, the signer will be only permitted to review documents.
 	ActivationTime *string `json:"activation_time,omitempty"`
+
+	// AllowedNotaryStates An array of 2-letter US state abbreviations, e.g. ["VA","TX"]. Replaces the set of states the transaction restricts notary routing to; pass an empty array to remove the restriction. Omitting the parameter leaves the current value unchanged. Must be enabled for your organization. Does not affect a meeting already requested by a signer.
+	AllowedNotaryStates *[]string `json:"allowed_notary_states,omitempty"`
 
 	// CcRecipientEmails An array of email addresses to CC on the transaction. They will receive notification when it is sent and completed and be able to view the completed documents.
 	CcRecipientEmails *[]CcRecipientEmail `json:"cc_recipient_emails,omitempty"`
@@ -3352,6 +3494,9 @@ type TransactionParams struct {
 
 	// FileNumber Unique value used to map transactions to a title agency’s records and systems. Including this value helps streamline communications with the title company who is supporting the transaction.
 	FileNumber *string `json:"file_number,omitempty"`
+
+	// IdvUseCase The identity verification use case for the transaction. Only available on identify transactions
+	IdvUseCase *TransactionParamsIdvUseCase `json:"idv_use_case,omitempty"`
 
 	// LoanNumber Unique value used to map transactions to your own records and systems. Providing loan_number as part of a create transaction request ensures it is visible to all users to manage the transaction.
 	LoanNumber *string `json:"loan_number,omitempty"`
@@ -3384,6 +3529,9 @@ type TransactionParams struct {
 
 	// PdfBookmarked Split the document by bookmarks if it is a pdf
 	PdfBookmarked *bool `json:"pdf_bookmarked,omitempty"`
+
+	// RecipientDetailsConfig An array of recipient details configuration objects. This is used to configure the recipients experience
+	RecipientDetailsConfig *[]RecipientDetailsConfig `json:"recipient_details_config,omitempty"`
 
 	// RecordingJurisdictionId RECOMMENDED: The id of the recording jurisdiction the property address is within. If this is not provided we will attempt to find the jurisdiction based on the provided street_address.
 	RecordingJurisdictionId *string   `json:"recording_jurisdiction_id,omitempty"`
@@ -3420,6 +3568,9 @@ type TransactionParams struct {
 
 // TransactionParamsDocumentUrlVersion Optional param to test v2 document urls.
 type TransactionParamsDocumentUrlVersion string
+
+// TransactionParamsIdvUseCase The identity verification use case for the transaction. Only available on identify transactions
+type TransactionParamsIdvUseCase string
 
 // TransactionParamsTransactionType Accepted values: refinance, trailing_docs, purchase_seller, purchase_buyer_cash, purchase_buyer_loan, heloc, loan_mod_borrower, other, hybrid_refinance, hybrid_trailing_docs, hybrid_purchase_seller, hybrid_purchase_buyer_cash, hybrid_purchase_buyer_loan, hybrid_other, wet_sign. The refinance and purchase_buyer_loan transaction types require an eNote. Hybrid transactions are notarized off of the Notarize Network platform. Wet sign transactions do not require a `signers` parameter and can only have a document requirement of `esign_supervised`.
 type TransactionParamsTransactionType string

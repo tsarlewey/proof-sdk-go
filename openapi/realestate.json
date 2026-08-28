@@ -93,6 +93,7 @@
             "transaction.partially_completed",
             "transaction.deleted",
             "transaction.recalled",
+            "transaction.canceled",
             "transaction.expired",
             "transaction.released",
             "transaction.held_for_review",
@@ -289,6 +290,7 @@
               "transaction.partially_completed",
               "transaction.deleted",
               "transaction.recalled",
+              "transaction.canceled",
               "transaction.expired",
               "transaction.released",
               "transaction.held_for_review",
@@ -876,6 +878,30 @@
           "email": "org_controller_spec@proof.com"
         }
       },
+      "recipient_details_config": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "maxLength": 50,
+            "enum": [
+              "name"
+            ],
+            "description": "The field name"
+          },
+          "display": {
+            "type": "string",
+            "maxLength": 50,
+            "enum": [
+              "required",
+              "locked",
+              "optional",
+              "hidden"
+            ],
+            "description": "Property of the field"
+          }
+        }
+      },
       "transaction_params": {
         "type": "object",
         "properties": {
@@ -883,6 +909,15 @@
             "type": "string",
             "maxLength": 100,
             "description": "An ISO-8601 formatted DateTime String, optionally including a timezone offset. If timezone offset is not provided, the Proof account\u2019s default timezone settings will be applied. This param sets the time after which the signer is permitted to connect with a notary to complete the transaction. If a signer attempts to connect with a notary before this time is reached, the signer will be only permitted to review documents."
+          },
+          "allowed_notary_states": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 2
+            },
+            "description": "An array of 2-letter US state abbreviations, e.g. [\"VA\",\"TX\"]. Replaces the set of states the transaction restricts notary routing to; pass an empty array to remove the restriction. Omitting the parameter leaves the current value unchanged. Must be enabled for your organization. Does not affect a meeting already requested by a signer."
           },
           "file_number": {
             "type": "string",
@@ -1056,6 +1091,22 @@
             "type": "string",
             "maxLength": 5000,
             "description": "The ID of the config used for this transaction. This will ensure that the transaction will load as expected in your dashboard if you need to make any edits. Once set this cannot be edited. Available values: [\"hybrid_purchase_buyer_loan\", \"hybrid_refinance\", \"hybrid_trailing_docs\", \"identify\", \"lender_heloc\", \"lender_loan_mod_borrower\", \"lender_refinance\", \"notarization\", \"other\", \"purchase_buyer\", \"purchase_buyer_loan\", \"purchase_seller\", \"real_estate_identify\", \"real_estate_sign\", \"real_estate_verify\", \"sign\", \"title_heloc\", \"title_loan_mod_borrower\", \"trailing_docs\", \"verify\"]"
+          },
+          "idv_use_case": {
+            "type": "string",
+            "maxLength": 50,
+            "enum": [
+              "STANDARD",
+              "ACCOUNT_RECOVERY"
+            ],
+            "description": "The identity verification use case for the transaction. Only available on identify transactions"
+          },
+          "recipient_details_config": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/recipient_details_config"
+            },
+            "description": "An array of recipient details configuration objects. This is used to configure the recipients experience"
           }
         },
         "required": [
@@ -1087,6 +1138,15 @@
             "type": "string",
             "maxLength": 100,
             "description": "An ISO-8601 formatted DateTime String, optionally including a timezone offset. If timezone offset is not provided, the Proof account\u2019s default timezone settings will be applied. This param sets the time after which the signer is permitted to connect with a notary to complete the transaction. If a signer attempts to connect with a notary before this time is reached, the signer will be only permitted to review documents."
+          },
+          "allowed_notary_states": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 2
+            },
+            "description": "A non-empty array of 2-letter US state abbreviations, e.g. [\"VA\",\"TX\"]. Restricts the transaction to notaries commissioned in the given states. Must be enabled for your organization. Can be changed or removed later via transaction update."
           },
           "file_number": {
             "type": "string",
@@ -1276,6 +1336,22 @@
             "type": "string",
             "maxLength": 5000,
             "description": "The ID of the config used for this transaction. This will ensure that the transaction will load as expected in your dashboard if you need to make any edits. Once set this cannot be edited. Available values: [\"hybrid_purchase_buyer_loan\", \"hybrid_refinance\", \"hybrid_trailing_docs\", \"identify\", \"lender_heloc\", \"lender_loan_mod_borrower\", \"lender_refinance\", \"notarization\", \"other\", \"purchase_buyer\", \"purchase_buyer_loan\", \"purchase_seller\", \"real_estate_identify\", \"real_estate_sign\", \"real_estate_verify\", \"sign\", \"title_heloc\", \"title_loan_mod_borrower\", \"trailing_docs\", \"verify\"]"
+          },
+          "idv_use_case": {
+            "type": "string",
+            "maxLength": 50,
+            "enum": [
+              "STANDARD",
+              "ACCOUNT_RECOVERY"
+            ],
+            "description": "The identity verification use case for the transaction. Only available on identify transactions"
+          },
+          "recipient_details_config": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/recipient_details_config"
+            },
+            "description": "An array of recipient details configuration objects. This is used to configure the recipients experience"
           }
         },
         "example": {
@@ -2465,6 +2541,16 @@
             "nullable": true,
             "description": "An ISO-8601 formatted DateTime String."
           },
+          "allowed_notary_states": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 2
+            },
+            "nullable": true,
+            "description": "The 2-letter US state abbreviations the transaction restricts notary routing to; absent when unrestricted."
+          },
           "attachments": {
             "type": "array",
             "items": {
@@ -2551,7 +2637,8 @@
               "add_document",
               "processing",
               "held_for_review",
-              "declined"
+              "declined",
+              "canceled"
             ]
           },
           "documents": {
@@ -2596,6 +2683,15 @@
                 "maxLength": 5000
               }
             },
+            "nullable": true
+          },
+          "idv_use_case": {
+            "type": "string",
+            "maxLength": 50,
+            "enum": [
+              "STANDARD",
+              "ACCOUNT_RECOVERY"
+            ],
             "nullable": true
           },
           "lender": {
@@ -2665,6 +2761,7 @@
             "enum": [
               "received",
               "preparing_order",
+              "customer_preparing_order",
               "on_hold_final_cd",
               "on_hold_enote",
               "on_hold_name_discrepancy",
@@ -2683,6 +2780,14 @@
             "maxLength": 5000,
             "nullable": true,
             "description": "Reason for recalling the transaction."
+          },
+          "recipient_details_config": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/recipient_details_config"
+            },
+            "description": "An array of recipient details configuration objects. This is used to configure the recipients experience",
+            "nullable": true
           },
           "recording_jurisdiction": {
             "type": "object",
@@ -3526,7 +3631,7 @@
               "application/json": {
                 "example": [
                   {
-                    "id": "do_be02091f-7aca-4529-831f-958f26d21862",
+                    "id": "do_f7d02edb-cf20-41cb-85b3-4a10b497239c",
                     "allowed_actions": [
                       "WITNESS_REQUIRED",
                       "NOTARIZATION_REQUIRED",
@@ -3534,8 +3639,8 @@
                     ],
                     "bundle_position": 1,
                     "completion_state": "incomplete",
-                    "date_created": "2026-06-23T15:43:58.632087Z",
-                    "date_updated": "2026-06-23T15:43:58.664890Z",
+                    "date_created": "2026-08-13T16:23:41.756036Z",
+                    "date_updated": "2026-08-13T16:23:41.784414Z",
                     "document_name": "one_page.pdf",
                     "is_enote": false,
                     "permissions": [
@@ -3719,7 +3824,7 @@
             "in": "path",
             "description": "ID of the document to update.",
             "required": true,
-            "x-example": "do_a52e2330-fc88-44dc-ac52-f99cbabcf8bd",
+            "x-example": "do_1c469a44-e47f-4616-9a07-6c9791c4c2ac",
             "schema": {
               "type": "string"
             }
@@ -3745,7 +3850,7 @@
             "content": {
               "application/json": {
                 "example": {
-                  "id": "do_a52e2330-fc88-44dc-ac52-f99cbabcf8bd",
+                  "id": "do_1c469a44-e47f-4616-9a07-6c9791c4c2ac",
                   "allowed_actions": [
                     "CUSTOMER_CAN_ANNOTATE",
                     "WITNESS_REQUIRED",
@@ -3753,8 +3858,8 @@
                   ],
                   "bundle_position": 0,
                   "completion_state": "incomplete",
-                  "date_created": "2026-06-23T15:44:00.584826Z",
-                  "date_updated": "2026-06-23T15:44:00.741604Z",
+                  "date_created": "2026-08-13T16:23:43.526262Z",
+                  "date_updated": "2026-08-13T16:23:43.661299Z",
                   "document_name": "new-name1",
                   "is_enote": false,
                   "permissions": [
@@ -3852,7 +3957,7 @@
             "in": "path",
             "description": "ID of the document to update.",
             "required": true,
-            "x-example": "do_08882bcd-1e57-4876-ba9d-cd3bba400411",
+            "x-example": "do_f16054b9-03ba-4bb7-92ca-fed91729a911",
             "schema": {
               "type": "string"
             }
@@ -3878,7 +3983,7 @@
             "content": {
               "application/json": {
                 "example": {
-                  "id": "do_08882bcd-1e57-4876-ba9d-cd3bba400411",
+                  "id": "do_f16054b9-03ba-4bb7-92ca-fed91729a911",
                   "allowed_actions": [
                     "CUSTOMER_CAN_ANNOTATE",
                     "WITNESS_REQUIRED",
@@ -3886,8 +3991,8 @@
                   ],
                   "bundle_position": 0,
                   "completion_state": "incomplete",
-                  "date_created": "2026-06-23T15:44:02.586900Z",
-                  "date_updated": "2026-06-23T15:44:02.741800Z",
+                  "date_created": "2026-08-13T16:23:45.361475Z",
+                  "date_updated": "2026-08-13T16:23:45.495333Z",
                   "document_name": "new-name1",
                   "is_enote": false,
                   "permissions": [
@@ -3985,7 +4090,7 @@
             "in": "path",
             "description": "ID of the document being deleted.",
             "required": true,
-            "x-example": "do_f1507ca2-ae0b-4988-bc75-6aa0fd604430",
+            "x-example": "do_7f7daea2-6790-4bbb-83a2-543ecdaecc19",
             "schema": {
               "type": "string"
             }
@@ -3997,7 +4102,7 @@
             "content": {
               "application/json": {
                 "example": {
-                  "message": "Deleted document do_f1507ca2-ae0b-4988-bc75-6aa0fd604430 successfully"
+                  "message": "Deleted document do_7f7daea2-6790-4bbb-83a2-543ecdaecc19 successfully"
                 },
                 "schema": {
                   "type": "object",
@@ -4071,7 +4176,7 @@
             "in": "path",
             "description": "The ID of the document to be retrieved.",
             "required": true,
-            "x-example": "do_20996bc7-b999-4f37-a3fd-47a5629f9b30",
+            "x-example": "do_84edec67-c594-45b0-b9cb-13f94eb4bc19",
             "schema": {
               "type": "string"
             }
@@ -4110,12 +4215,12 @@
             "content": {
               "application/json": {
                 "example": {
-                  "id": "do_20996bc7-b999-4f37-a3fd-47a5629f9b30",
+                  "id": "do_84edec67-c594-45b0-b9cb-13f94eb4bc19",
                   "allowed_actions": [],
                   "bundle_position": 0,
                   "completion_state": "complete",
-                  "date_created": "2026-06-23T15:44:05.529434Z",
-                  "date_updated": "2026-06-23T15:44:05.539466Z",
+                  "date_created": "2026-08-13T16:23:48.063860Z",
+                  "date_updated": "2026-08-13T16:23:48.072422Z",
                   "document_name": "name2",
                   "is_enote": false,
                   "permissions": [],
@@ -4425,7 +4530,7 @@
                   "eligible_title_underwriters": [
                     {
                       "id": "orzd76xnr",
-                      "name": "Erdman LLC"
+                      "name": "Lubowitz and Sons"
                     }
                   ]
                 },
@@ -4509,12 +4614,12 @@
             "content": {
               "application/json": {
                 "example": {
-                  "id": "do_cdbf5db4-920f-4fa7-98f4-f1c64ed65049",
+                  "id": "do_3ce7f531-4b1a-4be8-b039-ae5d0f7734dc",
                   "allowed_actions": [],
                   "bundle_position": 1,
                   "completion_state": "incomplete",
-                  "date_created": "2026-06-23T15:44:08.278380Z",
-                  "date_updated": "2026-06-23T15:44:08.428761Z",
+                  "date_created": "2026-08-13T16:23:50.609790Z",
+                  "date_updated": "2026-08-13T16:23:50.746153Z",
                   "document_name": "enote.xml",
                   "is_enote": true,
                   "permissions": [],
@@ -4526,12 +4631,12 @@
                   "signing_designation_groups": [],
                   "signing_designations": [
                     {
-                      "id": "ad48c5b4e5-1d70-4d3f-82e6-09b4c21ba190",
+                      "id": "ad34015e61-7434-4067-a91b-a333b6c334a3",
                       "designation_group_id": null,
                       "primary_designation": null
                     },
                     {
-                      "id": "ad838ae1b4-b872-4915-987c-0ebabe2aa6c4",
+                      "id": "ad1c157ad0-193f-4b3b-b367-a8f961c82ea6",
                       "designation_group_id": null,
                       "primary_designation": null
                     }
@@ -4717,10 +4822,10 @@
               "application/json": {
                 "example": {
                   "id": "us_6nzwqd9",
-                  "email": "bc09ae0d75_cassin_hank@kunze.example",
-                  "first_name": "Hank",
-                  "middle_name": "Weldon",
-                  "last_name": "Cassin",
+                  "email": "cleora_904e0cac78_collier@schuppe.test",
+                  "first_name": "Cleora",
+                  "middle_name": "Tess",
+                  "last_name": "Collier",
                   "us_state_abbr": "VA",
                   "status": "compliant",
                   "status_description": "Notary is clear to take meetings."
@@ -4922,17 +5027,17 @@
               "application/json": {
                 "example": {
                   "id": "me_6rn64nq",
-                  "meeting_start": "2026-06-23T15:44:13.678663Z",
-                  "meeting_end": "2026-06-23T15:34:13.678188Z",
+                  "meeting_start": "2026-08-13T16:23:55.616012Z",
+                  "meeting_end": "2026-08-13T16:13:55.615503Z",
                   "notary_name": "notary name",
                   "notary_county_city": "county, VA",
                   "notary_registration": "7237492",
                   "notary_source": "Notarize Network",
                   "signer_info": {
-                    "email": "shin@bergstrom-parisian.test",
-                    "first_name": "Gregoria",
-                    "last_name": "Magdalen",
-                    "dob": "2005-06-23",
+                    "email": "tuan@wisoky-ryan.example",
+                    "first_name": "Leigh",
+                    "last_name": "Huels",
+                    "dob": "2005-08-13",
                     "address": {
                       "line1": "123 Boylston St",
                       "line2": "Fl 6",
@@ -4944,10 +5049,10 @@
                   },
                   "signers": [
                     {
-                      "email": "shin@bergstrom-parisian.test",
-                      "first_name": "Gregoria",
-                      "last_name": "Magdalen",
-                      "dob": "2005-06-23",
+                      "email": "tuan@wisoky-ryan.example",
+                      "first_name": "Leigh",
+                      "last_name": "Huels",
+                      "dob": "2005-08-13",
                       "address": {
                         "line1": "123 Boylston St",
                         "line2": "Fl 6",
@@ -4967,9 +5072,9 @@
                   "witnesses": [],
                   "notarized_documents": [],
                   "verification_credentials": {
-                    "retrieval_id": "GFNWWV3G",
-                    "retrieval_pin": "4YKW2T",
-                    "date_completed": "6/23/2026"
+                    "retrieval_id": "386JFQD5",
+                    "retrieval_pin": "QBZDSS",
+                    "date_completed": "8/13/2026"
                   },
                   "signer_photo_identification": {
                     "primary_front": "signed_url",
@@ -5535,6 +5640,7 @@
                     "transaction.partially_completed",
                     "transaction.deleted",
                     "transaction.recalled",
+                    "transaction.canceled",
                     "transaction.expired",
                     "transaction.released",
                     "transaction.held_for_review",
@@ -5664,8 +5770,8 @@
               "application/json": {
                 "example": {
                   "id": "or_bd566n9",
-                  "name": "Bashirian-Kub",
-                  "email": "mcglynn_bb6b184d22_cythia@marvin-swaniawski.example",
+                  "name": "Oberbrunner-Wunsch",
+                  "email": "johns_lupe_f6ab8a63d8@mueller.example",
                   "logo_s3_link": null
                 },
                 "schema": {
@@ -5895,7 +6001,7 @@
             "in": "query",
             "required": false,
             "description": "Can be either a domain (\"example.com\") or a full address (\"person@example.com\").",
-            "x-example": "arnulfo.wilderman.374a2a2480@trantow-wilkinson.example",
+            "x-example": "2f8452e7bf.lebsack.georgiann@jacobson-wisozk.test",
             "schema": {
               "type": "string"
             }
@@ -5963,7 +6069,7 @@
                 "example": [
                   {
                     "id": "orkn9wgng",
-                    "name": "Conroy and Sons",
+                    "name": "Lang and Sons",
                     "eligible_underwriters": [],
                     "company_notaries": true
                   }
@@ -6146,22 +6252,22 @@
                   "data": [
                     {
                       "id": "ot_7n83bd6",
-                      "activation_time": "2026-06-23T15:44:18.811Z",
+                      "activation_time": "2026-08-13T16:24:00.778Z",
                       "attachments": [],
                       "cc_recipient_emails": [],
                       "contacts": [],
                       "cost": 9900,
-                      "date_created": "2026-06-23T15:44:18.812628Z",
-                      "date_updated": "2026-06-23T15:44:18.884309Z",
+                      "date_created": "2026-08-13T16:24:00.779284Z",
+                      "date_updated": "2026-08-13T16:24:00.846740Z",
                       "detailed_status": "sent_to_signer",
                       "documents": [
                         {
-                          "id": "do_389c3995-a5d1-42b5-bcb8-19fd3f742226",
+                          "id": "do_46fa4711-309f-4c1f-9f14-abb2914b3408",
                           "allowed_actions": [],
                           "bundle_position": 0,
                           "completion_state": "incomplete",
-                          "date_created": "2026-06-23T15:44:18.790242Z",
-                          "date_updated": "2026-06-23T15:44:18.790242Z",
+                          "date_created": "2026-08-13T16:24:00.757451Z",
+                          "date_updated": "2026-08-13T16:24:00.757451Z",
                           "document_name": "name1",
                           "is_enote": false,
                           "permissions": [],
@@ -6177,15 +6283,15 @@
                           "final_document_url": null
                         },
                         {
-                          "id": "do_261a829e-171e-47aa-be05-de6d59a69378",
+                          "id": "do_f2951742-7595-40f4-b361-72dea4d91a73",
                           "allowed_actions": [
                             "NOTARIZATION_REQUIRED",
                             "COLLATERAL_DOCUMENT"
                           ],
                           "bundle_position": 0,
                           "completion_state": "incomplete",
-                          "date_created": "2026-06-23T15:44:18.894952Z",
-                          "date_updated": "2026-06-23T15:44:18.904454Z",
+                          "date_created": "2026-08-13T16:24:00.856229Z",
+                          "date_updated": "2026-08-13T16:24:00.865110Z",
                           "document_name": "name2",
                           "is_enote": false,
                           "permissions": [
@@ -6204,14 +6310,15 @@
                           "final_document_url": null
                         }
                       ],
-                      "file_number": "FN1782229458",
+                      "file_number": "FN1786638240",
                       "lender": {
                         "id": "orgnk93nj",
-                        "name": "Braun-Klocko"
+                        "name": "Bogan, Ledner and Kiehn"
                       },
                       "loan_number": "ABC123",
                       "notarization_records": [],
                       "organization_id": "or_gnk93nj",
+                      "recipient_details_config": [],
                       "require_secondary_photo_id": false,
                       "signer_info": {
                         "address": {
@@ -6222,17 +6329,17 @@
                           "postal": "",
                           "country": ""
                         },
-                        "email": "lyman@wolf.test",
-                        "external_id": "07da9b10f6a6ddd5664fd4ced460f0bf",
-                        "first_name": "Marvel",
-                        "last_name": "Edmund",
+                        "email": "leo_hilll@larkin.example",
+                        "external_id": "c192dffe054d058d632365912e9f8c8e",
+                        "first_name": "Omer",
+                        "last_name": "Doreatha",
                         "link_expired": false,
                         "personally_known_to_notary": false,
-                        "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbb4ccce3d-8c53-4553-9989-153fd6bb3705&code=JEIGRCZBXMOAKMED&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=lyman%40wolf.test&is_mortgage=true&organization_name=Braun-Klocko&requires_nsa_meeting=true&s_key=JEIGRCZBXMOAKMED&target=BUNDLE&transaction_id=ot7n83bd6&user_id=usrny8jd4",
+                        "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db0a6946be-683f-448e-b3cd-e19b0a2b93dd&code=JFZZCOOIIBVSMFTN&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=leo_hilll%40larkin.example&is_mortgage=true&organization_name=Bogan%2C+Ledner+and+Kiehn&requires_nsa_meeting=true&s_key=JFZZCOOIIBVSMFTN&target=BUNDLE&transaction_id=ot7n83bd6&user_id=usrny8jd4",
                         "signatory_capacities": [],
                         "signer_id": "oc_ynx3ydj",
                         "signing_status": "incomplete",
-                        "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbb4ccce3d-8c53-4553-9989-153fd6bb3705&code=JEIGRCZBXMOAKMED&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=lyman%40wolf.test&is_mortgage=true&organization_name=Braun-Klocko&requires_nsa_meeting=true&s_key=JEIGRCZBXMOAKMED&target=BUNDLE&transaction_id=ot7n83bd6&user_id=usrny8jd4",
+                        "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db0a6946be-683f-448e-b3cd-e19b0a2b93dd&code=JFZZCOOIIBVSMFTN&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=leo_hilll%40larkin.example&is_mortgage=true&organization_name=Bogan%2C+Ledner+and+Kiehn&requires_nsa_meeting=true&s_key=JFZZCOOIIBVSMFTN&target=BUNDLE&transaction_id=ot7n83bd6&user_id=usrny8jd4",
                         "vesting_type": "borrower"
                       },
                       "signers": [
@@ -6245,17 +6352,17 @@
                             "postal": "",
                             "country": ""
                           },
-                          "email": "lyman@wolf.test",
-                          "external_id": "07da9b10f6a6ddd5664fd4ced460f0bf",
-                          "first_name": "Marvel",
-                          "last_name": "Edmund",
+                          "email": "leo_hilll@larkin.example",
+                          "external_id": "c192dffe054d058d632365912e9f8c8e",
+                          "first_name": "Omer",
+                          "last_name": "Doreatha",
                           "link_expired": false,
                           "personally_known_to_notary": false,
-                          "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbb4ccce3d-8c53-4553-9989-153fd6bb3705&code=JEIGRCZBXMOAKMED&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=lyman%40wolf.test&is_mortgage=true&organization_name=Braun-Klocko&requires_nsa_meeting=true&s_key=JEIGRCZBXMOAKMED&target=BUNDLE&transaction_id=ot7n83bd6&user_id=usrny8jd4",
+                          "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db0a6946be-683f-448e-b3cd-e19b0a2b93dd&code=JFZZCOOIIBVSMFTN&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=leo_hilll%40larkin.example&is_mortgage=true&organization_name=Bogan%2C+Ledner+and+Kiehn&requires_nsa_meeting=true&s_key=JFZZCOOIIBVSMFTN&target=BUNDLE&transaction_id=ot7n83bd6&user_id=usrny8jd4",
                           "signatory_capacities": [],
                           "signer_id": "oc_ynx3ydj",
                           "signing_status": "incomplete",
-                          "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbb4ccce3d-8c53-4553-9989-153fd6bb3705&code=JEIGRCZBXMOAKMED&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=lyman%40wolf.test&is_mortgage=true&organization_name=Braun-Klocko&requires_nsa_meeting=true&s_key=JEIGRCZBXMOAKMED&target=BUNDLE&transaction_id=ot7n83bd6&user_id=usrny8jd4",
+                          "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db0a6946be-683f-448e-b3cd-e19b0a2b93dd&code=JFZZCOOIIBVSMFTN&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=leo_hilll%40larkin.example&is_mortgage=true&organization_name=Bogan%2C+Ledner+and+Kiehn&requires_nsa_meeting=true&s_key=JFZZCOOIIBVSMFTN&target=BUNDLE&transaction_id=ot7n83bd6&user_id=usrny8jd4",
                           "vesting_type": "borrower"
                         }
                       ],
@@ -6263,7 +6370,7 @@
                       "status_description": "",
                       "title_agency": {
                         "id": "orzd7kadr",
-                        "name": "Schimmel-Glover",
+                        "name": "Schaefer-Goodwin",
                         "company_notaries": false
                       },
                       "transaction_name": "John1",
@@ -6271,7 +6378,7 @@
                       "underwriter_override": false,
                       "recording_jurisdiction": {
                         "id": "rl7n85bd6",
-                        "name": "North clement",
+                        "name": "Doyleborough",
                         "state": "VA",
                         "recording_type": "electronic"
                       }
@@ -6326,8 +6433,8 @@
                   "config_id": "other",
                   "contacts": [
                     {
-                      "date_created": "2026-06-23T15:44:20.126902Z",
-                      "date_updated": "2026-06-23T15:44:20.126902Z",
+                      "date_created": "2026-08-13T16:24:02.053813Z",
+                      "date_updated": "2026-08-13T16:24:02.053813Z",
                       "first_name": "Bob",
                       "last_name": "McTitleson",
                       "email": "bob+03241901@proof.com",
@@ -6365,17 +6472,17 @@
                     "vesting_type": "borrower"
                   },
                   "cost": 9900,
-                  "date_created": "2026-06-23T15:44:19.335219Z",
-                  "date_updated": "2026-06-23T15:44:19.369191Z",
+                  "date_created": "2026-08-13T16:24:01.277084Z",
+                  "date_updated": "2026-08-13T16:24:01.309745Z",
                   "detailed_status": "draft",
                   "documents": [
                     {
-                      "id": "do_14fa08de-28e6-4e03-9fec-e7f1bfa9e85e",
+                      "id": "do_a6b0123c-5c49-4238-810b-b160116bdd28",
                       "allowed_actions": [],
                       "bundle_position": 0,
                       "completion_state": "incomplete",
-                      "date_created": "2026-06-23T15:44:19.409593Z",
-                      "date_updated": "2026-06-23T15:44:20.000000Z",
+                      "date_created": "2026-08-13T16:24:01.348451Z",
+                      "date_updated": "2026-08-13T16:24:01.000000Z",
                       "document_name": "eSign Consent Form - Signer 1",
                       "is_enote": false,
                       "permissions": [],
@@ -6387,12 +6494,12 @@
                       "signing_designation_groups": [],
                       "signing_designations": [
                         {
-                          "id": "adaab9e1a9-9ff3-4d05-bc53-2cbbc763ff31",
+                          "id": "adf4049f38-3a92-4f19-925a-286b60180725",
                           "designation_group_id": null,
                           "primary_designation": null
                         },
                         {
-                          "id": "ad4dde1e8b-7138-4548-a55a-b996c8df8089",
+                          "id": "adda5a8b76-d187-4083-8361-e8dc66f77628",
                           "designation_group_id": null,
                           "primary_designation": null
                         }
@@ -6402,12 +6509,12 @@
                       "final_document_url": null
                     },
                     {
-                      "id": "do_73f5455d-d936-4f77-bb3f-ad7807d0ad00",
+                      "id": "do_ca92a3e8-0f29-424d-847d-799ad03bbabf",
                       "allowed_actions": [],
                       "bundle_position": 1,
                       "completion_state": "incomplete",
-                      "date_created": "2026-06-23T15:44:19.753744Z",
-                      "date_updated": "2026-06-23T15:44:20.000000Z",
+                      "date_created": "2026-08-13T16:24:01.680083Z",
+                      "date_updated": "2026-08-13T16:24:01.000000Z",
                       "document_name": "eSign Consent Form - Signer 2",
                       "is_enote": false,
                       "permissions": [],
@@ -6419,12 +6526,12 @@
                       "signing_designation_groups": [],
                       "signing_designations": [
                         {
-                          "id": "ad2771439b-b766-4028-9b84-409c7f9e5e0f",
+                          "id": "ad0c318c14-efb7-4547-87ac-c5bc22f6e14a",
                           "designation_group_id": null,
                           "primary_designation": null
                         },
                         {
-                          "id": "adc38f4672-9d8f-4778-841a-68ec00d6b0d9",
+                          "id": "ad7ea7cb6a-4e0b-47c1-aaab-84f7cf8845f2",
                           "designation_group_id": null,
                           "primary_designation": null
                         }
@@ -6439,6 +6546,7 @@
                   "loan_number": "DEF4567",
                   "notarization_records": [],
                   "organization_id": "or_rn678dq",
+                  "recipient_details_config": [],
                   "redirect": {},
                   "require_secondary_photo_id": false,
                   "signer_info": {
@@ -6513,7 +6621,7 @@
                   },
                   "title_agency": {
                     "id": "orrn678dq",
-                    "name": "Larkin-Sauer",
+                    "name": "King, Nicolas and Olson",
                     "company_notaries": false
                   },
                   "transaction_name": "4464 Sundance Circle Hoffman Estates IL 60195 US",
@@ -6521,7 +6629,7 @@
                   "underwriter_override": false,
                   "recording_jurisdiction": {
                     "id": "rlxna57nm",
-                    "name": "Deanport",
+                    "name": "Lucienneborough",
                     "state": "VA",
                     "recording_type": "electronic"
                   }
@@ -6649,22 +6757,22 @@
               "application/json": {
                 "example": {
                   "id": "ot_3debkng",
-                  "activation_time": "2026-06-23T15:44:21.887Z",
+                  "activation_time": "2026-08-13T16:24:03.867Z",
                   "attachments": [],
                   "cc_recipient_emails": [],
                   "contacts": [],
                   "cost": 2250,
-                  "date_created": "2026-06-23T15:44:21.889719Z",
-                  "date_updated": "2026-06-23T15:44:21.889719Z",
+                  "date_created": "2026-08-13T16:24:03.868989Z",
+                  "date_updated": "2026-08-13T16:24:03.868989Z",
                   "detailed_status": "sent_to_signer",
                   "documents": [
                     {
-                      "id": "do_843a53d7-e1fb-43c4-aa69-aa3c37281696",
+                      "id": "do_93cea354-62fd-4a27-a7f7-603573db16c9",
                       "allowed_actions": [],
                       "bundle_position": 0,
                       "completion_state": "incomplete",
-                      "date_created": "2026-06-23T15:44:21.868520Z",
-                      "date_updated": "2026-06-23T15:44:21.868520Z",
+                      "date_created": "2026-08-13T16:24:03.847541Z",
+                      "date_updated": "2026-08-13T16:24:03.847541Z",
                       "document_name": "name1",
                       "is_enote": false,
                       "permissions": [],
@@ -6680,15 +6788,15 @@
                       "final_document_url": null
                     },
                     {
-                      "id": "do_47b835eb-3930-425a-aa28-b56447672201",
+                      "id": "do_77bad826-0f04-4c57-9975-c84a21797f32",
                       "allowed_actions": [
                         "NOTARIZATION_REQUIRED",
                         "COLLATERAL_DOCUMENT"
                       ],
                       "bundle_position": 0,
                       "completion_state": "incomplete",
-                      "date_created": "2026-06-23T15:44:21.955025Z",
-                      "date_updated": "2026-06-23T15:44:21.963661Z",
+                      "date_created": "2026-08-13T16:24:03.935554Z",
+                      "date_updated": "2026-08-13T16:24:03.943945Z",
                       "document_name": "name2",
                       "is_enote": false,
                       "permissions": [
@@ -6707,14 +6815,15 @@
                       "final_document_url": null
                     }
                   ],
-                  "file_number": "FN1782229461",
+                  "file_number": "FN1786638243",
                   "lender": {
                     "id": "or3ngo4nk",
-                    "name": "Grimes, Flatley and Schamberger"
+                    "name": "Cummings-Harris"
                   },
-                  "loan_number": "LN1782229461",
+                  "loan_number": "LN1786638243",
                   "notarization_records": [],
                   "organization_id": "or_3ngo4nk",
+                  "recipient_details_config": [],
                   "require_secondary_photo_id": false,
                   "signer_info": {
                     "address": {
@@ -6725,17 +6834,17 @@
                       "postal": "",
                       "country": ""
                     },
-                    "email": "phylicia.nader@lindgren-fadel.test",
-                    "external_id": "d3e0672d2474f0ec21715a7ae8f4a2d3",
-                    "first_name": "Clifton",
-                    "last_name": "Emmaline",
+                    "email": "shaun@reichert-gutkowski.example",
+                    "external_id": "df75208d79fe6b21924c60fdb3ab4196",
+                    "first_name": "Spencer",
+                    "last_name": "Angelo",
                     "link_expired": false,
                     "personally_known_to_notary": false,
-                    "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db8a0a01ce-e1ba-4bd6-9a71-98d95df71e69&code=QZBZADJFIVHLMXLZ&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=phylicia.nader%40lindgren-fadel.test&is_mortgage=true&organization_name=Grimes%2C+Flatley+and+Schamberger&requires_nsa_meeting=true&s_key=QZBZADJFIVHLMXLZ&target=BUNDLE&transaction_id=ot3debkng&user_id=usgnk6ydj",
+                    "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbadaa7c0d-2694-43ef-96a7-972d0ee7cec8&code=METAMCRZPROOTUKU&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=shaun%40reichert-gutkowski.example&is_mortgage=true&organization_name=Cummings-Harris&requires_nsa_meeting=true&s_key=METAMCRZPROOTUKU&target=BUNDLE&transaction_id=ot3debkng&user_id=usgnk6ydj",
                     "signatory_capacities": [],
                     "signer_id": "oc_6nog3n7",
                     "signing_status": "incomplete",
-                    "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db8a0a01ce-e1ba-4bd6-9a71-98d95df71e69&code=QZBZADJFIVHLMXLZ&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=phylicia.nader%40lindgren-fadel.test&is_mortgage=true&organization_name=Grimes%2C+Flatley+and+Schamberger&requires_nsa_meeting=true&s_key=QZBZADJFIVHLMXLZ&target=BUNDLE&transaction_id=ot3debkng&user_id=usgnk6ydj",
+                    "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbadaa7c0d-2694-43ef-96a7-972d0ee7cec8&code=METAMCRZPROOTUKU&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=shaun%40reichert-gutkowski.example&is_mortgage=true&organization_name=Cummings-Harris&requires_nsa_meeting=true&s_key=METAMCRZPROOTUKU&target=BUNDLE&transaction_id=ot3debkng&user_id=usgnk6ydj",
                     "vesting_type": "borrower"
                   },
                   "signers": [
@@ -6748,17 +6857,17 @@
                         "postal": "",
                         "country": ""
                       },
-                      "email": "phylicia.nader@lindgren-fadel.test",
-                      "external_id": "d3e0672d2474f0ec21715a7ae8f4a2d3",
-                      "first_name": "Clifton",
-                      "last_name": "Emmaline",
+                      "email": "shaun@reichert-gutkowski.example",
+                      "external_id": "df75208d79fe6b21924c60fdb3ab4196",
+                      "first_name": "Spencer",
+                      "last_name": "Angelo",
                       "link_expired": false,
                       "personally_known_to_notary": false,
-                      "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db8a0a01ce-e1ba-4bd6-9a71-98d95df71e69&code=QZBZADJFIVHLMXLZ&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=phylicia.nader%40lindgren-fadel.test&is_mortgage=true&organization_name=Grimes%2C+Flatley+and+Schamberger&requires_nsa_meeting=true&s_key=QZBZADJFIVHLMXLZ&target=BUNDLE&transaction_id=ot3debkng&user_id=usgnk6ydj",
+                      "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbadaa7c0d-2694-43ef-96a7-972d0ee7cec8&code=METAMCRZPROOTUKU&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=shaun%40reichert-gutkowski.example&is_mortgage=true&organization_name=Cummings-Harris&requires_nsa_meeting=true&s_key=METAMCRZPROOTUKU&target=BUNDLE&transaction_id=ot3debkng&user_id=usgnk6ydj",
                       "signatory_capacities": [],
                       "signer_id": "oc_6nog3n7",
                       "signing_status": "incomplete",
-                      "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db8a0a01ce-e1ba-4bd6-9a71-98d95df71e69&code=QZBZADJFIVHLMXLZ&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=phylicia.nader%40lindgren-fadel.test&is_mortgage=true&organization_name=Grimes%2C+Flatley+and+Schamberger&requires_nsa_meeting=true&s_key=QZBZADJFIVHLMXLZ&target=BUNDLE&transaction_id=ot3debkng&user_id=usgnk6ydj",
+                      "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbadaa7c0d-2694-43ef-96a7-972d0ee7cec8&code=METAMCRZPROOTUKU&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=shaun%40reichert-gutkowski.example&is_mortgage=true&organization_name=Cummings-Harris&requires_nsa_meeting=true&s_key=METAMCRZPROOTUKU&target=BUNDLE&transaction_id=ot3debkng&user_id=usgnk6ydj",
                       "vesting_type": "borrower"
                     }
                   ],
@@ -6769,7 +6878,7 @@
                   "underwriter_override": false,
                   "recording_jurisdiction": {
                     "id": "rlmdrpgdw",
-                    "name": "Framiborough",
+                    "name": "Port jamel",
                     "state": "VA",
                     "recording_type": "electronic"
                   }
@@ -6841,21 +6950,21 @@
               "application/json": {
                 "example": {
                   "id": "ot_kn98zdg",
-                  "activation_time": "2026-06-23T15:44:22.455Z",
+                  "activation_time": "2026-08-13T16:24:04.432Z",
                   "attachments": [],
                   "cc_recipient_emails": [],
                   "contacts": [],
                   "cost": 2250,
-                  "date_created": "2026-06-23T15:44:22.458672Z",
-                  "date_updated": "2026-06-23T15:44:22.615713Z",
+                  "date_created": "2026-08-13T16:24:04.435593Z",
+                  "date_updated": "2026-08-13T16:24:04.577019Z",
                   "documents": [
                     {
-                      "id": "do_4200785d-8187-4737-990d-5281347767b5",
+                      "id": "do_3f5480ec-4c18-473c-b7d5-aa18cab361e8",
                       "allowed_actions": [],
                       "bundle_position": 0,
                       "completion_state": "incomplete",
-                      "date_created": "2026-06-23T15:44:22.436320Z",
-                      "date_updated": "2026-06-23T15:44:22.436320Z",
+                      "date_created": "2026-08-13T16:24:04.415421Z",
+                      "date_updated": "2026-08-13T16:24:04.415421Z",
                       "document_name": "name1",
                       "is_enote": false,
                       "permissions": [],
@@ -6871,15 +6980,15 @@
                       "final_document_url": null
                     },
                     {
-                      "id": "do_2f62d364-80ab-4732-b03d-29d3e9b0ad8a",
+                      "id": "do_ef860691-3869-4c25-aeea-4466bcab4706",
                       "allowed_actions": [
                         "NOTARIZATION_REQUIRED",
                         "COLLATERAL_DOCUMENT"
                       ],
                       "bundle_position": 0,
                       "completion_state": "incomplete",
-                      "date_created": "2026-06-23T15:44:22.523163Z",
-                      "date_updated": "2026-06-23T15:44:22.531872Z",
+                      "date_created": "2026-08-13T16:24:04.493722Z",
+                      "date_updated": "2026-08-13T16:24:04.501418Z",
                       "document_name": "name2",
                       "is_enote": false,
                       "permissions": [
@@ -6898,15 +7007,16 @@
                       "final_document_url": null
                     }
                   ],
-                  "file_number": "FN1782229462",
+                  "file_number": "FN1786638244",
                   "lender": {
                     "id": "orqdj99nz",
-                    "name": "Jaskolski Inc"
+                    "name": "Rau-Orn"
                   },
-                  "loan_number": "LN1782229462",
+                  "loan_number": "LN1786638244",
                   "message_to_signer": "new_transaction_message",
                   "notarization_records": [],
                   "organization_id": "or_qdj99nz",
+                  "recipient_details_config": [],
                   "redirect": {},
                   "require_secondary_photo_id": false,
                   "signer_info": {
@@ -6918,17 +7028,17 @@
                       "postal": "",
                       "country": ""
                     },
-                    "email": "santos_spencer@halvorson.example",
-                    "external_id": "47247bc420dfbd634aef5ae86693c9fb",
-                    "first_name": "Alleen",
-                    "last_name": "Ian",
+                    "email": "hyun@reilly.test",
+                    "external_id": "7ffcd3549dac48e5195b1a2b53665087",
+                    "first_name": "Shavonne",
+                    "last_name": "Bernardo",
                     "link_expired": false,
                     "personally_known_to_notary": false,
-                    "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbb949c180-460e-48db-8cdd-f8227706ddd8&code=PBZMWQURLSOMRBUI&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=santos_spencer%40halvorson.example&is_mortgage=true&organization_name=Jaskolski+Inc&requires_nsa_meeting=true&s_key=PBZMWQURLSOMRBUI&target=BUNDLE&transaction_id=otkn98zdg&user_id=usxdw85ng",
+                    "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dba3bf818c-f4ab-4e94-8199-09dd3ee70668&code=OIXRZLXRRPHYBNFH&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=hyun%40reilly.test&is_mortgage=true&organization_name=Rau-Orn&requires_nsa_meeting=true&s_key=OIXRZLXRRPHYBNFH&target=BUNDLE&transaction_id=otkn98zdg&user_id=usxdw85ng",
                     "signatory_capacities": [],
                     "signer_id": "oc_zd7j4nr",
                     "signing_status": "incomplete",
-                    "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbb949c180-460e-48db-8cdd-f8227706ddd8&code=PBZMWQURLSOMRBUI&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=santos_spencer%40halvorson.example&is_mortgage=true&organization_name=Jaskolski+Inc&requires_nsa_meeting=true&s_key=PBZMWQURLSOMRBUI&target=BUNDLE&transaction_id=otkn98zdg&user_id=usxdw85ng",
+                    "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dba3bf818c-f4ab-4e94-8199-09dd3ee70668&code=OIXRZLXRRPHYBNFH&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=hyun%40reilly.test&is_mortgage=true&organization_name=Rau-Orn&requires_nsa_meeting=true&s_key=OIXRZLXRRPHYBNFH&target=BUNDLE&transaction_id=otkn98zdg&user_id=usxdw85ng",
                     "vesting_type": "borrower"
                   },
                   "signers": [
@@ -6941,17 +7051,17 @@
                         "postal": "",
                         "country": ""
                       },
-                      "email": "santos_spencer@halvorson.example",
-                      "external_id": "47247bc420dfbd634aef5ae86693c9fb",
-                      "first_name": "Alleen",
-                      "last_name": "Ian",
+                      "email": "hyun@reilly.test",
+                      "external_id": "7ffcd3549dac48e5195b1a2b53665087",
+                      "first_name": "Shavonne",
+                      "last_name": "Bernardo",
                       "link_expired": false,
                       "personally_known_to_notary": false,
-                      "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbb949c180-460e-48db-8cdd-f8227706ddd8&code=PBZMWQURLSOMRBUI&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=santos_spencer%40halvorson.example&is_mortgage=true&organization_name=Jaskolski+Inc&requires_nsa_meeting=true&s_key=PBZMWQURLSOMRBUI&target=BUNDLE&transaction_id=otkn98zdg&user_id=usxdw85ng",
+                      "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dba3bf818c-f4ab-4e94-8199-09dd3ee70668&code=OIXRZLXRRPHYBNFH&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=hyun%40reilly.test&is_mortgage=true&organization_name=Rau-Orn&requires_nsa_meeting=true&s_key=OIXRZLXRRPHYBNFH&target=BUNDLE&transaction_id=otkn98zdg&user_id=usxdw85ng",
                       "signatory_capacities": [],
                       "signer_id": "oc_zd7j4nr",
                       "signing_status": "incomplete",
-                      "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbb949c180-460e-48db-8cdd-f8227706ddd8&code=PBZMWQURLSOMRBUI&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=santos_spencer%40halvorson.example&is_mortgage=true&organization_name=Jaskolski+Inc&requires_nsa_meeting=true&s_key=PBZMWQURLSOMRBUI&target=BUNDLE&transaction_id=otkn98zdg&user_id=usxdw85ng",
+                      "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dba3bf818c-f4ab-4e94-8199-09dd3ee70668&code=OIXRZLXRRPHYBNFH&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=hyun%40reilly.test&is_mortgage=true&organization_name=Rau-Orn&requires_nsa_meeting=true&s_key=OIXRZLXRRPHYBNFH&target=BUNDLE&transaction_id=otkn98zdg&user_id=usxdw85ng",
                       "vesting_type": "borrower"
                     }
                   ],
@@ -6962,7 +7072,7 @@
                   "underwriter_override": false,
                   "recording_jurisdiction": {
                     "id": "rlqnbp4n9",
-                    "name": "Port norman",
+                    "name": "Hagenesview",
                     "state": "VA",
                     "recording_type": "electronic"
                   }
@@ -7135,23 +7245,23 @@
               "application/json": {
                 "example": {
                   "id": "ot_rn684nq",
-                  "activation_time": "2026-06-23T15:44:24.689Z",
+                  "activation_time": "2026-08-13T16:24:06.620Z",
                   "attachments": [],
                   "cc_recipient_emails": [],
                   "config_id": "other",
                   "contacts": [],
                   "cost": 2250,
-                  "date_created": "2026-06-23T15:44:24.691136Z",
-                  "date_updated": "2026-06-23T15:44:25.042617Z",
+                  "date_created": "2026-08-13T16:24:06.622444Z",
+                  "date_updated": "2026-08-13T16:24:07.006191Z",
                   "detailed_status": "sent_to_signer",
                   "documents": [
                     {
-                      "id": "do_edf25c63-c276-4400-80fc-8ef3648f8f3b",
+                      "id": "do_7f2513f9-dfed-487c-af3f-b2f0e231cad4",
                       "allowed_actions": [],
                       "bundle_position": 0,
                       "completion_state": "incomplete",
-                      "date_created": "2026-06-23T15:44:24.670841Z",
-                      "date_updated": "2026-06-23T15:44:24.670841Z",
+                      "date_created": "2026-08-13T16:24:06.601033Z",
+                      "date_updated": "2026-08-13T16:24:06.601033Z",
                       "document_name": "name1",
                       "is_enote": false,
                       "permissions": [],
@@ -7167,15 +7277,15 @@
                       "final_document_url": null
                     },
                     {
-                      "id": "do_02f38624-f800-4f39-8b8f-e11a7178572f",
+                      "id": "do_995155c0-771b-4fda-8132-39cf2958150e",
                       "allowed_actions": [
                         "NOTARIZATION_REQUIRED",
                         "COLLATERAL_DOCUMENT"
                       ],
                       "bundle_position": 0,
                       "completion_state": "incomplete",
-                      "date_created": "2026-06-23T15:44:24.752123Z",
-                      "date_updated": "2026-06-23T15:44:24.760725Z",
+                      "date_created": "2026-08-13T16:24:06.690076Z",
+                      "date_updated": "2026-08-13T16:24:06.698984Z",
                       "document_name": "name2",
                       "is_enote": false,
                       "permissions": [
@@ -7194,14 +7304,20 @@
                       "final_document_url": null
                     }
                   ],
-                  "file_number": "FN1782229464",
+                  "file_number": "FN1786638246",
                   "lender": {
                     "id": "or3de9zdg",
-                    "name": "Schmeler, Reinger and Pouros"
+                    "name": "Schuppe Group"
                   },
-                  "loan_number": "LN1782229464",
+                  "loan_number": "LN1786638246",
                   "notarization_records": [],
                   "organization_id": "or_3de9zdg",
+                  "recipient_details_config": [
+                    {
+                      "field": "name",
+                      "display": "optional"
+                    }
+                  ],
                   "require_secondary_photo_id": false,
                   "signer_info": {
                     "address": {
@@ -7212,17 +7328,17 @@
                       "postal": "",
                       "country": ""
                     },
-                    "email": "nicky@murazik-christiansen.example",
-                    "external_id": "c19e69271b9a2515db2874b514a6ff33",
-                    "first_name": "Kathline",
-                    "last_name": "Emile",
+                    "email": "johnnie@kovacek.example",
+                    "external_id": "5d968ced4b10a175e53e88fbd1d8951a",
+                    "first_name": "Lucas",
+                    "last_name": "Ahmad",
                     "link_expired": false,
                     "personally_known_to_notary": false,
-                    "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db60108154-a25a-4ddd-8ed4-138712ff1ff0&code=NVTARRLVZFTPAMKO&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=nicky%40murazik-christiansen.example&is_mortgage=true&organization_name=Schmeler%2C+Reinger+and+Pouros&requires_nsa_meeting=true&s_key=NVTARRLVZFTPAMKO&target=BUNDLE&transaction_id=otrn684nq&user_id=usznm5kna",
+                    "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbdab3de9e-5306-477f-904f-0fc09471c166&code=LMZLEQAJJPPKMUTT&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=johnnie%40kovacek.example&is_mortgage=true&organization_name=Schuppe+Group&requires_nsa_meeting=true&s_key=LMZLEQAJJPPKMUTT&target=BUNDLE&transaction_id=otrn684nq&user_id=usznm5kna",
                     "signatory_capacities": [],
                     "signer_id": "oc_3nggknk",
                     "signing_status": "incomplete",
-                    "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db60108154-a25a-4ddd-8ed4-138712ff1ff0&code=NVTARRLVZFTPAMKO&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=nicky%40murazik-christiansen.example&is_mortgage=true&organization_name=Schmeler%2C+Reinger+and+Pouros&requires_nsa_meeting=true&s_key=NVTARRLVZFTPAMKO&target=BUNDLE&transaction_id=otrn684nq&user_id=usznm5kna",
+                    "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbdab3de9e-5306-477f-904f-0fc09471c166&code=LMZLEQAJJPPKMUTT&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=johnnie%40kovacek.example&is_mortgage=true&organization_name=Schuppe+Group&requires_nsa_meeting=true&s_key=LMZLEQAJJPPKMUTT&target=BUNDLE&transaction_id=otrn684nq&user_id=usznm5kna",
                     "vesting_type": "borrower"
                   },
                   "signers": [
@@ -7235,17 +7351,17 @@
                         "postal": "",
                         "country": ""
                       },
-                      "email": "nicky@murazik-christiansen.example",
-                      "external_id": "c19e69271b9a2515db2874b514a6ff33",
-                      "first_name": "Kathline",
-                      "last_name": "Emile",
+                      "email": "johnnie@kovacek.example",
+                      "external_id": "5d968ced4b10a175e53e88fbd1d8951a",
+                      "first_name": "Lucas",
+                      "last_name": "Ahmad",
                       "link_expired": false,
                       "personally_known_to_notary": false,
-                      "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db60108154-a25a-4ddd-8ed4-138712ff1ff0&code=NVTARRLVZFTPAMKO&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=nicky%40murazik-christiansen.example&is_mortgage=true&organization_name=Schmeler%2C+Reinger+and+Pouros&requires_nsa_meeting=true&s_key=NVTARRLVZFTPAMKO&target=BUNDLE&transaction_id=otrn684nq&user_id=usznm5kna",
+                      "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbdab3de9e-5306-477f-904f-0fc09471c166&code=LMZLEQAJJPPKMUTT&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=johnnie%40kovacek.example&is_mortgage=true&organization_name=Schuppe+Group&requires_nsa_meeting=true&s_key=LMZLEQAJJPPKMUTT&target=BUNDLE&transaction_id=otrn684nq&user_id=usznm5kna",
                       "signatory_capacities": [],
                       "signer_id": "oc_3nggknk",
                       "signing_status": "incomplete",
-                      "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db60108154-a25a-4ddd-8ed4-138712ff1ff0&code=NVTARRLVZFTPAMKO&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=nicky%40murazik-christiansen.example&is_mortgage=true&organization_name=Schmeler%2C+Reinger+and+Pouros&requires_nsa_meeting=true&s_key=NVTARRLVZFTPAMKO&target=BUNDLE&transaction_id=otrn684nq&user_id=usznm5kna",
+                      "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbdab3de9e-5306-477f-904f-0fc09471c166&code=LMZLEQAJJPPKMUTT&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=johnnie%40kovacek.example&is_mortgage=true&organization_name=Schuppe+Group&requires_nsa_meeting=true&s_key=LMZLEQAJJPPKMUTT&target=BUNDLE&transaction_id=otrn684nq&user_id=usznm5kna",
                       "vesting_type": "borrower"
                     }
                   ],
@@ -7256,7 +7372,7 @@
                   "underwriter_override": false,
                   "recording_jurisdiction": {
                     "id": "rlznma4na",
-                    "name": "East maurine",
+                    "name": "South danyelle",
                     "state": "VA",
                     "recording_type": "electronic"
                   }
@@ -7379,22 +7495,22 @@
               "application/json": {
                 "example": {
                   "id": "ot_xdwkjdg",
-                  "activation_time": "2026-06-23T15:44:26.212Z",
+                  "activation_time": "2026-08-13T16:24:08.123Z",
                   "attachments": [],
                   "cc_recipient_emails": [],
                   "contacts": [],
                   "cost": 2250,
-                  "date_created": "2026-06-23T15:44:26.214614Z",
-                  "date_updated": "2026-06-23T15:44:26.444158Z",
+                  "date_created": "2026-08-13T16:24:08.124581Z",
+                  "date_updated": "2026-08-13T16:24:08.350012Z",
                   "detailed_status": "recalled",
                   "documents": [
                     {
-                      "id": "do_585353d9-77c4-46bf-a990-3278a52ed612",
+                      "id": "do_e78917bd-9b51-40e6-9251-2bd40e43ee9c",
                       "allowed_actions": [],
                       "bundle_position": 0,
                       "completion_state": "incomplete",
-                      "date_created": "2026-06-23T15:44:26.193097Z",
-                      "date_updated": "2026-06-23T15:44:26.193097Z",
+                      "date_created": "2026-08-13T16:24:08.104963Z",
+                      "date_updated": "2026-08-13T16:24:08.104963Z",
                       "document_name": "name1",
                       "is_enote": false,
                       "permissions": [],
@@ -7410,15 +7526,15 @@
                       "final_document_url": null
                     },
                     {
-                      "id": "do_e3df48c3-3e86-4db5-8401-f79747419943",
+                      "id": "do_2e2fb89b-5ecb-4d6e-a2bb-4524ef04f1e4",
                       "allowed_actions": [
                         "NOTARIZATION_REQUIRED",
                         "COLLATERAL_DOCUMENT"
                       ],
                       "bundle_position": 0,
                       "completion_state": "incomplete",
-                      "date_created": "2026-06-23T15:44:26.278642Z",
-                      "date_updated": "2026-06-23T15:44:26.290810Z",
+                      "date_created": "2026-08-13T16:24:08.185254Z",
+                      "date_updated": "2026-08-13T16:24:08.197256Z",
                       "document_name": "name2",
                       "is_enote": false,
                       "permissions": [
@@ -7437,15 +7553,16 @@
                       "final_document_url": null
                     }
                   ],
-                  "file_number": "FN1782229466",
+                  "file_number": "FN1786638248",
                   "lender": {
                     "id": "orqnbxwn9",
-                    "name": "Brekke Inc"
+                    "name": "Hamill, Vandervort and Schulist"
                   },
-                  "loan_number": "LN1782229466",
+                  "loan_number": "LN1786638248",
                   "notarization_records": [],
                   "organization_id": "or_qnbxwn9",
                   "recall_reason": "Incorrect signer name",
+                  "recipient_details_config": [],
                   "require_secondary_photo_id": false,
                   "signer_info": {
                     "address": {
@@ -7456,16 +7573,16 @@
                       "postal": "",
                       "country": ""
                     },
-                    "email": "grady@goyette.test",
-                    "external_id": "4519964feb98ccd20ef322d6c35268e9",
-                    "first_name": "Christian",
-                    "last_name": "Dorene",
+                    "email": "timmy.hirthe@kris-mueller.example",
+                    "external_id": "67ffe4b8fb2fab43438e23cca6a1ee80",
+                    "first_name": "Annabelle",
+                    "last_name": "Nada",
                     "link_expired": false,
                     "personally_known_to_notary": false,
-                    "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbd95464d6-c9ba-411b-816a-c3d5e320b154&code=HWOAECVZSHIWFPTD&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=grady%40goyette.test&is_mortgage=true&organization_name=Brekke+Inc&requires_nsa_meeting=true&s_key=HWOAECVZSHIWFPTD&target=BUNDLE&transaction_id=otxdwkjdg&user_id=uskn9jjdg",
+                    "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbb84b3846-b0c7-4213-893a-4da428b1d45e&code=HAQIZYYDFCXHBEVV&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=timmy.hirthe%40kris-mueller.example&is_mortgage=true&organization_name=Hamill%2C+Vandervort+and+Schulist&requires_nsa_meeting=true&s_key=HAQIZYYDFCXHBEVV&target=BUNDLE&transaction_id=otxdwkjdg&user_id=uskn9jjdg",
                     "signatory_capacities": [],
                     "signer_id": "oc_rnyqkn4",
-                    "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbd95464d6-c9ba-411b-816a-c3d5e320b154&code=HWOAECVZSHIWFPTD&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=grady%40goyette.test&is_mortgage=true&organization_name=Brekke+Inc&requires_nsa_meeting=true&s_key=HWOAECVZSHIWFPTD&target=BUNDLE&transaction_id=otxdwkjdg&user_id=uskn9jjdg",
+                    "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbb84b3846-b0c7-4213-893a-4da428b1d45e&code=HAQIZYYDFCXHBEVV&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=timmy.hirthe%40kris-mueller.example&is_mortgage=true&organization_name=Hamill%2C+Vandervort+and+Schulist&requires_nsa_meeting=true&s_key=HAQIZYYDFCXHBEVV&target=BUNDLE&transaction_id=otxdwkjdg&user_id=uskn9jjdg",
                     "vesting_type": "borrower"
                   },
                   "signers": [
@@ -7478,16 +7595,16 @@
                         "postal": "",
                         "country": ""
                       },
-                      "email": "grady@goyette.test",
-                      "external_id": "4519964feb98ccd20ef322d6c35268e9",
-                      "first_name": "Christian",
-                      "last_name": "Dorene",
+                      "email": "timmy.hirthe@kris-mueller.example",
+                      "external_id": "67ffe4b8fb2fab43438e23cca6a1ee80",
+                      "first_name": "Annabelle",
+                      "last_name": "Nada",
                       "link_expired": false,
                       "personally_known_to_notary": false,
-                      "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbd95464d6-c9ba-411b-816a-c3d5e320b154&code=HWOAECVZSHIWFPTD&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=grady%40goyette.test&is_mortgage=true&organization_name=Brekke+Inc&requires_nsa_meeting=true&s_key=HWOAECVZSHIWFPTD&target=BUNDLE&transaction_id=otxdwkjdg&user_id=uskn9jjdg",
+                      "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbb84b3846-b0c7-4213-893a-4da428b1d45e&code=HAQIZYYDFCXHBEVV&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=timmy.hirthe%40kris-mueller.example&is_mortgage=true&organization_name=Hamill%2C+Vandervort+and+Schulist&requires_nsa_meeting=true&s_key=HAQIZYYDFCXHBEVV&target=BUNDLE&transaction_id=otxdwkjdg&user_id=uskn9jjdg",
                       "signatory_capacities": [],
                       "signer_id": "oc_rnyqkn4",
-                      "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbd95464d6-c9ba-411b-816a-c3d5e320b154&code=HWOAECVZSHIWFPTD&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=grady%40goyette.test&is_mortgage=true&organization_name=Brekke+Inc&requires_nsa_meeting=true&s_key=HWOAECVZSHIWFPTD&target=BUNDLE&transaction_id=otxdwkjdg&user_id=uskn9jjdg",
+                      "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbb84b3846-b0c7-4213-893a-4da428b1d45e&code=HAQIZYYDFCXHBEVV&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=timmy.hirthe%40kris-mueller.example&is_mortgage=true&organization_name=Hamill%2C+Vandervort+and+Schulist&requires_nsa_meeting=true&s_key=HAQIZYYDFCXHBEVV&target=BUNDLE&transaction_id=otxdwkjdg&user_id=uskn9jjdg",
                       "vesting_type": "borrower"
                     }
                   ],
@@ -7498,7 +7615,7 @@
                   "underwriter_override": false,
                   "recording_jurisdiction": {
                     "id": "rlqdje4nz",
-                    "name": "Tremblayhaven",
+                    "name": "West charityshire",
                     "state": "VA",
                     "recording_type": "electronic"
                   }
@@ -7577,17 +7694,17 @@
                   "cc_recipient_emails": [],
                   "contacts": [],
                   "cost": 2250,
-                  "date_created": "2026-06-23T15:44:27.197191Z",
-                  "date_updated": "2026-06-23T15:44:27.197191Z",
+                  "date_created": "2026-08-13T16:24:09.195256Z",
+                  "date_updated": "2026-08-13T16:24:09.195256Z",
                   "detailed_status": "sent_to_signer",
                   "documents": [
                     {
-                      "id": "do_7a8311ab-0128-482e-8ac7-f9a42a11e888",
+                      "id": "do_2185f4df-527c-488c-8059-b83efc6d2684",
                       "allowed_actions": [],
                       "bundle_position": 0,
                       "completion_state": "incomplete",
-                      "date_created": "2026-06-23T15:44:27.181547Z",
-                      "date_updated": "2026-06-23T15:44:27.181547Z",
+                      "date_created": "2026-08-13T16:24:09.181250Z",
+                      "date_updated": "2026-08-13T16:24:09.181250Z",
                       "document_name": "name1",
                       "is_enote": false,
                       "permissions": [],
@@ -7605,6 +7722,7 @@
                   ],
                   "notarization_records": [],
                   "organization_id": "or_gnko3nj",
+                  "recipient_details_config": [],
                   "require_secondary_photo_id": false,
                   "signer_info": {
                     "address": {
@@ -7615,17 +7733,17 @@
                       "postal": "",
                       "country": ""
                     },
-                    "email": "rick_nikolaus@predovic.test",
-                    "external_id": "774f872dc78c7b86ed300226c6ddf1de",
-                    "first_name": "Gail",
-                    "last_name": "Foster",
+                    "email": "ronny.harber@dubuque.example",
+                    "external_id": "5a88317981f91579ef538a4b206bd3f5",
+                    "first_name": "Ed",
+                    "last_name": "Augustina",
                     "link_expired": false,
                     "personally_known_to_notary": false,
-                    "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db2a557d0b-eb4c-4fd7-b79d-b45f6d223c36&code=UZRLOMOIVSRVALPL&document_count=1&draft=false&email=rick_nikolaus%40predovic.test&is_mortgage=false&organization_name=Carter+Inc&requires_nsa_meeting=true&s_key=UZRLOMOIVSRVALPL&target=BUNDLE&transaction_id=otqdjz4dz&user_id=usynqjbyd",
+                    "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db746b6b9d-18cd-4856-a237-f750bc887ec4&code=WUIQWYZAIGCQRMIG&document_count=1&draft=false&email=ronny.harber%40dubuque.example&is_mortgage=false&organization_name=Bruen+LLC&requires_nsa_meeting=true&s_key=WUIQWYZAIGCQRMIG&target=BUNDLE&transaction_id=otqdjz4dz&user_id=usynqjbyd",
                     "signatory_capacities": [],
                     "signer_id": "oc_rn68bnq",
                     "signing_status": "incomplete",
-                    "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db2a557d0b-eb4c-4fd7-b79d-b45f6d223c36&code=UZRLOMOIVSRVALPL&document_count=1&draft=false&email=rick_nikolaus%40predovic.test&is_mortgage=false&organization_name=Carter+Inc&requires_nsa_meeting=true&s_key=UZRLOMOIVSRVALPL&target=BUNDLE&transaction_id=otqdjz4dz&user_id=usynqjbyd",
+                    "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db746b6b9d-18cd-4856-a237-f750bc887ec4&code=WUIQWYZAIGCQRMIG&document_count=1&draft=false&email=ronny.harber%40dubuque.example&is_mortgage=false&organization_name=Bruen+LLC&requires_nsa_meeting=true&s_key=WUIQWYZAIGCQRMIG&target=BUNDLE&transaction_id=otqdjz4dz&user_id=usynqjbyd",
                     "vesting_type": "borrower"
                   },
                   "signers": [
@@ -7638,17 +7756,17 @@
                         "postal": "",
                         "country": ""
                       },
-                      "email": "rick_nikolaus@predovic.test",
-                      "external_id": "774f872dc78c7b86ed300226c6ddf1de",
-                      "first_name": "Gail",
-                      "last_name": "Foster",
+                      "email": "ronny.harber@dubuque.example",
+                      "external_id": "5a88317981f91579ef538a4b206bd3f5",
+                      "first_name": "Ed",
+                      "last_name": "Augustina",
                       "link_expired": false,
                       "personally_known_to_notary": false,
-                      "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db2a557d0b-eb4c-4fd7-b79d-b45f6d223c36&code=UZRLOMOIVSRVALPL&document_count=1&draft=false&email=rick_nikolaus%40predovic.test&is_mortgage=false&organization_name=Carter+Inc&requires_nsa_meeting=true&s_key=UZRLOMOIVSRVALPL&target=BUNDLE&transaction_id=otqdjz4dz&user_id=usynqjbyd",
+                      "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db746b6b9d-18cd-4856-a237-f750bc887ec4&code=WUIQWYZAIGCQRMIG&document_count=1&draft=false&email=ronny.harber%40dubuque.example&is_mortgage=false&organization_name=Bruen+LLC&requires_nsa_meeting=true&s_key=WUIQWYZAIGCQRMIG&target=BUNDLE&transaction_id=otqdjz4dz&user_id=usynqjbyd",
                       "signatory_capacities": [],
                       "signer_id": "oc_rn68bnq",
                       "signing_status": "incomplete",
-                      "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db2a557d0b-eb4c-4fd7-b79d-b45f6d223c36&code=UZRLOMOIVSRVALPL&document_count=1&draft=false&email=rick_nikolaus%40predovic.test&is_mortgage=false&organization_name=Carter+Inc&requires_nsa_meeting=true&s_key=UZRLOMOIVSRVALPL&target=BUNDLE&transaction_id=otqdjz4dz&user_id=usynqjbyd",
+                      "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db746b6b9d-18cd-4856-a237-f750bc887ec4&code=WUIQWYZAIGCQRMIG&document_count=1&draft=false&email=ronny.harber%40dubuque.example&is_mortgage=false&organization_name=Bruen+LLC&requires_nsa_meeting=true&s_key=WUIQWYZAIGCQRMIG&target=BUNDLE&transaction_id=otqdjz4dz&user_id=usynqjbyd",
                       "vesting_type": "borrower"
                     }
                   ],
@@ -7757,22 +7875,22 @@
               "application/json": {
                 "example": {
                   "id": "ot_gnkx5dj",
-                  "activation_time": "2026-06-23T15:44:28.410Z",
+                  "activation_time": "2026-08-13T16:24:10.325Z",
                   "attachments": [],
                   "cc_recipient_emails": [],
                   "contacts": [],
                   "cost": 2250,
-                  "date_created": "2026-06-23T15:44:28.412523Z",
-                  "date_updated": "2026-06-23T15:44:28.412523Z",
+                  "date_created": "2026-08-13T16:24:10.326620Z",
+                  "date_updated": "2026-08-13T16:24:10.326620Z",
                   "detailed_status": "sent_to_signer",
                   "documents": [
                     {
-                      "id": "do_4519f5e6-3da4-4b6a-9c7e-7a2729b94753",
+                      "id": "do_1b5e5e73-94c1-4591-98ac-439992e21edf",
                       "allowed_actions": [],
                       "bundle_position": 0,
                       "completion_state": "incomplete",
-                      "date_created": "2026-06-23T15:44:28.392619Z",
-                      "date_updated": "2026-06-23T15:44:28.392619Z",
+                      "date_created": "2026-08-13T16:24:10.307304Z",
+                      "date_updated": "2026-08-13T16:24:10.307304Z",
                       "document_name": "name1",
                       "is_enote": false,
                       "permissions": [],
@@ -7788,15 +7906,15 @@
                       "final_document_url": null
                     },
                     {
-                      "id": "do_f52ce5f6-169e-49f6-ba41-7431e0305eed",
+                      "id": "do_c3087eed-f277-46ae-a782-d392baca36ce",
                       "allowed_actions": [
                         "NOTARIZATION_REQUIRED",
                         "COLLATERAL_DOCUMENT"
                       ],
                       "bundle_position": 0,
                       "completion_state": "incomplete",
-                      "date_created": "2026-06-23T15:44:28.474114Z",
-                      "date_updated": "2026-06-23T15:44:28.482340Z",
+                      "date_created": "2026-08-13T16:24:10.383506Z",
+                      "date_updated": "2026-08-13T16:24:10.391187Z",
                       "document_name": "name2",
                       "is_enote": false,
                       "permissions": [
@@ -7815,14 +7933,15 @@
                       "final_document_url": null
                     }
                   ],
-                  "file_number": "FN1782229468",
+                  "file_number": "FN1786638250",
                   "lender": {
                     "id": "orznmw9na",
-                    "name": "Koepp-Huel"
+                    "name": "Hahn and Sons"
                   },
-                  "loan_number": "LN1782229468",
+                  "loan_number": "LN1786638250",
                   "notarization_records": [],
                   "organization_id": "or_znmw9na",
+                  "recipient_details_config": [],
                   "require_secondary_photo_id": false,
                   "signer_info": {
                     "address": {
@@ -7833,17 +7952,17 @@
                       "postal": "",
                       "country": ""
                     },
-                    "email": "joe@cartwright.example",
-                    "external_id": "be2dce185900d2a9411d23c343c753b8",
-                    "first_name": "Randal",
-                    "last_name": "August",
+                    "email": "coleen_hackett@emard.example",
+                    "external_id": "97025e2bc544c19c34527a2e107c77ba",
+                    "first_name": "Roland",
+                    "last_name": "Bruce",
                     "link_expired": false,
                     "personally_known_to_notary": false,
-                    "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db1d6d2ce5-5b6b-4f3c-a1cc-39d1f5317d1e&code=QDPTKYNPVDFJJORT&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=joe%40cartwright.example&is_mortgage=true&organization_name=Koepp-Huel&requires_nsa_meeting=true&s_key=QDPTKYNPVDFJJORT&target=BUNDLE&transaction_id=otgnkx5dj&user_id=uszd7g4qd",
+                    "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db0cf74734-8759-4dde-acbd-2a7091eb1d0f&code=GVLJEUCNIUHTRVMJ&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=coleen_hackett%40emard.example&is_mortgage=true&organization_name=Hahn+and+Sons&requires_nsa_meeting=true&s_key=GVLJEUCNIUHTRVMJ&target=BUNDLE&transaction_id=otgnkx5dj&user_id=uszd7g4qd",
                     "signatory_capacities": [],
                     "signer_id": "oc_xdwkzdg",
                     "signing_status": "incomplete",
-                    "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db1d6d2ce5-5b6b-4f3c-a1cc-39d1f5317d1e&code=QDPTKYNPVDFJJORT&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=joe%40cartwright.example&is_mortgage=true&organization_name=Koepp-Huel&requires_nsa_meeting=true&s_key=QDPTKYNPVDFJJORT&target=BUNDLE&transaction_id=otgnkx5dj&user_id=uszd7g4qd",
+                    "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db0cf74734-8759-4dde-acbd-2a7091eb1d0f&code=GVLJEUCNIUHTRVMJ&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=coleen_hackett%40emard.example&is_mortgage=true&organization_name=Hahn+and+Sons&requires_nsa_meeting=true&s_key=GVLJEUCNIUHTRVMJ&target=BUNDLE&transaction_id=otgnkx5dj&user_id=uszd7g4qd",
                     "vesting_type": "borrower"
                   },
                   "signers": [
@@ -7856,17 +7975,17 @@
                         "postal": "",
                         "country": ""
                       },
-                      "email": "joe@cartwright.example",
-                      "external_id": "be2dce185900d2a9411d23c343c753b8",
-                      "first_name": "Randal",
-                      "last_name": "August",
+                      "email": "coleen_hackett@emard.example",
+                      "external_id": "97025e2bc544c19c34527a2e107c77ba",
+                      "first_name": "Roland",
+                      "last_name": "Bruce",
                       "link_expired": false,
                       "personally_known_to_notary": false,
-                      "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db1d6d2ce5-5b6b-4f3c-a1cc-39d1f5317d1e&code=QDPTKYNPVDFJJORT&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=joe%40cartwright.example&is_mortgage=true&organization_name=Koepp-Huel&requires_nsa_meeting=true&s_key=QDPTKYNPVDFJJORT&target=BUNDLE&transaction_id=otgnkx5dj&user_id=uszd7g4qd",
+                      "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db0cf74734-8759-4dde-acbd-2a7091eb1d0f&code=GVLJEUCNIUHTRVMJ&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=coleen_hackett%40emard.example&is_mortgage=true&organization_name=Hahn+and+Sons&requires_nsa_meeting=true&s_key=GVLJEUCNIUHTRVMJ&target=BUNDLE&transaction_id=otgnkx5dj&user_id=uszd7g4qd",
                       "signatory_capacities": [],
                       "signer_id": "oc_xdwkzdg",
                       "signing_status": "incomplete",
-                      "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db1d6d2ce5-5b6b-4f3c-a1cc-39d1f5317d1e&code=QDPTKYNPVDFJJORT&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=joe%40cartwright.example&is_mortgage=true&organization_name=Koepp-Huel&requires_nsa_meeting=true&s_key=QDPTKYNPVDFJJORT&target=BUNDLE&transaction_id=otgnkx5dj&user_id=uszd7g4qd",
+                      "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db0cf74734-8759-4dde-acbd-2a7091eb1d0f&code=GVLJEUCNIUHTRVMJ&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=coleen_hackett%40emard.example&is_mortgage=true&organization_name=Hahn+and+Sons&requires_nsa_meeting=true&s_key=GVLJEUCNIUHTRVMJ&target=BUNDLE&transaction_id=otgnkx5dj&user_id=uszd7g4qd",
                       "vesting_type": "borrower"
                     }
                   ],
@@ -7877,7 +7996,7 @@
                   "underwriter_override": false,
                   "recording_jurisdiction": {
                     "id": "rlwd3g5d7",
-                    "name": "Adrianfort",
+                    "name": "Port rodney",
                     "state": "VA",
                     "recording_type": "electronic"
                   }
@@ -7949,7 +8068,7 @@
             "in": "query",
             "required": false,
             "description": "The optional contact email to send the email to.",
-            "x-example": "barton.kuhn@wilkinson.test",
+            "x-example": "curtis@tromp-gutmann.example",
             "schema": {
               "type": "string"
             }
@@ -7976,16 +8095,16 @@
               "application/json": {
                 "example": {
                   "id": "ot_anp63n4",
-                  "activation_time": "2026-06-23T15:44:29.396Z",
+                  "activation_time": "2026-08-13T16:24:11.339Z",
                   "attachments": [],
                   "cc_recipient_emails": [],
                   "contacts": [
                     {
-                      "date_created": "2026-06-23T15:44:29.539518Z",
-                      "date_updated": "2026-06-23T15:44:29.655927Z",
-                      "first_name": "Annabel",
-                      "last_name": "Rempel",
-                      "email": "barton.kuhn@wilkinson.test",
+                      "date_created": "2026-08-13T16:24:11.441356Z",
+                      "date_updated": "2026-08-13T16:24:11.556076Z",
+                      "first_name": "Mitzie",
+                      "last_name": "Bernier",
+                      "email": "curtis@tromp-gutmann.example",
                       "role": "real_estate_agent",
                       "organization_address": {
                         "line1": "",
@@ -8000,17 +8119,17 @@
                     }
                   ],
                   "cost": 2250,
-                  "date_created": "2026-06-23T15:44:29.397893Z",
-                  "date_updated": "2026-06-23T15:44:29.397893Z",
+                  "date_created": "2026-08-13T16:24:11.341015Z",
+                  "date_updated": "2026-08-13T16:24:11.341015Z",
                   "detailed_status": "sent_to_signer",
                   "documents": [
                     {
-                      "id": "do_a03bcb18-3af7-4e0b-8e5c-3e33191ff6ce",
+                      "id": "do_59db99cf-2373-4567-aa02-6ef225a527d6",
                       "allowed_actions": [],
                       "bundle_position": 0,
                       "completion_state": "incomplete",
-                      "date_created": "2026-06-23T15:44:29.377064Z",
-                      "date_updated": "2026-06-23T15:44:29.377064Z",
+                      "date_created": "2026-08-13T16:24:11.321714Z",
+                      "date_updated": "2026-08-13T16:24:11.321714Z",
                       "document_name": "name1",
                       "is_enote": false,
                       "permissions": [],
@@ -8026,14 +8145,15 @@
                       "final_document_url": null
                     }
                   ],
-                  "file_number": "FN1782229469",
+                  "file_number": "FN1786638251",
                   "lender": {
                     "id": "orbd5z6n9",
-                    "name": "Keeling, Toy and Rolfson"
+                    "name": "Keebler, Buckridge and King"
                   },
-                  "loan_number": "LN1782229469",
+                  "loan_number": "LN1786638251",
                   "notarization_records": [],
                   "organization_id": "or_bd5z6n9",
+                  "recipient_details_config": [],
                   "require_secondary_photo_id": false,
                   "signer_info": {
                     "address": {
@@ -8044,17 +8164,17 @@
                       "postal": "",
                       "country": ""
                     },
-                    "email": "barton@farrell.test",
-                    "external_id": "06b41c9dd1bef2730d6bb512f7df46c4",
-                    "first_name": "Chara",
-                    "last_name": "Williams",
+                    "email": "odelia.king@stanton-maggio.example",
+                    "external_id": "e3309cd53d316a76ad5df9028e88e1a7",
+                    "first_name": "Edgardo",
+                    "last_name": "Ellamae",
                     "link_expired": false,
                     "personally_known_to_notary": false,
-                    "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db61ccb6c3-459c-4c1c-b2b7-5cbfe7a703b2&code=EVWUFCXAQFLMVYPM&document_count=1&draft=false&email=barton%40farrell.test&is_mortgage=true&organization_name=Keeling%2C+Toy+and+Rolfson&requires_nsa_meeting=true&s_key=EVWUFCXAQFLMVYPM&target=BUNDLE&transaction_id=otanp63n4&user_id=usqdj33rn",
+                    "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbddac7c2c-b476-4e06-a6c1-018afba1e1a8&code=TNVVHCQWRXIBBGCO&document_count=1&draft=false&email=odelia.king%40stanton-maggio.example&is_mortgage=true&organization_name=Keebler%2C+Buckridge+and+King&requires_nsa_meeting=true&s_key=TNVVHCQWRXIBBGCO&target=BUNDLE&transaction_id=otanp63n4&user_id=usqdj33rn",
                     "signatory_capacities": [],
                     "signer_id": "oc_qdjz6dz",
                     "signing_status": "incomplete",
-                    "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db61ccb6c3-459c-4c1c-b2b7-5cbfe7a703b2&code=EVWUFCXAQFLMVYPM&document_count=1&draft=false&email=barton%40farrell.test&is_mortgage=true&organization_name=Keeling%2C+Toy+and+Rolfson&requires_nsa_meeting=true&s_key=EVWUFCXAQFLMVYPM&target=BUNDLE&transaction_id=otanp63n4&user_id=usqdj33rn",
+                    "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbddac7c2c-b476-4e06-a6c1-018afba1e1a8&code=TNVVHCQWRXIBBGCO&document_count=1&draft=false&email=odelia.king%40stanton-maggio.example&is_mortgage=true&organization_name=Keebler%2C+Buckridge+and+King&requires_nsa_meeting=true&s_key=TNVVHCQWRXIBBGCO&target=BUNDLE&transaction_id=otanp63n4&user_id=usqdj33rn",
                     "vesting_type": "borrower"
                   },
                   "signers": [
@@ -8067,17 +8187,17 @@
                         "postal": "",
                         "country": ""
                       },
-                      "email": "barton@farrell.test",
-                      "external_id": "06b41c9dd1bef2730d6bb512f7df46c4",
-                      "first_name": "Chara",
-                      "last_name": "Williams",
+                      "email": "odelia.king@stanton-maggio.example",
+                      "external_id": "e3309cd53d316a76ad5df9028e88e1a7",
+                      "first_name": "Edgardo",
+                      "last_name": "Ellamae",
                       "link_expired": false,
                       "personally_known_to_notary": false,
-                      "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db61ccb6c3-459c-4c1c-b2b7-5cbfe7a703b2&code=EVWUFCXAQFLMVYPM&document_count=1&draft=false&email=barton%40farrell.test&is_mortgage=true&organization_name=Keeling%2C+Toy+and+Rolfson&requires_nsa_meeting=true&s_key=EVWUFCXAQFLMVYPM&target=BUNDLE&transaction_id=otanp63n4&user_id=usqdj33rn",
+                      "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbddac7c2c-b476-4e06-a6c1-018afba1e1a8&code=TNVVHCQWRXIBBGCO&document_count=1&draft=false&email=odelia.king%40stanton-maggio.example&is_mortgage=true&organization_name=Keebler%2C+Buckridge+and+King&requires_nsa_meeting=true&s_key=TNVVHCQWRXIBBGCO&target=BUNDLE&transaction_id=otanp63n4&user_id=usqdj33rn",
                       "signatory_capacities": [],
                       "signer_id": "oc_qdjz6dz",
                       "signing_status": "incomplete",
-                      "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db61ccb6c3-459c-4c1c-b2b7-5cbfe7a703b2&code=EVWUFCXAQFLMVYPM&document_count=1&draft=false&email=barton%40farrell.test&is_mortgage=true&organization_name=Keeling%2C+Toy+and+Rolfson&requires_nsa_meeting=true&s_key=EVWUFCXAQFLMVYPM&target=BUNDLE&transaction_id=otanp63n4&user_id=usqdj33rn",
+                      "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=dbddac7c2c-b476-4e06-a6c1-018afba1e1a8&code=TNVVHCQWRXIBBGCO&document_count=1&draft=false&email=odelia.king%40stanton-maggio.example&is_mortgage=true&organization_name=Keebler%2C+Buckridge+and+King&requires_nsa_meeting=true&s_key=TNVVHCQWRXIBBGCO&target=BUNDLE&transaction_id=otanp63n4&user_id=usqdj33rn",
                       "vesting_type": "borrower"
                     }
                   ],
@@ -8088,7 +8208,7 @@
                   "underwriter_override": false,
                   "recording_jurisdiction": {
                     "id": "rlxna97nm",
-                    "name": "Maragretside",
+                    "name": "New lukefurt",
                     "state": "VA",
                     "recording_type": "electronic"
                   }
@@ -8177,22 +8297,22 @@
               "application/json": {
                 "example": {
                   "id": "ot_bd5j5n9",
-                  "activation_time": "2026-06-23T15:44:31.015Z",
+                  "activation_time": "2026-08-13T16:24:12.836Z",
                   "attachments": [],
                   "cc_recipient_emails": [],
                   "contacts": [],
                   "cost": 2250,
-                  "date_created": "2026-06-23T15:44:31.017072Z",
-                  "date_updated": "2026-06-23T15:44:31.017072Z",
+                  "date_created": "2026-08-13T16:24:12.838399Z",
+                  "date_updated": "2026-08-13T16:24:12.838399Z",
                   "detailed_status": "sent_to_signer",
                   "documents": [
                     {
-                      "id": "do_2ba2b3b8-7124-4ca1-ba24-4ed6b5c62ff5",
+                      "id": "do_27ca1767-bf17-4eab-8a36-27c30fae9c05",
                       "allowed_actions": [],
                       "bundle_position": 0,
                       "completion_state": "incomplete",
-                      "date_created": "2026-06-23T15:44:30.996301Z",
-                      "date_updated": "2026-06-23T15:44:30.996301Z",
+                      "date_created": "2026-08-13T16:24:12.819426Z",
+                      "date_updated": "2026-08-13T16:24:12.819426Z",
                       "document_name": "name1",
                       "is_enote": false,
                       "permissions": [],
@@ -8208,15 +8328,15 @@
                       "final_document_url": null
                     },
                     {
-                      "id": "do_e0313035-95e3-4a97-a9c1-c2b49e378da0",
+                      "id": "do_f4823f3e-e56f-4c81-b5ee-379850cd1ab8",
                       "allowed_actions": [
                         "NOTARIZATION_REQUIRED",
                         "COLLATERAL_DOCUMENT"
                       ],
                       "bundle_position": 0,
                       "completion_state": "incomplete",
-                      "date_created": "2026-06-23T15:44:31.076381Z",
-                      "date_updated": "2026-06-23T15:44:31.076381Z",
+                      "date_created": "2026-08-13T16:24:12.895545Z",
+                      "date_updated": "2026-08-13T16:24:12.895545Z",
                       "document_name": "name2",
                       "is_enote": false,
                       "permissions": [
@@ -8235,14 +8355,15 @@
                       "final_document_url": null
                     }
                   ],
-                  "file_number": "FN1782229471",
+                  "file_number": "FN1786638252",
                   "lender": {
                     "id": "orkn9xgdg",
-                    "name": "Larkin-Fadel"
+                    "name": "Douglas and Sons"
                   },
-                  "loan_number": "LN1782229471",
+                  "loan_number": "LN1786638252",
                   "notarization_records": [],
                   "organization_id": "or_kn9xgdg",
+                  "recipient_details_config": [],
                   "require_secondary_photo_id": false,
                   "signer_info": {
                     "address": {
@@ -8253,21 +8374,21 @@
                       "postal": "",
                       "country": ""
                     },
-                    "email": "latonya.mosciski@nolan.test",
-                    "external_id": "389bc695e13be04bfe27a5645e9d13d4",
-                    "first_name": "Mika",
-                    "last_name": "Aldo",
+                    "email": "junior_orn@wilkinson.test",
+                    "external_id": "6bf14d86f4224dc2acfa0161b19b85bd",
+                    "first_name": "Porsha",
+                    "last_name": "Harry",
                     "link_expired": false,
                     "personally_known_to_notary": false,
                     "phone": {
                       "country_code": "1",
                       "number": "5555555555"
                     },
-                    "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db3cdcbd9c-f601-4963-a039-6f91adfc2907&code=BDXWFETGYKDLFDTP&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=latonya.mosciski%40nolan.test&is_mortgage=true&organization_name=Larkin-Fadel&requires_nsa_meeting=true&s_key=BDXWFETGYKDLFDTP&target=BUNDLE&transaction_id=otbd5j5n9&user_id=usznmrr5d",
+                    "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db242e530d-bdcc-45d0-83ac-0733b47203d3&code=SPLNQHXVUFLVDBHV&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=junior_orn%40wilkinson.test&is_mortgage=true&organization_name=Douglas+and+Sons&requires_nsa_meeting=true&s_key=SPLNQHXVUFLVDBHV&target=BUNDLE&transaction_id=otbd5j5n9&user_id=usznmrr5d",
                     "signatory_capacities": [],
                     "signer_id": "oc_wd3jgn7",
                     "signing_status": "incomplete",
-                    "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db3cdcbd9c-f601-4963-a039-6f91adfc2907&code=BDXWFETGYKDLFDTP&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=latonya.mosciski%40nolan.test&is_mortgage=true&organization_name=Larkin-Fadel&requires_nsa_meeting=true&s_key=BDXWFETGYKDLFDTP&target=BUNDLE&transaction_id=otbd5j5n9&user_id=usznmrr5d",
+                    "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db242e530d-bdcc-45d0-83ac-0733b47203d3&code=SPLNQHXVUFLVDBHV&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=junior_orn%40wilkinson.test&is_mortgage=true&organization_name=Douglas+and+Sons&requires_nsa_meeting=true&s_key=SPLNQHXVUFLVDBHV&target=BUNDLE&transaction_id=otbd5j5n9&user_id=usznmrr5d",
                     "vesting_type": "borrower"
                   },
                   "signers": [
@@ -8280,21 +8401,21 @@
                         "postal": "",
                         "country": ""
                       },
-                      "email": "latonya.mosciski@nolan.test",
-                      "external_id": "389bc695e13be04bfe27a5645e9d13d4",
-                      "first_name": "Mika",
-                      "last_name": "Aldo",
+                      "email": "junior_orn@wilkinson.test",
+                      "external_id": "6bf14d86f4224dc2acfa0161b19b85bd",
+                      "first_name": "Porsha",
+                      "last_name": "Harry",
                       "link_expired": false,
                       "personally_known_to_notary": false,
                       "phone": {
                         "country_code": "1",
                         "number": "5555555555"
                       },
-                      "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db3cdcbd9c-f601-4963-a039-6f91adfc2907&code=BDXWFETGYKDLFDTP&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=latonya.mosciski%40nolan.test&is_mortgage=true&organization_name=Larkin-Fadel&requires_nsa_meeting=true&s_key=BDXWFETGYKDLFDTP&target=BUNDLE&transaction_id=otbd5j5n9&user_id=usznmrr5d",
+                      "sdk_token": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db242e530d-bdcc-45d0-83ac-0733b47203d3&code=SPLNQHXVUFLVDBHV&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=junior_orn%40wilkinson.test&is_mortgage=true&organization_name=Douglas+and+Sons&requires_nsa_meeting=true&s_key=SPLNQHXVUFLVDBHV&target=BUNDLE&transaction_id=otbd5j5n9&user_id=usznmrr5d",
                       "signatory_capacities": [],
                       "signer_id": "oc_wd3jgn7",
                       "signing_status": "incomplete",
-                      "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db3cdcbd9c-f601-4963-a039-6f91adfc2907&code=BDXWFETGYKDLFDTP&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=latonya.mosciski%40nolan.test&is_mortgage=true&organization_name=Larkin-Fadel&requires_nsa_meeting=true&s_key=BDXWFETGYKDLFDTP&target=BUNDLE&transaction_id=otbd5j5n9&user_id=usznmrr5d",
+                      "transaction_access_link": "https://app.local.dev-notarize.com/activate-transaction?bundle_id=db242e530d-bdcc-45d0-83ac-0733b47203d3&code=SPLNQHXVUFLVDBHV&completion_requirements%5B%5D=NOTARIZATION&document_count=2&draft=false&email=junior_orn%40wilkinson.test&is_mortgage=true&organization_name=Douglas+and+Sons&requires_nsa_meeting=true&s_key=SPLNQHXVUFLVDBHV&target=BUNDLE&transaction_id=otbd5j5n9&user_id=usznmrr5d",
                       "vesting_type": "borrower"
                     }
                   ],
@@ -8305,7 +8426,7 @@
                   "underwriter_override": false,
                   "recording_jurisdiction": {
                     "id": "rlmdrkgnw",
-                    "name": "Port virgilmouth",
+                    "name": "Port carline",
                     "state": "VA",
                     "recording_type": "electronic"
                   }
