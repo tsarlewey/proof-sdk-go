@@ -654,6 +654,45 @@ func (e ProofRequirementMultiFactorAuthenticationType) Valid() bool {
 	}
 }
 
+// Defines values for RecipientDetailsConfigDisplay.
+const (
+	Hidden   RecipientDetailsConfigDisplay = "hidden"
+	Locked   RecipientDetailsConfigDisplay = "locked"
+	Optional RecipientDetailsConfigDisplay = "optional"
+	Required RecipientDetailsConfigDisplay = "required"
+)
+
+// Valid indicates whether the value is a known member of the RecipientDetailsConfigDisplay enum.
+func (e RecipientDetailsConfigDisplay) Valid() bool {
+	switch e {
+	case Hidden:
+		return true
+	case Locked:
+		return true
+	case Optional:
+		return true
+	case Required:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RecipientDetailsConfigField.
+const (
+	Name RecipientDetailsConfigField = "name"
+)
+
+// Valid indicates whether the value is a known member of the RecipientDetailsConfigField enum.
+func (e RecipientDetailsConfigField) Valid() bool {
+	switch e {
+	case Name:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for SignerSignatoryCapacitiesType.
 const (
 	SignerSignatoryCapacitiesTypeAttorneyInFact        SignerSignatoryCapacitiesType = "attorney_in_fact"
@@ -981,6 +1020,24 @@ func (e TransactionCreateParamsDocumentUrlVersion) Valid() bool {
 	}
 }
 
+// Defines values for TransactionCreateParamsIdvUseCase.
+const (
+	TransactionCreateParamsIdvUseCaseACCOUNTRECOVERY TransactionCreateParamsIdvUseCase = "ACCOUNT_RECOVERY"
+	TransactionCreateParamsIdvUseCaseSTANDARD        TransactionCreateParamsIdvUseCase = "STANDARD"
+)
+
+// Valid indicates whether the value is a known member of the TransactionCreateParamsIdvUseCase enum.
+func (e TransactionCreateParamsIdvUseCase) Valid() bool {
+	switch e {
+	case TransactionCreateParamsIdvUseCaseACCOUNTRECOVERY:
+		return true
+	case TransactionCreateParamsIdvUseCaseSTANDARD:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for TransactionCreateParamsPayer.
 const (
 	TransactionCreateParamsPayerSender TransactionCreateParamsPayer = "sender"
@@ -1005,6 +1062,7 @@ const (
 	TransactionObjectDetailedStatusAddDocument               TransactionObjectDetailedStatus = "add_document"
 	TransactionObjectDetailedStatusAttempted                 TransactionObjectDetailedStatus = "attempted"
 	TransactionObjectDetailedStatusAwaitingPayment           TransactionObjectDetailedStatus = "awaiting_payment"
+	TransactionObjectDetailedStatusCanceled                  TransactionObjectDetailedStatus = "canceled"
 	TransactionObjectDetailedStatusComplete                  TransactionObjectDetailedStatus = "complete"
 	TransactionObjectDetailedStatusCompleteWithRejections    TransactionObjectDetailedStatus = "complete_with_rejections"
 	TransactionObjectDetailedStatusConvertedToWetSign        TransactionObjectDetailedStatus = "converted_to_wet_sign"
@@ -1043,6 +1101,8 @@ func (e TransactionObjectDetailedStatus) Valid() bool {
 	case TransactionObjectDetailedStatusAttempted:
 		return true
 	case TransactionObjectDetailedStatusAwaitingPayment:
+		return true
+	case TransactionObjectDetailedStatusCanceled:
 		return true
 	case TransactionObjectDetailedStatusComplete:
 		return true
@@ -1101,6 +1161,24 @@ func (e TransactionObjectDetailedStatus) Valid() bool {
 	}
 }
 
+// Defines values for TransactionObjectIdvUseCase.
+const (
+	TransactionObjectIdvUseCaseACCOUNTRECOVERY TransactionObjectIdvUseCase = "ACCOUNT_RECOVERY"
+	TransactionObjectIdvUseCaseSTANDARD        TransactionObjectIdvUseCase = "STANDARD"
+)
+
+// Valid indicates whether the value is a known member of the TransactionObjectIdvUseCase enum.
+func (e TransactionObjectIdvUseCase) Valid() bool {
+	switch e {
+	case TransactionObjectIdvUseCaseACCOUNTRECOVERY:
+		return true
+	case TransactionObjectIdvUseCaseSTANDARD:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for TransactionObjectPayer.
 const (
 	TransactionObjectPayerSender TransactionObjectPayer = "sender"
@@ -1149,6 +1227,24 @@ func (e TransactionParamsDocumentUrlVersion) Valid() bool {
 	case TransactionParamsDocumentUrlVersionV1:
 		return true
 	case TransactionParamsDocumentUrlVersionV2:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for TransactionParamsIdvUseCase.
+const (
+	ACCOUNTRECOVERY TransactionParamsIdvUseCase = "ACCOUNT_RECOVERY"
+	STANDARD        TransactionParamsIdvUseCase = "STANDARD"
+)
+
+// Valid indicates whether the value is a known member of the TransactionParamsIdvUseCase enum.
+func (e TransactionParamsIdvUseCase) Valid() bool {
+	switch e {
+	case ACCOUNTRECOVERY:
+		return true
+	case STANDARD:
 		return true
 	default:
 		return false
@@ -1299,6 +1395,7 @@ const (
 	WebhookV2EventEventNotaryNonCompliant                                                    WebhookV2EventEvent = "notary.non_compliant"
 	WebhookV2EventEventNotarySignerReady                                                     WebhookV2EventEvent = "notary.signer_ready"
 	WebhookV2EventEventTransaction                                                           WebhookV2EventEvent = "transaction.*"
+	WebhookV2EventEventTransactionCanceled                                                   WebhookV2EventEvent = "transaction.canceled"
 	WebhookV2EventEventTransactionCompleted                                                  WebhookV2EventEvent = "transaction.completed"
 	WebhookV2EventEventTransactionCompletedWithRejections                                    WebhookV2EventEvent = "transaction.completed_with_rejections"
 	WebhookV2EventEventTransactionCreated                                                    WebhookV2EventEvent = "transaction.created"
@@ -1350,6 +1447,8 @@ func (e WebhookV2EventEvent) Valid() bool {
 	case WebhookV2EventEventNotarySignerReady:
 		return true
 	case WebhookV2EventEventTransaction:
+		return true
+	case WebhookV2EventEventTransactionCanceled:
 		return true
 	case WebhookV2EventEventTransactionCompleted:
 		return true
@@ -2057,6 +2156,9 @@ type ErrorsObject_Errors struct {
 	union json.RawMessage
 }
 
+// Expiry An ISO-8601 formatted DateTime String, optionally including the timezone offset. If timezone offset is not provided, the account’s default timezone settings will be applied. This param sets time after which the signer is NOT permitted to complete the transaction. If a signer attempts to complete the transaction after this time is reached, they will receive an error. Expiration time is optional, and no default is set if this parameter is left blank. Any transaction that expires is no longer editable, and a new transaction must be created.
+type Expiry = string
+
 // IdAllowListByCountry A dictionary of id allow lists by country code, e.g. { "US": [ "driver_license", "passport" ], "CA": ["passport"] }, where the key is a 2 digit ISO-3166 country code, and the value is an array of id types. Primary ID lists must only contain government IDs (["driver_license", "passport", "id_card", "passport_card", "work_permit", "permanent_resident_card", "matricula_consular"]). Secondary ID lists can contain government IDs or supplemental documents (["driver_license", "passport", "id_card", "passport_card", "work_permit", "permanent_resident_card", "social_security_card", "us_visa", "birth_certificate", "property_tax_bill", "voter_registration_card", "organizational_membership_card", "bank_investment_loan_statement", "paycheck_stub", "property_insurance", "utility_bill", "other", "lease", "mortgage", "deed_of_trust", "vehicle_registration"]). By default, validation is only run on the primary ID. Validation can be run on the secondary ID (if it is a government ID) by changing your organization's configuration. To use Proof's default ID options, use null, or do not pass this field.
 type IdAllowListByCountry = map[string]interface{}
 
@@ -2332,6 +2434,15 @@ type OpenidConnectTransactionObject struct {
 	TransactionId *string `json:"transaction_id,omitempty"`
 }
 
+// OpenidConnectTransactionOptions defines model for openid_connect_transaction_options.
+type OpenidConnectTransactionOptions struct {
+	// Expiry An ISO-8601 formatted DateTime String, optionally including the timezone offset. If timezone offset is not provided, the account’s default timezone settings will be applied. This param sets time after which the signer is NOT permitted to complete the transaction. If a signer attempts to complete the transaction after this time is reached, they will receive an error. Expiration time is optional, and no default is set if this parameter is left blank. Any transaction that expires is no longer editable, and a new transaction must be created.
+	Expiry *Expiry `json:"expiry,omitempty"`
+
+	// SkipLandingPage If true, skip the landing page the user will see before beginning verification
+	SkipLandingPage *bool `json:"skip_landing_page,omitempty"`
+}
+
 // OpenidConnectTransactionRequestParameter defines model for openid_connect_transaction_request_parameter.
 type OpenidConnectTransactionRequestParameter struct {
 	Locked *bool                                         `json:"locked,omitempty"`
@@ -2345,6 +2456,7 @@ type OpenidConnectTransactionRequestParameterName string
 // OpenidConnectTransactionWorkflow defines model for openid_connect_transaction_workflow.
 type OpenidConnectTransactionWorkflow struct {
 	Id         *OpenidConnectTransactionWorkflowId         `json:"id,omitempty"`
+	Options    *OpenidConnectTransactionOptions            `json:"options,omitempty"`
 	Parameters *[]OpenidConnectTransactionRequestParameter `json:"parameters,omitempty"`
 }
 
@@ -2458,6 +2570,21 @@ type ProofRequirementMultiFactorAuthentication struct {
 
 // ProofRequirementMultiFactorAuthenticationType Signer enters authentication code sent to their mobile phone.
 type ProofRequirementMultiFactorAuthenticationType string
+
+// RecipientDetailsConfig defines model for recipient_details_config.
+type RecipientDetailsConfig struct {
+	// Display Property of the field
+	Display *RecipientDetailsConfigDisplay `json:"display,omitempty"`
+
+	// Field The field name
+	Field *RecipientDetailsConfigField `json:"field,omitempty"`
+}
+
+// RecipientDetailsConfigDisplay Property of the field
+type RecipientDetailsConfigDisplay string
+
+// RecipientDetailsConfigField The field name
+type RecipientDetailsConfigField string
 
 // RecipientGroup defines model for recipient_group.
 type RecipientGroup struct {
@@ -2790,6 +2917,9 @@ type TransactionCreateParams struct {
 	// ActivationTime An ISO-8601 formatted DateTime String, optionally including a timezone offset. If timezone offset is not provided, the Proof account’s default timezone settings will be applied. This param sets the time after which the signer is permitted to connect with a notary to complete the transaction. If a signer attempts to connect with a notary before this time is reached, the signer will be only permitted to review documents.
 	ActivationTime *string `json:"activation_time,omitempty"`
 
+	// AllowedNotaryStates A non-empty array of 2-letter US state abbreviations, e.g. ["VA","TX"]. Restricts the transaction to notaries commissioned in the given states. Must be enabled for your organization. Can be changed or removed later via transaction update.
+	AllowedNotaryStates *[]string `json:"allowed_notary_states,omitempty"`
+
 	// AuthenticationRequirement Additional authentication requirement for signers on the transaction. If SMS, a phone number must be provided for each signer.
 	AuthenticationRequirement *TransactionCreateParamsAuthenticationRequirement `json:"authentication_requirement,omitempty"`
 
@@ -2812,11 +2942,14 @@ type TransactionCreateParams struct {
 	// Draft When set to true, the transaction will be created in a Draft state. This attribute is typically used when managing multi-document transactions. When the transaction is in draft state, transaction attributes can be modified and additional documents can be added to the bundle, using the documents API. To activate the transaction, the notarization_ready API endpoint must be called.
 	Draft *bool `json:"draft,omitempty"`
 
-	// Expiry An ISO-8601 formatted DateTime String, optionally including the timezone offset. If timezone offset is not provided, the account’s default timezone settings will be applied. This param sets time after which the signer is NOT permitted to connect with a notary to complete the transaction. If a signer attempts to complete the transaction after this time is reached, they will receive an error. Expiration time is optional, and no default is set if this parameter is left blank. Any transaction that expires is no longer editable, and a new transaction must be created.
-	Expiry *string `json:"expiry,omitempty"`
+	// Expiry An ISO-8601 formatted DateTime String, optionally including the timezone offset. If timezone offset is not provided, the account’s default timezone settings will be applied. This param sets time after which the signer is NOT permitted to complete the transaction. If a signer attempts to complete the transaction after this time is reached, they will receive an error. Expiration time is optional, and no default is set if this parameter is left blank. Any transaction that expires is no longer editable, and a new transaction must be created.
+	Expiry *Expiry `json:"expiry,omitempty"`
 
 	// ExternalId A string representing an ID external to Proof's systems. Use this to associate a transaction to an ID that your systems understand, such as an Order ID or system GUID.
 	ExternalId *string `json:"external_id,omitempty"`
+
+	// IdvUseCase The identity verification use case for the transaction. Only available on identify transactions
+	IdvUseCase *TransactionCreateParamsIdvUseCase `json:"idv_use_case,omitempty"`
 
 	// MessageSignature Signature in email to signer.
 	MessageSignature *string `json:"message_signature,omitempty"`
@@ -2843,8 +2976,11 @@ type TransactionCreateParams struct {
 	Payer *TransactionCreateParamsPayer `json:"payer,omitempty"`
 
 	// PdfBookmarked Split the document by bookmarks if it is a pdf
-	PdfBookmarked *bool     `json:"pdf_bookmarked,omitempty"`
-	Redirect      *Redirect `json:"redirect,omitempty"`
+	PdfBookmarked *bool `json:"pdf_bookmarked,omitempty"`
+
+	// RecipientDetailsConfig An array of recipient details configuration objects. This is used to configure the recipients experience
+	RecipientDetailsConfig *[]RecipientDetailsConfig `json:"recipient_details_config,omitempty"`
+	Redirect               *Redirect                 `json:"redirect,omitempty"`
 
 	// RequireNewSignerVerification When set to false, Proof will not require a new signer to verify their email address before moving into the transaction flow.
 	RequireNewSignerVerification *bool `json:"require_new_signer_verification,omitempty"`
@@ -2872,19 +3008,25 @@ type TransactionCreateParamsAuthenticationRequirement string
 // TransactionCreateParamsDocumentUrlVersion Optional param to test v2 document urls.
 type TransactionCreateParamsDocumentUrlVersion string
 
+// TransactionCreateParamsIdvUseCase The identity verification use case for the transaction. Only available on identify transactions
+type TransactionCreateParamsIdvUseCase string
+
 // TransactionCreateParamsPayer Possible values are `signer` or `sender`. If no value is supplied then the payer will be based on the api key's payer setting.
 type TransactionCreateParamsPayer string
 
 // TransactionObject defines model for transaction_object.
 type TransactionObject struct {
 	// ActivationTime An ISO-8601 formatted DateTime String.
-	ActivationTime     *string             `json:"activation_time,omitempty"`
-	Attachments        *[]Attachment       `json:"attachments,omitempty"`
-	AuditTrailUrl      *string             `json:"audit_trail_url,omitempty"`
-	CcRecipientEmails  *[]CcRecipientEmail `json:"cc_recipient_emails,omitempty"`
-	ChargeStatementUrl *string             `json:"charge_statement_url,omitempty"`
-	ConfigId           *string             `json:"config_id,omitempty"`
-	CosignerInfo       *Signer             `json:"cosigner_info,omitempty"`
+	ActivationTime *string `json:"activation_time,omitempty"`
+
+	// AllowedNotaryStates The 2-letter US state abbreviations the transaction restricts notary routing to; absent when unrestricted.
+	AllowedNotaryStates *[]string           `json:"allowed_notary_states,omitempty"`
+	Attachments         *[]Attachment       `json:"attachments,omitempty"`
+	AuditTrailUrl       *string             `json:"audit_trail_url,omitempty"`
+	CcRecipientEmails   *[]CcRecipientEmail `json:"cc_recipient_emails,omitempty"`
+	ChargeStatementUrl  *string             `json:"charge_statement_url,omitempty"`
+	ConfigId            *string             `json:"config_id,omitempty"`
+	CosignerInfo        *Signer             `json:"cosigner_info,omitempty"`
 
 	// Cost Cost of the transaction.
 	Cost *float32 `json:"cost,omitempty"`
@@ -2904,20 +3046,24 @@ type TransactionObject struct {
 		Name *string `json:"name,omitempty"`
 		Url  *string `json:"url,omitempty"`
 	} `json:"identity_report,omitempty"`
-	MessageSignature    *string                     `json:"message_signature,omitempty"`
-	MessageSubject      *string                     `json:"message_subject,omitempty"`
-	MessageToSigner     *string                     `json:"message_to_signer,omitempty"`
-	NotarizationRecord  *NotarizationRecordObject   `json:"notarization_record,omitempty"`
-	NotarizationRecords *[]NotarizationRecordObject `json:"notarization_records,omitempty"`
-	NotaryId            *string                     `json:"notary_id,omitempty"`
-	NotaryInstructions  *[]NotaryInstructions       `json:"notary_instructions,omitempty"`
-	NotaryMeetingTime   *time.Time                  `json:"notary_meeting_time,omitempty"`
-	OrganizationId      *string                     `json:"organization_id,omitempty"`
-	Payer               *TransactionObjectPayer     `json:"payer,omitempty"`
+	IdvUseCase          *TransactionObjectIdvUseCase `json:"idv_use_case,omitempty"`
+	MessageSignature    *string                      `json:"message_signature,omitempty"`
+	MessageSubject      *string                      `json:"message_subject,omitempty"`
+	MessageToSigner     *string                      `json:"message_to_signer,omitempty"`
+	NotarizationRecord  *NotarizationRecordObject    `json:"notarization_record,omitempty"`
+	NotarizationRecords *[]NotarizationRecordObject  `json:"notarization_records,omitempty"`
+	NotaryId            *string                      `json:"notary_id,omitempty"`
+	NotaryInstructions  *[]NotaryInstructions        `json:"notary_instructions,omitempty"`
+	NotaryMeetingTime   *time.Time                   `json:"notary_meeting_time,omitempty"`
+	OrganizationId      *string                      `json:"organization_id,omitempty"`
+	Payer               *TransactionObjectPayer      `json:"payer,omitempty"`
 
 	// RecallReason Reason for recalling the transaction.
 	RecallReason *string `json:"recall_reason,omitempty"`
-	Redirect     *struct {
+
+	// RecipientDetailsConfig An array of recipient details configuration objects. This is used to configure the recipients experience
+	RecipientDetailsConfig *[]RecipientDetailsConfig `json:"recipient_details_config,omitempty"`
+	Redirect               *struct {
 		ForcedRedirect *bool   `json:"forced_redirect,omitempty"`
 		RedirectMsg    *string `json:"redirect_msg,omitempty"`
 		RedirectUrl    *string `json:"redirect_url,omitempty"`
@@ -2943,6 +3089,9 @@ type TransactionObject struct {
 // TransactionObjectDetailedStatus defines model for TransactionObject.DetailedStatus.
 type TransactionObjectDetailedStatus string
 
+// TransactionObjectIdvUseCase defines model for TransactionObject.IdvUseCase.
+type TransactionObjectIdvUseCase string
+
 // TransactionObjectPayer defines model for TransactionObject.Payer.
 type TransactionObjectPayer string
 
@@ -2961,6 +3110,9 @@ type TransactionParams struct {
 	// ActivationTime An ISO-8601 formatted DateTime String, optionally including a timezone offset. If timezone offset is not provided, the Proof account’s default timezone settings will be applied. This param sets the time after which the signer is permitted to connect with a notary to complete the transaction. If a signer attempts to connect with a notary before this time is reached, the signer will be only permitted to review documents.
 	ActivationTime *string `json:"activation_time,omitempty"`
 
+	// AllowedNotaryStates An array of 2-letter US state abbreviations, e.g. ["VA","TX"]. Replaces the set of states the transaction restricts notary routing to; pass an empty array to remove the restriction. Omitting the parameter leaves the current value unchanged. Must be enabled for your organization. Does not affect a meeting already requested by a signer.
+	AllowedNotaryStates *[]string `json:"allowed_notary_states,omitempty"`
+
 	// AuthenticationRequirement Additional authentication requirement for signers on the transaction. If SMS, a phone number must be provided for each signer.
 	AuthenticationRequirement *TransactionParamsAuthenticationRequirement `json:"authentication_requirement,omitempty"`
 
@@ -2978,11 +3130,14 @@ type TransactionParams struct {
 	// Draft When set to true, the transaction will be created in a Draft state. This attribute is typically used when managing multi-document transactions. When the transaction is in draft state, transaction attributes can be modified and additional documents can be added to the bundle, using the documents API. To activate the transaction, the notarization_ready API endpoint must be called.
 	Draft *bool `json:"draft,omitempty"`
 
-	// Expiry An ISO-8601 formatted DateTime String, optionally including the timezone offset. If timezone offset is not provided, the account’s default timezone settings will be applied. This param sets time after which the signer is NOT permitted to connect with a notary to complete the transaction. If a signer attempts to complete the transaction after this time is reached, they will receive an error. Expiration time is optional, and no default is set if this parameter is left blank. Any transaction that expires is no longer editable, and a new transaction must be created.
-	Expiry *string `json:"expiry,omitempty"`
+	// Expiry An ISO-8601 formatted DateTime String, optionally including the timezone offset. If timezone offset is not provided, the account’s default timezone settings will be applied. This param sets time after which the signer is NOT permitted to complete the transaction. If a signer attempts to complete the transaction after this time is reached, they will receive an error. Expiration time is optional, and no default is set if this parameter is left blank. Any transaction that expires is no longer editable, and a new transaction must be created.
+	Expiry *Expiry `json:"expiry,omitempty"`
 
 	// ExternalId A string representing an ID external to Proof's systems. Use this to associate a transaction to an ID that your systems understand, such as an Order ID or system GUID.
 	ExternalId *string `json:"external_id,omitempty"`
+
+	// IdvUseCase The identity verification use case for the transaction. Only available on identify transactions
+	IdvUseCase *TransactionParamsIdvUseCase `json:"idv_use_case,omitempty"`
 
 	// MessageSignature Signature in email to signer.
 	MessageSignature *string `json:"message_signature,omitempty"`
@@ -3009,8 +3164,11 @@ type TransactionParams struct {
 	Payer *TransactionParamsPayer `json:"payer,omitempty"`
 
 	// PdfBookmarked Split the document by bookmarks if it is a pdf
-	PdfBookmarked *bool     `json:"pdf_bookmarked,omitempty"`
-	Redirect      *Redirect `json:"redirect,omitempty"`
+	PdfBookmarked *bool `json:"pdf_bookmarked,omitempty"`
+
+	// RecipientDetailsConfig An array of recipient details configuration objects. This is used to configure the recipients experience
+	RecipientDetailsConfig *[]RecipientDetailsConfig `json:"recipient_details_config,omitempty"`
+	Redirect               *Redirect                 `json:"redirect,omitempty"`
 
 	// RequireNewSignerVerification When set to false, Proof will not require a new signer to verify their email address before moving into the transaction flow.
 	RequireNewSignerVerification *bool `json:"require_new_signer_verification,omitempty"`
@@ -3037,6 +3195,9 @@ type TransactionParamsAuthenticationRequirement string
 
 // TransactionParamsDocumentUrlVersion Optional param to test v2 document urls.
 type TransactionParamsDocumentUrlVersion string
+
+// TransactionParamsIdvUseCase The identity verification use case for the transaction. Only available on identify transactions
+type TransactionParamsIdvUseCase string
 
 // TransactionParamsPayer Possible values are `signer` or `sender`. If no value is supplied then the payer will be based on the api key's payer setting.
 type TransactionParamsPayer string
