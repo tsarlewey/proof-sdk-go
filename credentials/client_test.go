@@ -33,7 +33,7 @@ func TestNewAuthorizeVerifiableCredentialPresentationRequest(t *testing.T) {
 		ResponseMode: "fragment",
 		RedirectUri:  ptr("https://app.example.com/callback"),
 		Scope:        "openid",
-		LoginHint:    "user@example.com",
+		LoginHint:    ptr("user@example.com"),
 		Nonce:        "nonce-abc",
 		State:        ptr("state-xyz"),
 	}

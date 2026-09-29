@@ -4,6 +4,7 @@
 package credentials
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -14,6 +15,21 @@ import (
 
 	"github.com/oapi-codegen/runtime"
 )
+
+// Defines values for X401PayloadCredentialRequirementsDigitalRequestsProtocol.
+const (
+	Openid4vpV1Signed X401PayloadCredentialRequirementsDigitalRequestsProtocol = "openid4vp-v1-signed"
+)
+
+// Valid indicates whether the value is a known member of the X401PayloadCredentialRequirementsDigitalRequestsProtocol enum.
+func (e X401PayloadCredentialRequirementsDigitalRequestsProtocol) Valid() bool {
+	switch e {
+	case Openid4vpV1Signed:
+		return true
+	default:
+		return false
+	}
+}
 
 // Defines values for AuthorizeVerifiableCredentialPresentationParamsResponseType.
 const (
@@ -70,6 +86,36 @@ type ErrorsObject struct {
 	} `json:"errors,omitempty"`
 }
 
+// X401HandoffResponse defines model for x401_handoff_response.
+type X401HandoffResponse struct {
+	// RequestUri A link to the Proof-hosted flow where the End-User authorizes the Verifiable Credential Presentation.
+	RequestUri *string `json:"request_uri,omitempty"`
+}
+
+// X401Payload defines model for x401_payload.
+type X401Payload struct {
+	CredentialRequirements struct {
+		Digital struct {
+			// Requests Must contain exactly one Digital Credentials API request.
+			Requests []struct {
+				Data struct {
+					// Request The signed OID4VP request object (a JAR), as a compact JWS. It MUST have `typ` header `oauth-authz-req+jwt`, be signed with ES256 by a key whose JWK is registered on your OAuth Application, and carry the OID4VP request claims: `iss` (equal to `client_id`), `aud` (the Proof presentation issuer), `client_id`, `response_type` (`vp_token`), `response_mode` (`dc_api`), `scope`, `login_hint`, and `nonce`. For the intermediary flow, also include `expected_origins`.
+					Request string `json:"request"`
+				} `json:"data"`
+
+				// Protocol The DC API protocol. Only the signed variant `openid4vp-v1-signed` is supported.
+				Protocol X401PayloadCredentialRequirementsDigitalRequestsProtocol `json:"protocol"`
+			} `json:"requests"`
+		} `json:"digital"`
+	} `json:"credential_requirements"`
+
+	// ReturnUri Optional. Enables the x401 intermediary return channel (https://x401.proof.com/spec/latest/#return-channel). When present, Proof POSTs the Verifiable Credential Presentation to this URI instead of the request object's `response_uri`. Its origin must be listed in the request object's `expected_origins`, and the request object must not itself specify a `response_uri`.
+	ReturnUri *string `json:"return_uri,omitempty"`
+}
+
+// X401PayloadCredentialRequirementsDigitalRequestsProtocol The DC API protocol. Only the signed variant `openid4vp-v1-signed` is supported.
+type X401PayloadCredentialRequirementsDigitalRequestsProtocol string
+
 // AuthorizeVerifiableCredentialPresentationParams defines parameters for AuthorizeVerifiableCredentialPresentation.
 type AuthorizeVerifiableCredentialPresentationParams struct {
 	// ClientId Your Proof OAuth Application Client ID.
@@ -90,8 +136,8 @@ type AuthorizeVerifiableCredentialPresentationParams struct {
 	// Scope Space-separated list of scopes that translate to DCQL queries.
 	Scope AuthorizeVerifiableCredentialPresentationParamsScope `form:"scope" json:"scope"`
 
-	// LoginHint The email address associated with the End-User you're requesting Verifiable Credential presentation from.
-	LoginHint string `form:"login_hint" json:"login_hint"`
+	// LoginHint The email address associated with the End-User you're requesting Verifiable Credential presentation from. Optional: when omitted, the End-User is identified by their Proof session, and is sent through login first if they are not already signed in.
+	LoginHint *string `form:"login_hint,omitempty" json:"login_hint,omitempty"`
 
 	// Nonce Opaque client-generated value bound to the presentation response to prevent replay.
 	Nonce string `form:"nonce" json:"nonce"`
@@ -117,6 +163,9 @@ type AuthorizeVerifiableCredentialPresentationParamsResponseMode string
 
 // AuthorizeVerifiableCredentialPresentationParamsScope defines parameters for AuthorizeVerifiableCredentialPresentation.
 type AuthorizeVerifiableCredentialPresentationParamsScope string
+
+// CreatePresentationX401HandoffJSONRequestBody defines body for CreatePresentationX401Handoff for application/json ContentType.
+type CreatePresentationX401HandoffJSONRequestBody = X401Payload
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -193,10 +242,39 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 type ClientInterface interface {
 	// AuthorizeVerifiableCredentialPresentation request
 	AuthorizeVerifiableCredentialPresentation(ctx context.Context, params *AuthorizeVerifiableCredentialPresentationParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreatePresentationX401HandoffWithBody request with any body
+	CreatePresentationX401HandoffWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreatePresentationX401Handoff(ctx context.Context, body CreatePresentationX401HandoffJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) AuthorizeVerifiableCredentialPresentation(ctx context.Context, params *AuthorizeVerifiableCredentialPresentationParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewAuthorizeVerifiableCredentialPresentationRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreatePresentationX401HandoffWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreatePresentationX401HandoffRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreatePresentationX401Handoff(ctx context.Context, body CreatePresentationX401HandoffJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreatePresentationX401HandoffRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -309,16 +387,20 @@ func NewAuthorizeVerifiableCredentialPresentationRequest(server string, params *
 			}
 		}
 
-		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "login_hint", params.LoginHint, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
+		if params.LoginHint != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "login_hint", *params.LoginHint, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
 				}
 			}
+
 		}
 
 		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "nonce", params.Nonce, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
@@ -376,6 +458,46 @@ func NewAuthorizeVerifiableCredentialPresentationRequest(server string, params *
 	return req, nil
 }
 
+// NewCreatePresentationX401HandoffRequest calls the generic CreatePresentationX401Handoff builder with application/json body
+func NewCreatePresentationX401HandoffRequest(server string, body CreatePresentationX401HandoffJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreatePresentationX401HandoffRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreatePresentationX401HandoffRequestWithBody generates requests for CreatePresentationX401Handoff with any type of body
+func NewCreatePresentationX401HandoffRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/verifiable-credentials/v1/x401-handoff")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -421,6 +543,11 @@ func WithBaseURL(baseURL string) ClientOption {
 type ClientWithResponsesInterface interface {
 	// AuthorizeVerifiableCredentialPresentationWithResponse request
 	AuthorizeVerifiableCredentialPresentationWithResponse(ctx context.Context, params *AuthorizeVerifiableCredentialPresentationParams, reqEditors ...RequestEditorFn) (*AuthorizeVerifiableCredentialPresentationResponse, error)
+
+	// CreatePresentationX401HandoffWithBodyWithResponse request with any body
+	CreatePresentationX401HandoffWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePresentationX401HandoffResponse, error)
+
+	CreatePresentationX401HandoffWithResponse(ctx context.Context, body CreatePresentationX401HandoffJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePresentationX401HandoffResponse, error)
 }
 
 type AuthorizeVerifiableCredentialPresentationResponse struct {
@@ -445,6 +572,29 @@ func (r AuthorizeVerifiableCredentialPresentationResponse) StatusCode() int {
 	return 0
 }
 
+type CreatePresentationX401HandoffResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *X401HandoffResponse
+	JSON400      *ErrorsObject
+}
+
+// Status returns HTTPResponse.Status
+func (r CreatePresentationX401HandoffResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreatePresentationX401HandoffResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // AuthorizeVerifiableCredentialPresentationWithResponse request returning *AuthorizeVerifiableCredentialPresentationResponse
 func (c *ClientWithResponses) AuthorizeVerifiableCredentialPresentationWithResponse(ctx context.Context, params *AuthorizeVerifiableCredentialPresentationParams, reqEditors ...RequestEditorFn) (*AuthorizeVerifiableCredentialPresentationResponse, error) {
 	rsp, err := c.AuthorizeVerifiableCredentialPresentation(ctx, params, reqEditors...)
@@ -452,6 +602,23 @@ func (c *ClientWithResponses) AuthorizeVerifiableCredentialPresentationWithRespo
 		return nil, err
 	}
 	return ParseAuthorizeVerifiableCredentialPresentationResponse(rsp)
+}
+
+// CreatePresentationX401HandoffWithBodyWithResponse request with arbitrary body returning *CreatePresentationX401HandoffResponse
+func (c *ClientWithResponses) CreatePresentationX401HandoffWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePresentationX401HandoffResponse, error) {
+	rsp, err := c.CreatePresentationX401HandoffWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreatePresentationX401HandoffResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreatePresentationX401HandoffWithResponse(ctx context.Context, body CreatePresentationX401HandoffJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePresentationX401HandoffResponse, error) {
+	rsp, err := c.CreatePresentationX401Handoff(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreatePresentationX401HandoffResponse(rsp)
 }
 
 // ParseAuthorizeVerifiableCredentialPresentationResponse parses an HTTP response from a AuthorizeVerifiableCredentialPresentationWithResponse call
@@ -468,6 +635,39 @@ func ParseAuthorizeVerifiableCredentialPresentationResponse(rsp *http.Response) 
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorsObject
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreatePresentationX401HandoffResponse parses an HTTP response from a CreatePresentationX401HandoffWithResponse call
+func ParseCreatePresentationX401HandoffResponse(rsp *http.Response) (*CreatePresentationX401HandoffResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreatePresentationX401HandoffResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest X401HandoffResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest ErrorsObject
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

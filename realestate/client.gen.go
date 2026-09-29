@@ -64,6 +64,7 @@ func (e ContactRole) Valid() bool {
 const (
 	CosignerSigningRequirementEsign    CosignerSigningRequirement = "esign"
 	CosignerSigningRequirementIdentify CosignerSigningRequirement = "identify"
+	CosignerSigningRequirementScreen   CosignerSigningRequirement = "screen"
 	CosignerSigningRequirementVerify   CosignerSigningRequirement = "verify"
 )
 
@@ -73,6 +74,8 @@ func (e CosignerSigningRequirement) Valid() bool {
 	case CosignerSigningRequirementEsign:
 		return true
 	case CosignerSigningRequirementIdentify:
+		return true
+	case CosignerSigningRequirementScreen:
 		return true
 	case CosignerSigningRequirementVerify:
 		return true
@@ -213,99 +216,6 @@ func (e NotarizationRecordObjectNotarySource) Valid() bool {
 	}
 }
 
-// Defines values for NotarizationRecordObjectSignersSignatoryCapacitiesType.
-const (
-	NotarizationRecordObjectSignersSignatoryCapacitiesTypeAttorneyInFact        NotarizationRecordObjectSignersSignatoryCapacitiesType = "attorney_in_fact"
-	NotarizationRecordObjectSignersSignatoryCapacitiesTypeCorporateOfficer      NotarizationRecordObjectSignersSignatoryCapacitiesType = "corporate_officer"
-	NotarizationRecordObjectSignersSignatoryCapacitiesTypeGeneralPartner        NotarizationRecordObjectSignersSignatoryCapacitiesType = "general_partner"
-	NotarizationRecordObjectSignersSignatoryCapacitiesTypeGuardianOrConservator NotarizationRecordObjectSignersSignatoryCapacitiesType = "guardian_or_conservator"
-	NotarizationRecordObjectSignersSignatoryCapacitiesTypeLimitedPartner        NotarizationRecordObjectSignersSignatoryCapacitiesType = "limited_partner"
-	NotarizationRecordObjectSignersSignatoryCapacitiesTypeOther                 NotarizationRecordObjectSignersSignatoryCapacitiesType = "other"
-	NotarizationRecordObjectSignersSignatoryCapacitiesTypeTrustee               NotarizationRecordObjectSignersSignatoryCapacitiesType = "trustee"
-)
-
-// Valid indicates whether the value is a known member of the NotarizationRecordObjectSignersSignatoryCapacitiesType enum.
-func (e NotarizationRecordObjectSignersSignatoryCapacitiesType) Valid() bool {
-	switch e {
-	case NotarizationRecordObjectSignersSignatoryCapacitiesTypeAttorneyInFact:
-		return true
-	case NotarizationRecordObjectSignersSignatoryCapacitiesTypeCorporateOfficer:
-		return true
-	case NotarizationRecordObjectSignersSignatoryCapacitiesTypeGeneralPartner:
-		return true
-	case NotarizationRecordObjectSignersSignatoryCapacitiesTypeGuardianOrConservator:
-		return true
-	case NotarizationRecordObjectSignersSignatoryCapacitiesTypeLimitedPartner:
-		return true
-	case NotarizationRecordObjectSignersSignatoryCapacitiesTypeOther:
-		return true
-	case NotarizationRecordObjectSignersSignatoryCapacitiesTypeTrustee:
-		return true
-	default:
-		return false
-	}
-}
-
-// Defines values for NotarizationRecordObjectSignersSigningRequirement.
-const (
-	NotarizationRecordObjectSignersSigningRequirementEsign    NotarizationRecordObjectSignersSigningRequirement = "esign"
-	NotarizationRecordObjectSignersSigningRequirementIdentify NotarizationRecordObjectSignersSigningRequirement = "identify"
-	NotarizationRecordObjectSignersSigningRequirementVerify   NotarizationRecordObjectSignersSigningRequirement = "verify"
-)
-
-// Valid indicates whether the value is a known member of the NotarizationRecordObjectSignersSigningRequirement enum.
-func (e NotarizationRecordObjectSignersSigningRequirement) Valid() bool {
-	switch e {
-	case NotarizationRecordObjectSignersSigningRequirementEsign:
-		return true
-	case NotarizationRecordObjectSignersSigningRequirementIdentify:
-		return true
-	case NotarizationRecordObjectSignersSigningRequirementVerify:
-		return true
-	default:
-		return false
-	}
-}
-
-// Defines values for NotarizationRecordObjectSignersSigningStatus.
-const (
-	NotarizationRecordObjectSignersSigningStatusComplete   NotarizationRecordObjectSignersSigningStatus = "complete"
-	NotarizationRecordObjectSignersSigningStatusInProgress NotarizationRecordObjectSignersSigningStatus = "in_progress"
-	NotarizationRecordObjectSignersSigningStatusIncomplete NotarizationRecordObjectSignersSigningStatus = "incomplete"
-)
-
-// Valid indicates whether the value is a known member of the NotarizationRecordObjectSignersSigningStatus enum.
-func (e NotarizationRecordObjectSignersSigningStatus) Valid() bool {
-	switch e {
-	case NotarizationRecordObjectSignersSigningStatusComplete:
-		return true
-	case NotarizationRecordObjectSignersSigningStatusInProgress:
-		return true
-	case NotarizationRecordObjectSignersSigningStatusIncomplete:
-		return true
-	default:
-		return false
-	}
-}
-
-// Defines values for NotarizationRecordObjectSignersVestingType.
-const (
-	NotarizationRecordObjectSignersVestingTypeBorrower    NotarizationRecordObjectSignersVestingType = "borrower"
-	NotarizationRecordObjectSignersVestingTypeNonBorrower NotarizationRecordObjectSignersVestingType = "non_borrower"
-)
-
-// Valid indicates whether the value is a known member of the NotarizationRecordObjectSignersVestingType enum.
-func (e NotarizationRecordObjectSignersVestingType) Valid() bool {
-	switch e {
-	case NotarizationRecordObjectSignersVestingTypeBorrower:
-		return true
-	case NotarizationRecordObjectSignersVestingTypeNonBorrower:
-		return true
-	default:
-		return false
-	}
-}
-
 // Defines values for NotaryStatusDescriptions.
 const (
 	NotaryAwaitingProofApprovalOfDocumentation NotaryStatusDescriptions = "Notary awaiting Proof approval of documentation."
@@ -388,8 +298,10 @@ const (
 	PhotoValidationAttemptDocumentClaimedTypePropertyTaxBill              PhotoValidationAttemptDocumentClaimedType = "property_tax_bill"
 	PhotoValidationAttemptDocumentClaimedTypeResidencyPermit              PhotoValidationAttemptDocumentClaimedType = "residency_permit"
 	PhotoValidationAttemptDocumentClaimedTypeSchoolIdCard                 PhotoValidationAttemptDocumentClaimedType = "school_id_card"
+	PhotoValidationAttemptDocumentClaimedTypeSeafarersId                  PhotoValidationAttemptDocumentClaimedType = "seafarers_id"
 	PhotoValidationAttemptDocumentClaimedTypeSocialSecurityCard           PhotoValidationAttemptDocumentClaimedType = "social_security_card"
 	PhotoValidationAttemptDocumentClaimedTypeSss                          PhotoValidationAttemptDocumentClaimedType = "sss"
+	PhotoValidationAttemptDocumentClaimedTypeTin                          PhotoValidationAttemptDocumentClaimedType = "tin"
 	PhotoValidationAttemptDocumentClaimedTypeTravelDocument               PhotoValidationAttemptDocumentClaimedType = "travel_document"
 	PhotoValidationAttemptDocumentClaimedTypeTribalId                     PhotoValidationAttemptDocumentClaimedType = "tribal_id"
 	PhotoValidationAttemptDocumentClaimedTypeUmid                         PhotoValidationAttemptDocumentClaimedType = "umid"
@@ -474,9 +386,13 @@ func (e PhotoValidationAttemptDocumentClaimedType) Valid() bool {
 		return true
 	case PhotoValidationAttemptDocumentClaimedTypeSchoolIdCard:
 		return true
+	case PhotoValidationAttemptDocumentClaimedTypeSeafarersId:
+		return true
 	case PhotoValidationAttemptDocumentClaimedTypeSocialSecurityCard:
 		return true
 	case PhotoValidationAttemptDocumentClaimedTypeSss:
+		return true
+	case PhotoValidationAttemptDocumentClaimedTypeTin:
 		return true
 	case PhotoValidationAttemptDocumentClaimedTypeTravelDocument:
 		return true
@@ -554,31 +470,31 @@ func (e PhotoValidationAttemptFailureReasonsVerificationType) Valid() bool {
 
 // Defines values for PhotoValidationAttemptStatus.
 const (
-	PhotoValidationAttemptStatusActionRequired PhotoValidationAttemptStatus = "action_required"
-	PhotoValidationAttemptStatusDeleted        PhotoValidationAttemptStatus = "deleted"
-	PhotoValidationAttemptStatusFailure        PhotoValidationAttemptStatus = "failure"
-	PhotoValidationAttemptStatusPending        PhotoValidationAttemptStatus = "pending"
-	PhotoValidationAttemptStatusSkipped        PhotoValidationAttemptStatus = "skipped"
-	PhotoValidationAttemptStatusSuccess        PhotoValidationAttemptStatus = "success"
-	PhotoValidationAttemptStatusUnknown        PhotoValidationAttemptStatus = "unknown"
+	ActionRequired PhotoValidationAttemptStatus = "action_required"
+	Deleted        PhotoValidationAttemptStatus = "deleted"
+	Failure        PhotoValidationAttemptStatus = "failure"
+	Pending        PhotoValidationAttemptStatus = "pending"
+	Skipped        PhotoValidationAttemptStatus = "skipped"
+	Success        PhotoValidationAttemptStatus = "success"
+	Unknown        PhotoValidationAttemptStatus = "unknown"
 )
 
 // Valid indicates whether the value is a known member of the PhotoValidationAttemptStatus enum.
 func (e PhotoValidationAttemptStatus) Valid() bool {
 	switch e {
-	case PhotoValidationAttemptStatusActionRequired:
+	case ActionRequired:
 		return true
-	case PhotoValidationAttemptStatusDeleted:
+	case Deleted:
 		return true
-	case PhotoValidationAttemptStatusFailure:
+	case Failure:
 		return true
-	case PhotoValidationAttemptStatusPending:
+	case Pending:
 		return true
-	case PhotoValidationAttemptStatusSkipped:
+	case Skipped:
 		return true
-	case PhotoValidationAttemptStatusSuccess:
+	case Success:
 		return true
-	case PhotoValidationAttemptStatusUnknown:
+	case Unknown:
 		return true
 	default:
 		return false
@@ -715,6 +631,7 @@ func (e SignerSignatoryCapacitiesType) Valid() bool {
 const (
 	SignerSigningRequirementEsign    SignerSigningRequirement = "esign"
 	SignerSigningRequirementIdentify SignerSigningRequirement = "identify"
+	SignerSigningRequirementScreen   SignerSigningRequirement = "screen"
 	SignerSigningRequirementVerify   SignerSigningRequirement = "verify"
 )
 
@@ -724,6 +641,8 @@ func (e SignerSigningRequirement) Valid() bool {
 	case SignerSigningRequirementEsign:
 		return true
 	case SignerSigningRequirementIdentify:
+		return true
+	case SignerSigningRequirementScreen:
 		return true
 	case SignerSigningRequirementVerify:
 		return true
@@ -747,6 +666,21 @@ func (e SignerSigningStatus) Valid() bool {
 	case SignerSigningStatusInProgress:
 		return true
 	case SignerSigningStatusIncomplete:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SignerSuppressCommunications.
+const (
+	SignerSuppressCommunicationsAll SignerSuppressCommunications = "all"
+)
+
+// Valid indicates whether the value is a known member of the SignerSuppressCommunications enum.
+func (e SignerSuppressCommunications) Valid() bool {
+	switch e {
+	case SignerSuppressCommunicationsAll:
 		return true
 	default:
 		return false
@@ -806,19 +740,22 @@ func (e SignersSignatoryCapacitiesType) Valid() bool {
 
 // Defines values for SignersSigningRequirement.
 const (
-	SignersSigningRequirementEsign    SignersSigningRequirement = "esign"
-	SignersSigningRequirementIdentify SignersSigningRequirement = "identify"
-	SignersSigningRequirementVerify   SignersSigningRequirement = "verify"
+	Esign    SignersSigningRequirement = "esign"
+	Identify SignersSigningRequirement = "identify"
+	Screen   SignersSigningRequirement = "screen"
+	Verify   SignersSigningRequirement = "verify"
 )
 
 // Valid indicates whether the value is a known member of the SignersSigningRequirement enum.
 func (e SignersSigningRequirement) Valid() bool {
 	switch e {
-	case SignersSigningRequirementEsign:
+	case Esign:
 		return true
-	case SignersSigningRequirementIdentify:
+	case Identify:
 		return true
-	case SignersSigningRequirementVerify:
+	case Screen:
+		return true
+	case Verify:
 		return true
 	default:
 		return false
@@ -846,18 +783,33 @@ func (e SignersSigningStatus) Valid() bool {
 	}
 }
 
+// Defines values for SignersSuppressCommunications.
+const (
+	SignersSuppressCommunicationsAll SignersSuppressCommunications = "all"
+)
+
+// Valid indicates whether the value is a known member of the SignersSuppressCommunications enum.
+func (e SignersSuppressCommunications) Valid() bool {
+	switch e {
+	case SignersSuppressCommunicationsAll:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for SignersVestingType.
 const (
-	Borrower    SignersVestingType = "borrower"
-	NonBorrower SignersVestingType = "non_borrower"
+	SignersVestingTypeBorrower    SignersVestingType = "borrower"
+	SignersVestingTypeNonBorrower SignersVestingType = "non_borrower"
 )
 
 // Valid indicates whether the value is a known member of the SignersVestingType enum.
 func (e SignersVestingType) Valid() bool {
 	switch e {
-	case Borrower:
+	case SignersVestingTypeBorrower:
 		return true
-	case NonBorrower:
+	case SignersVestingTypeNonBorrower:
 		return true
 	default:
 		return false
@@ -1095,6 +1047,7 @@ const (
 	TransactionObjectDetailedStatusReadyForReview            TransactionObjectDetailedStatus = "ready_for_review"
 	TransactionObjectDetailedStatusRecalled                  TransactionObjectDetailedStatus = "recalled"
 	TransactionObjectDetailedStatusReviewNow                 TransactionObjectDetailedStatus = "review_now"
+	TransactionObjectDetailedStatusScreened                  TransactionObjectDetailedStatus = "screened"
 	TransactionObjectDetailedStatusSentToSigner              TransactionObjectDetailedStatus = "sent_to_signer"
 	TransactionObjectDetailedStatusSentToTitleAgent          TransactionObjectDetailedStatus = "sent_to_title_agent"
 	TransactionObjectDetailedStatusSignNow                   TransactionObjectDetailedStatus = "sign_now"
@@ -1155,6 +1108,8 @@ func (e TransactionObjectDetailedStatus) Valid() bool {
 	case TransactionObjectDetailedStatusRecalled:
 		return true
 	case TransactionObjectDetailedStatusReviewNow:
+		return true
+	case TransactionObjectDetailedStatusScreened:
 		return true
 	case TransactionObjectDetailedStatusSentToSigner:
 		return true
@@ -1323,21 +1278,21 @@ func (e TransactionParamsTransactionType) Valid() bool {
 	}
 }
 
-// Defines values for VerifyToolConfigurationRequirement.
+// Defines values for VerifyToolRequirementRequirement.
 const (
-	VerifyToolConfigurationRequirementNone VerifyToolConfigurationRequirement = "none"
-	VerifyToolConfigurationRequirementPass VerifyToolConfigurationRequirement = "pass"
-	VerifyToolConfigurationRequirementRun  VerifyToolConfigurationRequirement = "run"
+	VerifyToolRequirementRequirementNone VerifyToolRequirementRequirement = "none"
+	VerifyToolRequirementRequirementPass VerifyToolRequirementRequirement = "pass"
+	VerifyToolRequirementRequirementRun  VerifyToolRequirementRequirement = "run"
 )
 
-// Valid indicates whether the value is a known member of the VerifyToolConfigurationRequirement enum.
-func (e VerifyToolConfigurationRequirement) Valid() bool {
+// Valid indicates whether the value is a known member of the VerifyToolRequirementRequirement enum.
+func (e VerifyToolRequirementRequirement) Valid() bool {
 	switch e {
-	case VerifyToolConfigurationRequirementNone:
+	case VerifyToolRequirementRequirementNone:
 		return true
-	case VerifyToolConfigurationRequirementPass:
+	case VerifyToolRequirementRequirementPass:
 		return true
-	case VerifyToolConfigurationRequirementRun:
+	case VerifyToolRequirementRequirementRun:
 		return true
 	default:
 		return false
@@ -1607,19 +1562,19 @@ func (e WebhookV2SigningStatusEventEvent) Valid() bool {
 
 // Defines values for WebhookV2SigningStatusEventPayloadDataSignersSigningStatus.
 const (
-	Complete   WebhookV2SigningStatusEventPayloadDataSignersSigningStatus = "complete"
-	InProgress WebhookV2SigningStatusEventPayloadDataSignersSigningStatus = "in_progress"
-	Incomplete WebhookV2SigningStatusEventPayloadDataSignersSigningStatus = "incomplete"
+	WebhookV2SigningStatusEventPayloadDataSignersSigningStatusComplete   WebhookV2SigningStatusEventPayloadDataSignersSigningStatus = "complete"
+	WebhookV2SigningStatusEventPayloadDataSignersSigningStatusInProgress WebhookV2SigningStatusEventPayloadDataSignersSigningStatus = "in_progress"
+	WebhookV2SigningStatusEventPayloadDataSignersSigningStatusIncomplete WebhookV2SigningStatusEventPayloadDataSignersSigningStatus = "incomplete"
 )
 
 // Valid indicates whether the value is a known member of the WebhookV2SigningStatusEventPayloadDataSignersSigningStatus enum.
 func (e WebhookV2SigningStatusEventPayloadDataSignersSigningStatus) Valid() bool {
 	switch e {
-	case Complete:
+	case WebhookV2SigningStatusEventPayloadDataSignersSigningStatusComplete:
 		return true
-	case InProgress:
+	case WebhookV2SigningStatusEventPayloadDataSignersSigningStatusInProgress:
 		return true
-	case Incomplete:
+	case WebhookV2SigningStatusEventPayloadDataSignersSigningStatusIncomplete:
 		return true
 	default:
 		return false
@@ -1992,6 +1947,24 @@ func (e UpdateMortgageTransactionParamsDocumentUrlVersion) Valid() bool {
 	}
 }
 
+// Defines values for CancelMortgageTransactionParamsDocumentUrlVersion.
+const (
+	CancelMortgageTransactionParamsDocumentUrlVersionV1 CancelMortgageTransactionParamsDocumentUrlVersion = "v1"
+	CancelMortgageTransactionParamsDocumentUrlVersionV2 CancelMortgageTransactionParamsDocumentUrlVersion = "v2"
+)
+
+// Valid indicates whether the value is a known member of the CancelMortgageTransactionParamsDocumentUrlVersion enum.
+func (e CancelMortgageTransactionParamsDocumentUrlVersion) Valid() bool {
+	switch e {
+	case CancelMortgageTransactionParamsDocumentUrlVersionV1:
+		return true
+	case CancelMortgageTransactionParamsDocumentUrlVersionV2:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for AddMortgageDocumentParamsDocumentUrlVersion.
 const (
 	AddMortgageDocumentParamsDocumentUrlVersionV1 AddMortgageDocumentParamsDocumentUrlVersion = "v1"
@@ -2120,16 +2093,16 @@ func (e ResendMortgageTransactionEmailParamsDocumentUrlVersion) Valid() bool {
 
 // Defines values for ResendMortgageTransactionSMSParamsDocumentUrlVersion.
 const (
-	ResendMortgageTransactionSMSParamsDocumentUrlVersionV1 ResendMortgageTransactionSMSParamsDocumentUrlVersion = "v1"
-	ResendMortgageTransactionSMSParamsDocumentUrlVersionV2 ResendMortgageTransactionSMSParamsDocumentUrlVersion = "v2"
+	V1 ResendMortgageTransactionSMSParamsDocumentUrlVersion = "v1"
+	V2 ResendMortgageTransactionSMSParamsDocumentUrlVersion = "v2"
 )
 
 // Valid indicates whether the value is a known member of the ResendMortgageTransactionSMSParamsDocumentUrlVersion enum.
 func (e ResendMortgageTransactionSMSParamsDocumentUrlVersion) Valid() bool {
 	switch e {
-	case ResendMortgageTransactionSMSParamsDocumentUrlVersionV1:
+	case V1:
 		return true
-	case ResendMortgageTransactionSMSParamsDocumentUrlVersionV2:
+	case V2:
 		return true
 	default:
 		return false
@@ -2385,7 +2358,7 @@ type DocumentCreationParams struct {
 	Requirement *string `json:"requirement,omitempty"`
 
 	// Resource The document file resource. Accepted values can be a URL pointing to the PDF file, the full contents of the PDF file in Base64 encoding, the file itself as a
-	// direct upload, or a template permalink string pointing to a preconfigured PDF. The maximum accepted file size is 30MB.
+	// direct upload, or a template permalink string pointing to a preconfigured PDF. The maximum accepted file size is 50MB.
 	Resource *string `json:"resource,omitempty"`
 
 	// SigningDesignationGroups This array contains a specified list of groups for radio_checkmark and checkmark designations. Grouped designations can be used to logically enforce minimum and/or maximum fulfillment requirements. For example a group of three radio_checkmark designations that require one to be fulfilled (checked) or a group of five checkmark designations that are optional (none or all 5 may be checked).
@@ -2394,7 +2367,10 @@ type DocumentCreationParams struct {
 	// SigningDesignations This array contains a prescribed list of designations for signers and/or a notary to annotate the document.
 	SigningDesignations    *[]SigningDesignation `json:"signing_designations,omitempty"`
 	SigningRequiresMeeting *bool                 `json:"signing_requires_meeting,omitempty"`
-	TextTagSyntax          *string               `json:"text_tag_syntax,omitempty"`
+
+	// TemplateId ID of an existing template whose designations are applied to this document, in place of automated template matching. Retrieve available IDs from the `/templates` endpoint. The template is applied once the uploaded document finishes processing, and it also overrides `pdf_bookmarked` for this document. This parameter requires the custom template selection feature to be enabled for your account.
+	TemplateId    *string `json:"template_id,omitempty"`
+	TextTagSyntax *string `json:"text_tag_syntax,omitempty"`
 
 	// TrackingId External tracking identifier such as a UUID string that can be useful for mapping documents back to your own system.
 	TrackingId *string `json:"tracking_id,omitempty"`
@@ -2547,39 +2523,28 @@ type IdAllowListByCountry = map[string]interface{}
 // NotarizationRecordObject defines model for notarization_record_object.
 type NotarizationRecordObject struct {
 	// ChatUrl Download URL of the chat transcript of the meeting.
-	ChatUrl            *string     `json:"chat_url,omitempty"`
-	CosignerInfo       *Signer     `json:"cosigner_info,omitempty"`
-	Id                 *string     `json:"id,omitempty"`
-	MeetingEnd         *time.Time  `json:"meeting_end,omitempty"`
-	MeetingStart       *time.Time  `json:"meeting_start,omitempty"`
-	NotarizedDocuments *[]Document `json:"notarized_documents,omitempty"`
-	NotaryCountyCity   *string     `json:"notary_county_city,omitempty"`
-	NotaryName         *string     `json:"notary_name,omitempty"`
-	NotaryRegistration *string     `json:"notary_registration,omitempty"`
+	ChatUrl            *string                         `json:"chat_url,omitempty"`
+	CosignerInfo       *NotarizationRecordSignerObject `json:"cosigner_info,omitempty"`
+	Id                 *string                         `json:"id,omitempty"`
+	MeetingEnd         *time.Time                      `json:"meeting_end,omitempty"`
+	MeetingStart       *time.Time                      `json:"meeting_start,omitempty"`
+	NotarizedDocuments *[]Document                     `json:"notarized_documents,omitempty"`
+	NotaryCountyCity   *string                         `json:"notary_county_city,omitempty"`
+	NotaryName         *string                         `json:"notary_name,omitempty"`
+	NotaryRegistration *string                         `json:"notary_registration,omitempty"`
 
 	// NotarySource Indicates how the notary who fulfilled this session was sourced: In-house notary, Custom Panel, or Notarize Network. Reflects actual session fulfillment, not original routing.
 	NotarySource              *NotarizationRecordObjectNotarySource `json:"notary_source,omitempty"`
-	SignerInfo                *Signer                               `json:"signer_info,omitempty"`
+	SignerInfo                *NotarizationRecordSignerObject       `json:"signer_info,omitempty"`
 	SignerPhotoIdentification *PhotoIdentification                  `json:"signer_photo_identification,omitempty"`
 	Signers                   *[]struct {
 		Address *Address `json:"address,omitempty"`
 
-		// Capacity The signers capacity when signing on behalf of an entity, required when entity is present
-		Capacity         *string                  `json:"capacity,omitempty"`
-		CredentialAssets *[]CredentialAssetObject `json:"credential_assets,omitempty"`
-
 		// Dob The signer's date of birth.
 		Dob *string `json:"dob,omitempty"`
 
-		// Email Email is required unless you provide a recipient_group object.
-		Email string `json:"email"`
-
-		// Entity Entity the signer is signing on behalf of, required when capacity is present
-		Entity                     *string                   `json:"entity,omitempty"`
-		EsignAuthenticationRecords *[]PhotoValidationAttempt `json:"esign_authentication_records,omitempty"`
-
-		// ExternalId A string representing an ID external to Proof's systems. Use this to associate a signer to an ID that your systems understand, such as a User ID.
-		ExternalId *string `json:"external_id,omitempty"`
+		// Email Email
+		Email *string `json:"email,omitempty"`
 
 		// FirstName First name
 		FirstName *string `json:"first_name,omitempty"`
@@ -2587,30 +2552,8 @@ type NotarizationRecordObject struct {
 		// LastName Last name
 		LastName *string `json:"last_name,omitempty"`
 
-		// LinkExpired Indicates if the signer's passwordless link has expired.
-		LinkExpired *bool `json:"link_expired,omitempty"`
-
 		// MiddleName Middle name
 		MiddleName *string `json:"middle_name,omitempty"`
-
-		// NotaryId User ID ("us_xxxxxxx") of the assigned Notary or "notarize". Eligible notaries must be a notary who is a member of your organization. Order must be utilized with this field, all notarization signers with the same order must have the same notary_id.
-		NotaryId *string `json:"notary_id,omitempty"`
-
-		// Order Order the signers will sign in. Should be positive numbers starting with 1. Setting to the same order as another signer indicates they will sign at the same time.
-		Order *int `json:"order,omitempty"`
-
-		// PersonallyKnownToNotary If the signer is personally known to the notary. This can currently only be used on single signer transactions, or when the notary_id is specified on the signer.
-		PersonallyKnownToNotary *bool `json:"personally_known_to_notary,omitempty"`
-		Phone                   *struct {
-			// CountryCode The country code for the phone number, e.g. 1
-			CountryCode *string `json:"country_code,omitempty"`
-
-			// Number The phone number without the country code, e.g. 5551234567
-			Number *string `json:"number,omitempty"`
-		} `json:"phone,omitempty"`
-
-		// PhoneNumber Signer phone number. A country code can be defined by using the `+` symbol. For example, `+11234567890` will set the country code to `+1` for the number `1234567890`. If no country code is specified the default will be the United States country code of `+1`.
-		PhoneNumber *string `json:"phone_number,omitempty"`
 
 		// PrimaryBack URL of the back of the primary photo identification document.
 		PrimaryBack *string `json:"primary_back,omitempty"`
@@ -2621,47 +2564,17 @@ type NotarizationRecordObject struct {
 		// PrimaryFront URL of the front of the primary photo identification document.
 		PrimaryFront *string `json:"primary_front,omitempty"`
 
-		// PrimaryIdAllowListByCountry A dictionary of id allow lists by country code, e.g. { "US": [ "driver_license", "passport" ], "CA": ["passport"] }, where the key is a 2 digit ISO-3166 country code, and the value is an array of id types. Primary ID lists must only contain government IDs (["driver_license", "passport", "id_card", "passport_card", "work_permit", "permanent_resident_card"]). Secondary ID lists can contain government IDs or supplemental documents (["driver_license", "passport", "id_card", "passport_card", "work_permit", "permanent_resident_card", "social_security_card", "us_visa", "birth_certificate", "property_tax_bill", "voter_registration_card", "organizational_membership_card", "bank_investment_loan_statement", "paycheck_stub", "property_insurance", "utility_bill", "other", "lease", "mortgage", "deed_of_trust", "vehicle_registration", "i_94", "matricula_consular", "nexus_card", "school_id_card"]). By default, validation is only run on the primary ID. Validation can be run on the secondary ID (if it is a government ID) by changing your organization's configuration. To use Proof's default ID options, use null, or do not pass this field.
-		PrimaryIdAllowListByCountry *IdAllowListByCountry `json:"primary_id_allow_list_by_country,omitempty"`
-
 		// PrimaryIssuer Issuer of the primary photo identification document.
 		PrimaryIssuer *string `json:"primary_issuer,omitempty"`
 
 		// PrimaryType Type of the primary photo identification document.
-		PrimaryType      *string           `json:"primary_type,omitempty"`
-		ProofRequirement *ProofRequirement `json:"proof_requirement,omitempty"`
-		RecipientGroup   *RecipientGroup   `json:"recipient_group,omitempty"`
-
-		// SdkToken Equivalent to transaction_access_link; prefer using that instead.
-		SdkToken *string `json:"sdk_token,omitempty"`
+		PrimaryType *string `json:"primary_type,omitempty"`
 
 		// SecondaryFront URL of the front of the secondary photo identification document.
 		SecondaryFront *string `json:"secondary_front,omitempty"`
 
-		// SecondaryIdAllowListByCountry A dictionary of id allow lists by country code, e.g. { "US": [ "driver_license", "passport" ], "CA": ["passport"] }, where the key is a 2 digit ISO-3166 country code, and the value is an array of id types. Primary ID lists must only contain government IDs (["driver_license", "passport", "id_card", "passport_card", "work_permit", "permanent_resident_card"]). Secondary ID lists can contain government IDs or supplemental documents (["driver_license", "passport", "id_card", "passport_card", "work_permit", "permanent_resident_card", "social_security_card", "us_visa", "birth_certificate", "property_tax_bill", "voter_registration_card", "organizational_membership_card", "bank_investment_loan_statement", "paycheck_stub", "property_insurance", "utility_bill", "other", "lease", "mortgage", "deed_of_trust", "vehicle_registration", "i_94", "matricula_consular", "nexus_card", "school_id_card"]). By default, validation is only run on the primary ID. Validation can be run on the secondary ID (if it is a government ID) by changing your organization's configuration. To use Proof's default ID options, use null, or do not pass this field.
-		SecondaryIdAllowListByCountry *IdAllowListByCountry `json:"secondary_id_allow_list_by_country,omitempty"`
-
-		// SignatoryCapacities An array of signatory capacities for the signer when signing on behalf of multiple entities.
-		SignatoryCapacities *[]struct {
-			Capacity         *string                                                 `json:"capacity,omitempty"`
-			RepresentativeOf *string                                                 `json:"representative_of,omitempty"`
-			Type             *NotarizationRecordObjectSignersSignatoryCapacitiesType `json:"type,omitempty"`
-		} `json:"signatory_capacities,omitempty"`
-
 		// SignerId Signer ID
 		SignerId *string `json:"signer_id,omitempty"`
-
-		// SigningRequirement Override the document signing requirement for an individual signer.
-		SigningRequirement     *NotarizationRecordObjectSignersSigningRequirement `json:"signing_requirement,omitempty"`
-		SigningStatus          *NotarizationRecordObjectSignersSigningStatus      `json:"signing_status,omitempty"`
-		SuppressCommunications *bool                                              `json:"suppress_communications,omitempty"`
-
-		// TransactionAccessLink A link to the transaction for this signer.
-		TransactionAccessLink   *string                  `json:"transaction_access_link,omitempty"`
-		VerifyToolConfiguration *VerifyToolConfiguration `json:"verify_tool_configuration,omitempty"`
-
-		// VestingType Can be either `borrower` or `non_borrower`. Defaults to `borrower`.
-		VestingType *NotarizationRecordObjectSignersVestingType `json:"vesting_type,omitempty"`
 	} `json:"signers,omitempty"`
 	VerificationCredentials *struct {
 		DateCompleted *string `json:"date_completed,omitempty"`
@@ -2678,17 +2591,28 @@ type NotarizationRecordObject struct {
 // NotarizationRecordObjectNotarySource Indicates how the notary who fulfilled this session was sourced: In-house notary, Custom Panel, or Notarize Network. Reflects actual session fulfillment, not original routing.
 type NotarizationRecordObjectNotarySource string
 
-// NotarizationRecordObjectSignersSignatoryCapacitiesType defines model for NotarizationRecordObject.Signers.SignatoryCapacities.Type.
-type NotarizationRecordObjectSignersSignatoryCapacitiesType string
+// NotarizationRecordSignerObject defines model for notarization_record_signer_object.
+type NotarizationRecordSignerObject struct {
+	Address *Address `json:"address,omitempty"`
 
-// NotarizationRecordObjectSignersSigningRequirement Override the document signing requirement for an individual signer.
-type NotarizationRecordObjectSignersSigningRequirement string
+	// Dob The signer's date of birth.
+	Dob *string `json:"dob,omitempty"`
 
-// NotarizationRecordObjectSignersSigningStatus defines model for NotarizationRecordObject.Signers.SigningStatus.
-type NotarizationRecordObjectSignersSigningStatus string
+	// Email Email
+	Email *string `json:"email,omitempty"`
 
-// NotarizationRecordObjectSignersVestingType Can be either `borrower` or `non_borrower`. Defaults to `borrower`.
-type NotarizationRecordObjectSignersVestingType string
+	// FirstName First name
+	FirstName *string `json:"first_name,omitempty"`
+
+	// LastName Last name
+	LastName *string `json:"last_name,omitempty"`
+
+	// MiddleName Middle name
+	MiddleName *string `json:"middle_name,omitempty"`
+
+	// SignerId Signer ID
+	SignerId *string `json:"signer_id,omitempty"`
+}
 
 // NotaryInstructions defines model for notary_instructions.
 type NotaryInstructions struct {
@@ -2998,9 +2922,11 @@ type Signer struct {
 	SignerId *string `json:"signer_id,omitempty"`
 
 	// SigningRequirement Override the document signing requirement for an individual signer.
-	SigningRequirement     *SignerSigningRequirement `json:"signing_requirement,omitempty"`
-	SigningStatus          *SignerSigningStatus      `json:"signing_status,omitempty"`
-	SuppressCommunications *bool                     `json:"suppress_communications,omitempty"`
+	SigningRequirement *SignerSigningRequirement `json:"signing_requirement,omitempty"`
+	SigningStatus      *SignerSigningStatus      `json:"signing_status,omitempty"`
+
+	// SuppressCommunications Suppress Proof communications to this signer. Only "all" is currently supported.
+	SuppressCommunications *SignerSuppressCommunications `json:"suppress_communications,omitempty"`
 
 	// TransactionAccessLink A link to the transaction for this signer.
 	TransactionAccessLink   *string                  `json:"transaction_access_link,omitempty"`
@@ -3018,6 +2944,9 @@ type SignerSigningRequirement string
 
 // SignerSigningStatus defines model for Signer.SigningStatus.
 type SignerSigningStatus string
+
+// SignerSuppressCommunications Suppress Proof communications to this signer. Only "all" is currently supported.
+type SignerSuppressCommunications string
 
 // SignerVestingType Can be either `borrower` or `non_borrower`. Defaults to `borrower`.
 type SignerVestingType string
@@ -3096,9 +3025,11 @@ type Signers struct {
 	SignerId *string `json:"signer_id,omitempty"`
 
 	// SigningRequirement Override the document signing requirement for an individual signer.
-	SigningRequirement     *SignersSigningRequirement `json:"signing_requirement,omitempty"`
-	SigningStatus          *SignersSigningStatus      `json:"signing_status,omitempty"`
-	SuppressCommunications *bool                      `json:"suppress_communications,omitempty"`
+	SigningRequirement *SignersSigningRequirement `json:"signing_requirement,omitempty"`
+	SigningStatus      *SignersSigningStatus      `json:"signing_status,omitempty"`
+
+	// SuppressCommunications Suppress Proof communications to this signer. Only "all" is currently supported.
+	SuppressCommunications *SignersSuppressCommunications `json:"suppress_communications,omitempty"`
 
 	// TransactionAccessLink A link to the transaction for this signer.
 	TransactionAccessLink   *string                  `json:"transaction_access_link,omitempty"`
@@ -3116,6 +3047,9 @@ type SignersSigningRequirement string
 
 // SignersSigningStatus defines model for Signers.SigningStatus.
 type SignersSigningStatus string
+
+// SignersSuppressCommunications Suppress Proof communications to this signer. Only "all" is currently supported.
+type SignersSuppressCommunications string
 
 // SignersVestingType Can be either `borrower` or `non_borrower`. Defaults to `borrower`.
 type SignersVestingType string
@@ -3206,6 +3140,23 @@ type StreetAddress struct {
 	State *string `json:"state,omitempty"`
 }
 
+// TemplateObject defines model for template_object.
+type TemplateObject struct {
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	Id        *string    `json:"id,omitempty"`
+	Name      *string    `json:"name,omitempty"`
+	Permalink *string    `json:"permalink,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+}
+
+// TemplateObjects defines model for template_objects.
+type TemplateObjects struct {
+	Templates *[]TemplateObject `json:"templates,omitempty"`
+
+	// TotalCount Total number of templates.
+	TotalCount *int `json:"total_count,omitempty"`
+}
+
 // TitleAgency defines model for title_agency.
 type TitleAgency struct {
 	// Address The address of the title agency.
@@ -3263,8 +3214,10 @@ type TransactionCreateParams struct {
 	FileNumber *string `json:"file_number,omitempty"`
 
 	// IdvUseCase The identity verification use case for the transaction. Only available on identify transactions
-	IdvUseCase                     *TransactionCreateParamsIdvUseCase `json:"idv_use_case,omitempty"`
-	JurisdictionEligibilityConsent *string                            `json:"jurisdiction_eligibility_consent,omitempty"`
+	IdvUseCase *TransactionCreateParamsIdvUseCase `json:"idv_use_case,omitempty"`
+
+	// JurisdictionEligibilityConsent When true, the transaction requires only a US state rather than a specific recording jurisdiction. Defaults to false.
+	JurisdictionEligibilityConsent *bool `json:"jurisdiction_eligibility_consent,omitempty"`
 
 	// LoanNumber Unique value used to map transactions to your own records and systems. Providing loan_number as part of a create transaction request ensures it is visible to all users to manage the transaction.
 	LoanNumber *string `json:"loan_number,omitempty"`
@@ -3577,12 +3530,22 @@ type TransactionParamsTransactionType string
 
 // VerifyToolConfiguration defines model for verify_tool_configuration.
 type VerifyToolConfiguration struct {
-	// Requirement Setting indicating whether or not the verify tool will be required to run or pass, or both
-	Requirement VerifyToolConfigurationRequirement `json:"requirement"`
+	CredentialAnalysisConfig *VerifyToolRequirement `json:"credential_analysis_config,omitempty"`
+	CreditCardConfig         *VerifyToolRequirement `json:"credit_card_config,omitempty"`
+	SelfieConfig             *VerifyToolRequirement `json:"selfie_config,omitempty"`
 }
 
-// VerifyToolConfigurationRequirement Setting indicating whether or not the verify tool will be required to run or pass, or both
-type VerifyToolConfigurationRequirement string
+// VerifyToolRequirement defines model for verify_tool_requirement.
+type VerifyToolRequirement struct {
+	// Available Whether this verify tool is available for the transaction.
+	Available *bool `json:"available,omitempty"`
+
+	// Requirement Setting indicating whether or not the verify tool will be required to run or pass, or both
+	Requirement VerifyToolRequirementRequirement `json:"requirement"`
+}
+
+// VerifyToolRequirementRequirement Setting indicating whether or not the verify tool will be required to run or pass, or both
+type VerifyToolRequirementRequirement string
 
 // WebhookObject defines model for webhook_object.
 type WebhookObject struct {
@@ -3912,6 +3875,15 @@ type GetRecordingLocationsParams struct {
 // GetRecordingLocationsParamsTransactionType defines parameters for GetRecordingLocations.
 type GetRecordingLocationsParamsTransactionType string
 
+// GetAllRealEstateTemplatesParams defines parameters for GetAllRealEstateTemplates.
+type GetAllRealEstateTemplatesParams struct {
+	// Limit How many results to return. Default is 100; max is 1000.
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Offset Offset request by given # of items. Default is 0.
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty"`
+}
+
 // GetMortgageV2TitleAgenciesParams defines parameters for GetMortgageV2TitleAgencies.
 type GetMortgageV2TitleAgenciesParams struct {
 	// Email Can be either a domain ("example.com") or a full address ("person@example.com").
@@ -4034,6 +4006,15 @@ type UpdateMortgageTransactionParams struct {
 
 // UpdateMortgageTransactionParamsDocumentUrlVersion defines parameters for UpdateMortgageTransaction.
 type UpdateMortgageTransactionParamsDocumentUrlVersion string
+
+// CancelMortgageTransactionParams defines parameters for CancelMortgageTransaction.
+type CancelMortgageTransactionParams struct {
+	// DocumentUrlVersion Control documents and signer photo identifications download URLs. v1 for AWS S3 pre-signed URLs. v2 for Proof secure URLs.
+	DocumentUrlVersion *CancelMortgageTransactionParamsDocumentUrlVersion `form:"document_url_version,omitempty" json:"document_url_version,omitempty"`
+}
+
+// CancelMortgageTransactionParamsDocumentUrlVersion defines parameters for CancelMortgageTransaction.
+type CancelMortgageTransactionParamsDocumentUrlVersion string
 
 // AddMortgageDocumentParams defines parameters for AddMortgageDocument.
 type AddMortgageDocumentParams struct {
@@ -4387,6 +4368,9 @@ type ClientInterface interface {
 	// GetRecordingLocations request
 	GetRecordingLocations(ctx context.Context, params *GetRecordingLocationsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetAllRealEstateTemplates request
+	GetAllRealEstateTemplates(ctx context.Context, params *GetAllRealEstateTemplatesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetMortgageV2TitleAgencies request
 	GetMortgageV2TitleAgencies(ctx context.Context, params *GetMortgageV2TitleAgenciesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -4414,6 +4398,9 @@ type ClientInterface interface {
 	UpdateMortgageTransactionWithBody(ctx context.Context, id string, params *UpdateMortgageTransactionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdateMortgageTransaction(ctx context.Context, id string, params *UpdateMortgageTransactionParams, body UpdateMortgageTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CancelMortgageTransaction request
+	CancelMortgageTransaction(ctx context.Context, id string, params *CancelMortgageTransactionParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// AddMortgageDocumentWithBody request with any body
 	AddMortgageDocumentWithBody(ctx context.Context, id string, params *AddMortgageDocumentParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -4749,6 +4736,18 @@ func (c *Client) GetRecordingLocations(ctx context.Context, params *GetRecording
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetAllRealEstateTemplates(ctx context.Context, params *GetAllRealEstateTemplatesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAllRealEstateTemplatesRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetMortgageV2TitleAgencies(ctx context.Context, params *GetMortgageV2TitleAgenciesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetMortgageV2TitleAgenciesRequest(c.Server, params)
 	if err != nil {
@@ -4859,6 +4858,18 @@ func (c *Client) UpdateMortgageTransactionWithBody(ctx context.Context, id strin
 
 func (c *Client) UpdateMortgageTransaction(ctx context.Context, id string, params *UpdateMortgageTransactionParams, body UpdateMortgageTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateMortgageTransactionRequest(c.Server, id, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CancelMortgageTransaction(ctx context.Context, id string, params *CancelMortgageTransactionParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCancelMortgageTransactionRequest(c.Server, id, params)
 	if err != nil {
 		return nil, err
 	}
@@ -5910,6 +5921,71 @@ func NewGetRecordingLocationsRequest(server string, params *GetRecordingLocation
 	return req, nil
 }
 
+// NewGetAllRealEstateTemplatesRequest generates requests for GetAllRealEstateTemplates
+func NewGetAllRealEstateTemplatesRequest(server string, params *GetAllRealEstateTemplatesParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/mortgage/v2/templates")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Offset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "offset", *params.Offset, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetMortgageV2TitleAgenciesRequest generates requests for GetMortgageV2TitleAgencies
 func NewGetMortgageV2TitleAgenciesRequest(server string, params *GetMortgageV2TitleAgenciesParams) (*http.Request, error) {
 	var err error
@@ -6679,6 +6755,62 @@ func NewUpdateMortgageTransactionRequestWithBody(server string, id string, param
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewCancelMortgageTransactionRequest generates requests for CancelMortgageTransaction
+func NewCancelMortgageTransactionRequest(server string, id string, params *CancelMortgageTransactionParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/mortgage/v2/transactions/%s/cancel", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.DocumentUrlVersion != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "document_url_version", *params.DocumentUrlVersion, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -7697,6 +7829,9 @@ type ClientWithResponsesInterface interface {
 	// GetRecordingLocationsWithResponse request
 	GetRecordingLocationsWithResponse(ctx context.Context, params *GetRecordingLocationsParams, reqEditors ...RequestEditorFn) (*GetRecordingLocationsResponse, error)
 
+	// GetAllRealEstateTemplatesWithResponse request
+	GetAllRealEstateTemplatesWithResponse(ctx context.Context, params *GetAllRealEstateTemplatesParams, reqEditors ...RequestEditorFn) (*GetAllRealEstateTemplatesResponse, error)
+
 	// GetMortgageV2TitleAgenciesWithResponse request
 	GetMortgageV2TitleAgenciesWithResponse(ctx context.Context, params *GetMortgageV2TitleAgenciesParams, reqEditors ...RequestEditorFn) (*GetMortgageV2TitleAgenciesResponse, error)
 
@@ -7724,6 +7859,9 @@ type ClientWithResponsesInterface interface {
 	UpdateMortgageTransactionWithBodyWithResponse(ctx context.Context, id string, params *UpdateMortgageTransactionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateMortgageTransactionResponse, error)
 
 	UpdateMortgageTransactionWithResponse(ctx context.Context, id string, params *UpdateMortgageTransactionParams, body UpdateMortgageTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateMortgageTransactionResponse, error)
+
+	// CancelMortgageTransactionWithResponse request
+	CancelMortgageTransactionWithResponse(ctx context.Context, id string, params *CancelMortgageTransactionParams, reqEditors ...RequestEditorFn) (*CancelMortgageTransactionResponse, error)
 
 	// AddMortgageDocumentWithBodyWithResponse request with any body
 	AddMortgageDocumentWithBodyWithResponse(ctx context.Context, id string, params *AddMortgageDocumentParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddMortgageDocumentResponse, error)
@@ -8143,6 +8281,29 @@ func (r GetRecordingLocationsResponse) StatusCode() int {
 	return 0
 }
 
+type GetAllRealEstateTemplatesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *TemplateObjects
+	JSON400      *ErrorsObject
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAllRealEstateTemplatesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAllRealEstateTemplatesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetMortgageV2TitleAgenciesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -8330,6 +8491,30 @@ func (r UpdateMortgageTransactionResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r UpdateMortgageTransactionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CancelMortgageTransactionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *TransactionObject
+	JSON404      *ErrorsObject
+	JSON422      *ErrorsObject
+}
+
+// Status returns HTTPResponse.Status
+func (r CancelMortgageTransactionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CancelMortgageTransactionResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -8987,6 +9172,15 @@ func (c *ClientWithResponses) GetRecordingLocationsWithResponse(ctx context.Cont
 	return ParseGetRecordingLocationsResponse(rsp)
 }
 
+// GetAllRealEstateTemplatesWithResponse request returning *GetAllRealEstateTemplatesResponse
+func (c *ClientWithResponses) GetAllRealEstateTemplatesWithResponse(ctx context.Context, params *GetAllRealEstateTemplatesParams, reqEditors ...RequestEditorFn) (*GetAllRealEstateTemplatesResponse, error) {
+	rsp, err := c.GetAllRealEstateTemplates(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAllRealEstateTemplatesResponse(rsp)
+}
+
 // GetMortgageV2TitleAgenciesWithResponse request returning *GetMortgageV2TitleAgenciesResponse
 func (c *ClientWithResponses) GetMortgageV2TitleAgenciesWithResponse(ctx context.Context, params *GetMortgageV2TitleAgenciesParams, reqEditors ...RequestEditorFn) (*GetMortgageV2TitleAgenciesResponse, error) {
 	rsp, err := c.GetMortgageV2TitleAgencies(ctx, params, reqEditors...)
@@ -9073,6 +9267,15 @@ func (c *ClientWithResponses) UpdateMortgageTransactionWithResponse(ctx context.
 		return nil, err
 	}
 	return ParseUpdateMortgageTransactionResponse(rsp)
+}
+
+// CancelMortgageTransactionWithResponse request returning *CancelMortgageTransactionResponse
+func (c *ClientWithResponses) CancelMortgageTransactionWithResponse(ctx context.Context, id string, params *CancelMortgageTransactionParams, reqEditors ...RequestEditorFn) (*CancelMortgageTransactionResponse, error) {
+	rsp, err := c.CancelMortgageTransaction(ctx, id, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCancelMortgageTransactionResponse(rsp)
 }
 
 // AddMortgageDocumentWithBodyWithResponse request with arbitrary body returning *AddMortgageDocumentResponse
@@ -9792,6 +9995,39 @@ func ParseGetRecordingLocationsResponse(rsp *http.Response) (*GetRecordingLocati
 	return response, nil
 }
 
+// ParseGetAllRealEstateTemplatesResponse parses an HTTP response from a GetAllRealEstateTemplatesWithResponse call
+func ParseGetAllRealEstateTemplatesResponse(rsp *http.Response) (*GetAllRealEstateTemplatesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAllRealEstateTemplatesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest TemplateObjects
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorsObject
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetMortgageV2TitleAgenciesResponse parses an HTTP response from a GetMortgageV2TitleAgenciesWithResponse call
 func ParseGetMortgageV2TitleAgenciesResponse(rsp *http.Response) (*GetMortgageV2TitleAgenciesResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -10078,6 +10314,46 @@ func ParseUpdateMortgageTransactionResponse(rsp *http.Response) (*UpdateMortgage
 			return nil, err
 		}
 		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorsObject
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorsObject
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCancelMortgageTransactionResponse parses an HTTP response from a CancelMortgageTransactionWithResponse call
+func ParseCancelMortgageTransactionResponse(rsp *http.Response) (*CancelMortgageTransactionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CancelMortgageTransactionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest TransactionObject
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
 		var dest ErrorsObject
