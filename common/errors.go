@@ -137,10 +137,9 @@ func extractMessage(body []byte) string {
 		Error   string `json:"error"`
 		Message string `json:"message"`
 		Detail  string `json:"detail"`
-		Errors  []struct {
-			Message string `json:"message"`
-			Detail  string `json:"detail"`
-		} `json:"errors"`
+		// Proof sends plain strings ("errors":["..."]); other APIs send
+		// objects. Decoded per element so one shape can't fail the whole body.
+		Errors []json.RawMessage `json:"errors"`
 	}
 	if err := json.Unmarshal(body, &probe); err != nil {
 		return ""
@@ -152,11 +151,24 @@ func extractMessage(body []byte) string {
 		return probe.Message
 	case probe.Detail != "":
 		return probe.Detail
-	case len(probe.Errors) > 0:
-		if probe.Errors[0].Message != "" {
-			return probe.Errors[0].Message
+	}
+	for _, raw := range probe.Errors {
+		var s string
+		if json.Unmarshal(raw, &s) == nil && s != "" {
+			return s
 		}
-		return probe.Errors[0].Detail
+		var obj struct {
+			Message string `json:"message"`
+			Detail  string `json:"detail"`
+		}
+		if json.Unmarshal(raw, &obj) == nil {
+			if obj.Message != "" {
+				return obj.Message
+			}
+			if obj.Detail != "" {
+				return obj.Detail
+			}
+		}
 	}
 	return ""
 }

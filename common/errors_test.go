@@ -89,3 +89,18 @@ func TestCheckResponse_NilOnSuccess(t *testing.T) {
 	resp := MockJSONResponse(204, nil)
 	assert.NoError(t, CheckResponse(resp))
 }
+
+// Bodies captured from the live Proof API (sandbox, invalid key).
+func TestExtractMessage_ProofShapes(t *testing.T) {
+	cases := map[string]string{
+		`{"message":"Invalid authentication credentials","errors":["Invalid authentication credentials"]}`: "Invalid authentication credentials",
+		`{"errors":["only in errors"]}`:          "only in errors",
+		`{"errors":[{"message":"object form"}]}`: "object form",
+		`{"errors":[{"detail":"detail form"}]}`:  "detail form",
+		`{"errors":[42, "skips non-strings"]}`:   "skips non-strings",
+		`not json`:                               "",
+	}
+	for body, want := range cases {
+		assert.Equal(t, want, extractMessage([]byte(body)), body)
+	}
+}
