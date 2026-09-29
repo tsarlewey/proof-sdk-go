@@ -70,6 +70,9 @@ generate:
 	@$(OAPI_CODEGEN) --config certificates/oapi-codegen.yaml openapi/certificates.json
 	@echo "Generating Verifiable Credentials SDK..."
 	@$(OAPI_CODEGEN) --config credentials/oapi-codegen.yaml openapi/credentials.json
+	@# Detach oapi-codegen's generic package comment so each package's doc.go
+	@# is the only package doc pkg.go.dev shows.
+	@perl -0pi -e 's/\n+package /\n\npackage /' */client.gen.go
 	@echo "SDK generation complete!"
 
 # Download specs, regenerate all SDKs, then build + test

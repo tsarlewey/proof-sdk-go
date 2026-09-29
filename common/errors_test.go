@@ -39,6 +39,11 @@ func TestAsAPIError_4xx_ExtractsErrorField(t *testing.T) {
 	assert.NoError(t, apiErr.BodyReadErr)
 	assert.Contains(t, apiErr.Error(), "400")
 	assert.Contains(t, apiErr.Error(), "bad request")
+	assert.NotContains(t, apiErr.Error(), "400 400", "status code printed once")
+
+	apiErr.Status = "400 Bad Request"
+	assert.Contains(t, apiErr.Error(), ": 400 Bad Request: bad request")
+	assert.NotContains(t, apiErr.Error(), "400 400")
 }
 
 func TestAsAPIError_5xx_NestedErrors(t *testing.T) {

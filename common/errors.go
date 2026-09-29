@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 // APIError is a typed representation of a non-2xx HTTP response from the
@@ -32,10 +34,14 @@ type APIError struct {
 }
 
 func (e *APIError) Error() string {
+	// http.Response.Status is usually "404 Not Found", but not always, so
+	// print the code once and whatever text remains.
+	code := strconv.Itoa(e.StatusCode)
+	status := strings.TrimSpace(code + " " + strings.TrimSpace(strings.TrimPrefix(e.Status, code)))
 	if e.Message != "" {
-		return fmt.Sprintf("proof api: %s %s: %d %s: %s", e.Method, e.URL, e.StatusCode, e.Status, e.Message)
+		return fmt.Sprintf("proof api: %s %s: %s: %s", e.Method, e.URL, status, e.Message)
 	}
-	return fmt.Sprintf("proof api: %s %s: %d %s", e.Method, e.URL, e.StatusCode, e.Status)
+	return fmt.Sprintf("proof api: %s %s: %s", e.Method, e.URL, status)
 }
 
 // CheckResponse is the errors.As-friendly form of AsAPIError. It returns
@@ -78,7 +84,32 @@ func AsAPIError(resp *http.Response) (*APIError, bool) {
 		// rather than an already-closed reader.
 		resp.Body = io.NopCloser(bytes.NewReader(body))
 	}
+	return newAPIError(resp, body, readErr), true
+}
 
+// CheckResponseBody is CheckResponse for the *WithResponse methods of the
+// generated clients. Those methods have already read and closed
+// HTTPResponse.Body (the bytes live on the result's Body field), so
+// CheckResponse alone would report the status but lose the error message:
+//
+//	resp, err := client.GetTransactionWithResponse(ctx, id, nil)
+//	if err != nil {
+//	    return err
+//	}
+//	if err := common.CheckResponseBody(resp.HTTPResponse, resp.Body); err != nil {
+//	    return err // *common.APIError
+//	}
+//
+// It returns nil for a nil resp or a status below 400, and never touches
+// resp.Body.
+func CheckResponseBody(resp *http.Response, body []byte) error {
+	if resp == nil || resp.StatusCode < 400 {
+		return nil
+	}
+	return newAPIError(resp, body, nil)
+}
+
+func newAPIError(resp *http.Response, body []byte, readErr error) *APIError {
 	apiErr := &APIError{
 		StatusCode:  resp.StatusCode,
 		Status:      resp.Status,
@@ -93,7 +124,7 @@ func AsAPIError(resp *http.Response) (*APIError, bool) {
 			apiErr.URL = resp.Request.URL.String()
 		}
 	}
-	return apiErr, true
+	return apiErr
 }
 
 // extractMessage tries a handful of common error-body shapes used by the

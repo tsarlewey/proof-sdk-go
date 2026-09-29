@@ -1,0 +1,31 @@
+# proof-sdk-go
+
+> Unofficial Go SDK for the Proof API (notarization, e-signing, identity; dev.proof.com). Clients generated with oapi-codegen for the Business, Real Estate, SCIM, Logs, Organization Certificates and Verifiable Credentials APIs, plus a hand-written `common` package for API-key auth, base URLs, typed errors and retries. Call the `*WithResponse` methods and check each result with `common.CheckResponseBody(resp.HTTPResponse, resp.Body)`.
+
+## Docs
+
+- [AGENTS.md](https://github.com/tsarlewey/proof-sdk-go/blob/main/AGENTS.md): integration guide: quickstart, package map, rules, known quirks
+- [README.md](https://github.com/tsarlewey/proof-sdk-go/blob/main/README.md): overview, auth, errors, retries, regeneration
+- [Proof API reference](https://dev.proof.com): upstream API guides and endpoint reference
+
+## Packages
+
+- [business](https://pkg.go.dev/github.com/tsarlewey/proof-sdk-go/business): Business API client: transactions, documents, signers, webhooks, notaries, templates
+- [realestate](https://pkg.go.dev/github.com/tsarlewey/proof-sdk-go/realestate): Real Estate / mortgage API client
+- [scim](https://pkg.go.dev/github.com/tsarlewey/proof-sdk-go/scim): SCIM 2.0 user provisioning client
+- [logs](https://pkg.go.dev/github.com/tsarlewey/proof-sdk-go/logs): Security events API client
+- [certificates](https://pkg.go.dev/github.com/tsarlewey/proof-sdk-go/certificates): Organization certificates API client
+- [credentials](https://pkg.go.dev/github.com/tsarlewey/proof-sdk-go/credentials): Verifiable Credentials (OID4VP authorize URL, x401 handoff)
+- [common](https://pkg.go.dev/github.com/tsarlewey/proof-sdk-go/common): APIKey auth, SandboxURL/ProductionURL, CheckResponseBody/APIError, RetryDoer
+
+## Examples
+
+- [business-create-transaction](https://github.com/tsarlewey/proof-sdk-go/blob/main/examples/business-create-transaction/main.go): draft transaction with a signer and a document, optional activation
+- [business-list-transactions](https://github.com/tsarlewey/proof-sdk-go/blob/main/examples/business-list-transactions/main.go): list transactions
+- [realestate-list-transactions](https://github.com/tsarlewey/proof-sdk-go/blob/main/examples/realestate-list-transactions/main.go): list mortgage transactions
+- [webhook-events](https://github.com/tsarlewey/proof-sdk-go/blob/main/examples/webhook-events/main.go): list v2 webhooks and their delivery events
+- [scim-list-users](https://github.com/tsarlewey/proof-sdk-go/blob/main/examples/scim-list-users/main.go): list SCIM users, decoding the untyped response
+
+## Optional
+
+- [proof-cli](https://github.com/tsarlewey/proof-cli): command-line and MCP server built on this SDK
