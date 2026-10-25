@@ -19,13 +19,46 @@ import (
 
 // Defines values for X401PayloadCredentialRequirementsDigitalRequestsProtocol.
 const (
-	Openid4vpV1Signed X401PayloadCredentialRequirementsDigitalRequestsProtocol = "openid4vp-v1-signed"
+	X401PayloadCredentialRequirementsDigitalRequestsProtocolOpenid4vpV1Signed X401PayloadCredentialRequirementsDigitalRequestsProtocol = "openid4vp-v1-signed"
 )
 
 // Valid indicates whether the value is a known member of the X401PayloadCredentialRequirementsDigitalRequestsProtocol enum.
 func (e X401PayloadCredentialRequirementsDigitalRequestsProtocol) Valid() bool {
 	switch e {
-	case Openid4vpV1Signed:
+	case X401PayloadCredentialRequirementsDigitalRequestsProtocolOpenid4vpV1Signed:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for X401ResultResponseCredentialResultProtocol.
+const (
+	X401ResultResponseCredentialResultProtocolOpenid4vpV1Signed X401ResultResponseCredentialResultProtocol = "openid4vp-v1-signed"
+)
+
+// Valid indicates whether the value is a known member of the X401ResultResponseCredentialResultProtocol enum.
+func (e X401ResultResponseCredentialResultProtocol) Valid() bool {
+	switch e {
+	case X401ResultResponseCredentialResultProtocolOpenid4vpV1Signed:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for X401ResultResponseStatus.
+const (
+	Completed X401ResultResponseStatus = "completed"
+	Pending   X401ResultResponseStatus = "pending"
+)
+
+// Valid indicates whether the value is a known member of the X401ResultResponseStatus enum.
+func (e X401ResultResponseStatus) Valid() bool {
+	switch e {
+	case Completed:
+		return true
+	case Pending:
 		return true
 	default:
 		return false
@@ -80,6 +113,21 @@ func (e AuthorizeVerifiableCredentialPresentationParamsScope) Valid() bool {
 	}
 }
 
+// Defines values for GetX401SignaturesJSONBodyClientAssertionType.
+const (
+	UrnIetfParamsOauthClientAssertionTypeJwtBearer GetX401SignaturesJSONBodyClientAssertionType = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+)
+
+// Valid indicates whether the value is a known member of the GetX401SignaturesJSONBodyClientAssertionType enum.
+func (e GetX401SignaturesJSONBodyClientAssertionType) Valid() bool {
+	switch e {
+	case UrnIetfParamsOauthClientAssertionTypeJwtBearer:
+		return true
+	default:
+		return false
+	}
+}
+
 // ErrorsObject defines model for errors_object.
 type ErrorsObject struct {
 	Errors *struct {
@@ -87,10 +135,22 @@ type ErrorsObject struct {
 	} `json:"errors,omitempty"`
 }
 
+// OauthError defines model for oauth_error.
+type OauthError struct {
+	// Error An [error code](https://datatracker.ietf.org/doc/html/rfc6749#section-5.2).
+	Error *string `json:"error,omitempty"`
+
+	// ErrorDescription Human-readable detail about the error, for developers.
+	ErrorDescription *string `json:"error_description,omitempty"`
+}
+
 // X401HandoffResponse defines model for x401_handoff_response.
 type X401HandoffResponse struct {
 	// RequestUri A link to the Proof-hosted flow where the End-User authorizes the Verifiable Credential Presentation.
 	RequestUri *string `json:"request_uri,omitempty"`
+
+	// ResultPollingUri Only present when the request object's `expected_origins` is the agents trust list and `return_uri` is omitted. Poll this URI with the same `agentic` access token to retrieve the Verifiable Credential Presentation once the End-User completes the flow.
+	ResultPollingUri *string `json:"result_polling_uri,omitempty"`
 }
 
 // X401Payload defines model for x401_payload.
@@ -100,7 +160,7 @@ type X401Payload struct {
 			// Requests Must contain exactly one Digital Credentials API request.
 			Requests []struct {
 				Data struct {
-					// Request The signed OID4VP request object (a JAR), as a compact JWS. It MUST have `typ` header `oauth-authz-req+jwt`, be signed with ES256 by a key whose JWK is registered on your OAuth Application, and carry the OID4VP request claims: `iss` (equal to `client_id`), `aud` (the Proof presentation issuer), `client_id`, `response_type` (`vp_token`), `response_mode` (`dc_api`), `scope`, `login_hint`, and `nonce`. For the intermediary flow, also include `expected_origins`.
+					// Request The signed OID4VP request object (a JAR), as a compact JWS. It MUST have `typ` header `oauth-authz-req+jwt`, be signed with ES256 by a key whose JWK is registered on your OAuth Application, and carry the OID4VP request claims: `iss` (equal to `client_id`), `aud` (the Proof presentation issuer), `client_id`, `response_type` (`vp_token`), `response_mode` (`dc_api`), `scope`, `login_hint`, and `nonce`. For the intermediary flow, also include `expected_origins`. To let AI agents poll for the result instead, set `expected_origins` to exactly the agents trust list (`/.well-known/agents-trust-list` on this API host) and omit `response_uri`.
 					Request string `json:"request"`
 				} `json:"data"`
 
@@ -110,12 +170,42 @@ type X401Payload struct {
 		} `json:"digital"`
 	} `json:"credential_requirements"`
 
-	// ReturnUri Optional. Enables the x401 intermediary return channel (https://x401.proof.com/spec/latest/#return-channel). When present, Proof POSTs the Verifiable Credential Presentation to this URI instead of the request object's `response_uri`. Its origin must be listed in the request object's `expected_origins`, and the request object must not itself specify a `response_uri`.
+	// ReturnUri Optional. Enables the x401 intermediary return channel (https://x401.proof.com/spec/latest/#return-channel). When present, Proof POSTs the Verifiable Credential Presentation to this URI instead of the request object's `response_uri`. Its origin must be listed in the request object's `expected_origins`, and the request object must not itself specify a `response_uri`. Omit it when the request object's `expected_origins` is the agents trust list: Proof then keeps the result for the calling agent to poll at `result_polling_uri`.
 	ReturnUri *string `json:"return_uri,omitempty"`
 }
 
 // X401PayloadCredentialRequirementsDigitalRequestsProtocol The DC API protocol. Only the signed variant `openid4vp-v1-signed` is supported.
 type X401PayloadCredentialRequirementsDigitalRequestsProtocol string
+
+// X401ResultResponse defines model for x401_result_response.
+type X401ResultResponse struct {
+	// CredentialResult Only present when `status` is `completed`. Use it as the `credential_result` member of an x401 Result Artifact (https://x401.proof.com/spec/latest/).
+	CredentialResult *struct {
+		Data struct {
+			// VpToken The OID4VP `vp_token`, as Proof would have posted it to a `response_uri`.
+			VpToken string `json:"vp_token"`
+		} `json:"data"`
+		Protocol X401ResultResponseCredentialResultProtocol `json:"protocol"`
+	} `json:"credential_result,omitempty"`
+
+	// Status `pending` while the End-User has not completed the flow, `completed` once the presentation is available.
+	Status X401ResultResponseStatus `json:"status"`
+}
+
+// X401ResultResponseCredentialResultProtocol defines model for X401ResultResponse.CredentialResult.Protocol.
+type X401ResultResponseCredentialResultProtocol string
+
+// X401ResultResponseStatus `pending` while the End-User has not completed the flow, `completed` once the presentation is available.
+type X401ResultResponseStatus string
+
+// X401SignatureResponse defines model for x401_signature_response.
+type X401SignatureResponse struct {
+	// IssuerSignature The base64url signature segment of the Issuer-signed JWT, to splice back into the first `~`-separated part of the SD-JWT.
+	IssuerSignature string `json:"issuer_signature"`
+
+	// KbSignature The base64url signature segment of the Key Binding JWT, to splice back into the last `~`-separated part of the SD-JWT.
+	KbSignature string `json:"kb_signature"`
+}
 
 // AuthorizeVerifiableCredentialPresentationParams defines parameters for AuthorizeVerifiableCredentialPresentation.
 type AuthorizeVerifiableCredentialPresentationParams struct {
@@ -137,7 +227,7 @@ type AuthorizeVerifiableCredentialPresentationParams struct {
 	// Scope Space-separated list of scopes that translate to DCQL queries.
 	Scope AuthorizeVerifiableCredentialPresentationParamsScope `form:"scope" json:"scope"`
 
-	// LoginHint The email address associated with the End-User you're requesting Verifiable Credential presentation from. Optional: when omitted, the End-User is identified by their Proof session, and is sent through login first if they are not already signed in.
+	// LoginHint The email address associated with the End-User you're requesting Verifiable Credential presentation from. Optional: an End-User signed in to Proof takes precedence over `login_hint`. When omitted, the End-User is sent through login first if they are not already signed in.
 	LoginHint *string `form:"login_hint,omitempty" json:"login_hint,omitempty"`
 
 	// Nonce Opaque client-generated value bound to the presentation response to prevent replay.
@@ -146,7 +236,7 @@ type AuthorizeVerifiableCredentialPresentationParams struct {
 	// State Opaque value echoed back on the redirect to maintain state between the request and the callback.
 	State *string `form:"state,omitempty" json:"state,omitempty"`
 
-	// TransactionData Space-separated base64url-encoded JSON objects. Each object carries transaction details the Verifier is asking the End-User to authorize, with the shape:
+	// TransactionData Space-separated base64url-encoded JSON objects (a JSON array in a signed request object). Each object carries transaction details the Verifier is asking the End-User to authorize, with the shape:
 	//
 	// - `type` (string, required): one of `urn:proof:params:vc:transaction-data:session-data`, `urn:proof:params:vc:transaction-data:payment-itemized:v1`, `urn:proof:params:vc:transaction-data:wire-instructions:v1`, or `urn:proof:params:vc:transaction-data:payment-mandate:v1`.
 	// - `credential_ids` (array of strings, required): must be a single-element array matching the credential ID targeted by `scope` (currently `proof_id_default`).
@@ -165,8 +255,36 @@ type AuthorizeVerifiableCredentialPresentationParamsResponseMode string
 // AuthorizeVerifiableCredentialPresentationParamsScope defines parameters for AuthorizeVerifiableCredentialPresentation.
 type AuthorizeVerifiableCredentialPresentationParamsScope string
 
+// CreatePresentationX401HandoffParams defines parameters for CreatePresentationX401Handoff.
+type CreatePresentationX401HandoffParams struct {
+	// Authorization Optional `Bearer` access token issued by Proof to the End-User, with the `mcp.read` or `agentic` scope. When present, the transaction is created for that End-User instead of `login_hint`. Required, with the `agentic` scope, to receive a `result_polling_uri`.
+	Authorization *string `json:"Authorization,omitempty"`
+}
+
+// GetX401ResultParams defines parameters for GetX401Result.
+type GetX401ResultParams struct {
+	// Authorization `Bearer` access token with the `agentic` scope, issued to the End-User who created the handoff.
+	Authorization string `json:"Authorization"`
+}
+
+// GetX401SignaturesJSONBody defines parameters for GetX401Signatures.
+type GetX401SignaturesJSONBody struct {
+	// ClientAssertion A `private_key_jwt` assertion signed by a key registered on your OAuth Application, with `aud` set to this endpoint URL.
+	ClientAssertion     string                                       `json:"client_assertion"`
+	ClientAssertionType GetX401SignaturesJSONBodyClientAssertionType `json:"client_assertion_type"`
+
+	// Id The value of the `proof.com#sig-1` header parameter of the Key Binding JWT.
+	Id string `json:"id"`
+}
+
+// GetX401SignaturesJSONBodyClientAssertionType defines parameters for GetX401Signatures.
+type GetX401SignaturesJSONBodyClientAssertionType string
+
 // CreatePresentationX401HandoffJSONRequestBody defines body for CreatePresentationX401Handoff for application/json ContentType.
 type CreatePresentationX401HandoffJSONRequestBody = X401Payload
+
+// GetX401SignaturesJSONRequestBody defines body for GetX401Signatures for application/json ContentType.
+type GetX401SignaturesJSONRequestBody GetX401SignaturesJSONBody
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -245,9 +363,17 @@ type ClientInterface interface {
 	AuthorizeVerifiableCredentialPresentation(ctx context.Context, params *AuthorizeVerifiableCredentialPresentationParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreatePresentationX401HandoffWithBody request with any body
-	CreatePresentationX401HandoffWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreatePresentationX401HandoffWithBody(ctx context.Context, params *CreatePresentationX401HandoffParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	CreatePresentationX401Handoff(ctx context.Context, body CreatePresentationX401HandoffJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreatePresentationX401Handoff(ctx context.Context, params *CreatePresentationX401HandoffParams, body CreatePresentationX401HandoffJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetX401Result request
+	GetX401Result(ctx context.Context, id string, params *GetX401ResultParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetX401SignaturesWithBody request with any body
+	GetX401SignaturesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	GetX401Signatures(ctx context.Context, body GetX401SignaturesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) AuthorizeVerifiableCredentialPresentation(ctx context.Context, params *AuthorizeVerifiableCredentialPresentationParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -262,8 +388,8 @@ func (c *Client) AuthorizeVerifiableCredentialPresentation(ctx context.Context, 
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreatePresentationX401HandoffWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreatePresentationX401HandoffRequestWithBody(c.Server, contentType, body)
+func (c *Client) CreatePresentationX401HandoffWithBody(ctx context.Context, params *CreatePresentationX401HandoffParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreatePresentationX401HandoffRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -274,8 +400,44 @@ func (c *Client) CreatePresentationX401HandoffWithBody(ctx context.Context, cont
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreatePresentationX401Handoff(ctx context.Context, body CreatePresentationX401HandoffJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreatePresentationX401HandoffRequest(c.Server, body)
+func (c *Client) CreatePresentationX401Handoff(ctx context.Context, params *CreatePresentationX401HandoffParams, body CreatePresentationX401HandoffJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreatePresentationX401HandoffRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetX401Result(ctx context.Context, id string, params *GetX401ResultParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetX401ResultRequest(c.Server, id, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetX401SignaturesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetX401SignaturesRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetX401Signatures(ctx context.Context, body GetX401SignaturesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetX401SignaturesRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -460,18 +622,18 @@ func NewAuthorizeVerifiableCredentialPresentationRequest(server string, params *
 }
 
 // NewCreatePresentationX401HandoffRequest calls the generic CreatePresentationX401Handoff builder with application/json body
-func NewCreatePresentationX401HandoffRequest(server string, body CreatePresentationX401HandoffJSONRequestBody) (*http.Request, error) {
+func NewCreatePresentationX401HandoffRequest(server string, params *CreatePresentationX401HandoffParams, body CreatePresentationX401HandoffJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCreatePresentationX401HandoffRequestWithBody(server, "application/json", bodyReader)
+	return NewCreatePresentationX401HandoffRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewCreatePresentationX401HandoffRequestWithBody generates requests for CreatePresentationX401Handoff with any type of body
-func NewCreatePresentationX401HandoffRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCreatePresentationX401HandoffRequestWithBody(server string, params *CreatePresentationX401HandoffParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -480,6 +642,108 @@ func NewCreatePresentationX401HandoffRequestWithBody(server string, contentType 
 	}
 
 	operationPath := fmt.Sprintf("/verifiable-credentials/v1/x401-handoff")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.Authorization != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Authorization", *params.Authorization, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("Authorization", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewGetX401ResultRequest generates requests for GetX401Result
+func NewGetX401ResultRequest(server string, id string, params *GetX401ResultParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/verifiable-credentials/v1/x401-result/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Authorization", params.Authorization, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Authorization", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewGetX401SignaturesRequest calls the generic GetX401Signatures builder with application/json body
+func NewGetX401SignaturesRequest(server string, body GetX401SignaturesJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewGetX401SignaturesRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewGetX401SignaturesRequestWithBody generates requests for GetX401Signatures with any type of body
+func NewGetX401SignaturesRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/verifiable-credentials/v1/x401-signatures")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -546,9 +810,17 @@ type ClientWithResponsesInterface interface {
 	AuthorizeVerifiableCredentialPresentationWithResponse(ctx context.Context, params *AuthorizeVerifiableCredentialPresentationParams, reqEditors ...RequestEditorFn) (*AuthorizeVerifiableCredentialPresentationResponse, error)
 
 	// CreatePresentationX401HandoffWithBodyWithResponse request with any body
-	CreatePresentationX401HandoffWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePresentationX401HandoffResponse, error)
+	CreatePresentationX401HandoffWithBodyWithResponse(ctx context.Context, params *CreatePresentationX401HandoffParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePresentationX401HandoffResponse, error)
 
-	CreatePresentationX401HandoffWithResponse(ctx context.Context, body CreatePresentationX401HandoffJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePresentationX401HandoffResponse, error)
+	CreatePresentationX401HandoffWithResponse(ctx context.Context, params *CreatePresentationX401HandoffParams, body CreatePresentationX401HandoffJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePresentationX401HandoffResponse, error)
+
+	// GetX401ResultWithResponse request
+	GetX401ResultWithResponse(ctx context.Context, id string, params *GetX401ResultParams, reqEditors ...RequestEditorFn) (*GetX401ResultResponse, error)
+
+	// GetX401SignaturesWithBodyWithResponse request with any body
+	GetX401SignaturesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetX401SignaturesResponse, error)
+
+	GetX401SignaturesWithResponse(ctx context.Context, body GetX401SignaturesJSONRequestBody, reqEditors ...RequestEditorFn) (*GetX401SignaturesResponse, error)
 }
 
 type AuthorizeVerifiableCredentialPresentationResponse struct {
@@ -578,6 +850,7 @@ type CreatePresentationX401HandoffResponse struct {
 	HTTPResponse *http.Response
 	JSON201      *X401HandoffResponse
 	JSON400      *ErrorsObject
+	JSON401      *OauthError
 }
 
 // Status returns HTTPResponse.Status
@@ -596,6 +869,56 @@ func (r CreatePresentationX401HandoffResponse) StatusCode() int {
 	return 0
 }
 
+type GetX401ResultResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *X401ResultResponse
+	JSON202      *X401ResultResponse
+	JSON401      *OauthError
+	JSON404      *OauthError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetX401ResultResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetX401ResultResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetX401SignaturesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *X401SignatureResponse
+	JSON401      *OauthError
+	JSON404      *OauthError
+	JSON409      *OauthError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetX401SignaturesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetX401SignaturesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // AuthorizeVerifiableCredentialPresentationWithResponse request returning *AuthorizeVerifiableCredentialPresentationResponse
 func (c *ClientWithResponses) AuthorizeVerifiableCredentialPresentationWithResponse(ctx context.Context, params *AuthorizeVerifiableCredentialPresentationParams, reqEditors ...RequestEditorFn) (*AuthorizeVerifiableCredentialPresentationResponse, error) {
 	rsp, err := c.AuthorizeVerifiableCredentialPresentation(ctx, params, reqEditors...)
@@ -606,20 +929,46 @@ func (c *ClientWithResponses) AuthorizeVerifiableCredentialPresentationWithRespo
 }
 
 // CreatePresentationX401HandoffWithBodyWithResponse request with arbitrary body returning *CreatePresentationX401HandoffResponse
-func (c *ClientWithResponses) CreatePresentationX401HandoffWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePresentationX401HandoffResponse, error) {
-	rsp, err := c.CreatePresentationX401HandoffWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CreatePresentationX401HandoffWithBodyWithResponse(ctx context.Context, params *CreatePresentationX401HandoffParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePresentationX401HandoffResponse, error) {
+	rsp, err := c.CreatePresentationX401HandoffWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseCreatePresentationX401HandoffResponse(rsp)
 }
 
-func (c *ClientWithResponses) CreatePresentationX401HandoffWithResponse(ctx context.Context, body CreatePresentationX401HandoffJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePresentationX401HandoffResponse, error) {
-	rsp, err := c.CreatePresentationX401Handoff(ctx, body, reqEditors...)
+func (c *ClientWithResponses) CreatePresentationX401HandoffWithResponse(ctx context.Context, params *CreatePresentationX401HandoffParams, body CreatePresentationX401HandoffJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePresentationX401HandoffResponse, error) {
+	rsp, err := c.CreatePresentationX401Handoff(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseCreatePresentationX401HandoffResponse(rsp)
+}
+
+// GetX401ResultWithResponse request returning *GetX401ResultResponse
+func (c *ClientWithResponses) GetX401ResultWithResponse(ctx context.Context, id string, params *GetX401ResultParams, reqEditors ...RequestEditorFn) (*GetX401ResultResponse, error) {
+	rsp, err := c.GetX401Result(ctx, id, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetX401ResultResponse(rsp)
+}
+
+// GetX401SignaturesWithBodyWithResponse request with arbitrary body returning *GetX401SignaturesResponse
+func (c *ClientWithResponses) GetX401SignaturesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetX401SignaturesResponse, error) {
+	rsp, err := c.GetX401SignaturesWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetX401SignaturesResponse(rsp)
+}
+
+func (c *ClientWithResponses) GetX401SignaturesWithResponse(ctx context.Context, body GetX401SignaturesJSONRequestBody, reqEditors ...RequestEditorFn) (*GetX401SignaturesResponse, error) {
+	rsp, err := c.GetX401Signatures(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetX401SignaturesResponse(rsp)
 }
 
 // ParseAuthorizeVerifiableCredentialPresentationResponse parses an HTTP response from a AuthorizeVerifiableCredentialPresentationWithResponse call
@@ -675,6 +1024,107 @@ func ParseCreatePresentationX401HandoffResponse(rsp *http.Response) (*CreatePres
 			return nil, err
 		}
 		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest OauthError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetX401ResultResponse parses an HTTP response from a GetX401ResultWithResponse call
+func ParseGetX401ResultResponse(rsp *http.Response) (*GetX401ResultResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetX401ResultResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest X401ResultResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest X401ResultResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest OauthError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest OauthError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetX401SignaturesResponse parses an HTTP response from a GetX401SignaturesWithResponse call
+func ParseGetX401SignaturesResponse(rsp *http.Response) (*GetX401SignaturesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetX401SignaturesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest X401SignatureResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest OauthError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest OauthError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest OauthError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	}
 

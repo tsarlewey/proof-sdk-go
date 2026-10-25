@@ -2243,6 +2243,26 @@ type Cosigner struct {
 // CosignerSigningRequirement Override the document signing requirement for an individual signer.
 type CosignerSigningRequirement string
 
+// CostCenterObject defines model for cost_center_object.
+type CostCenterObject struct {
+	// Id ID to pass as cost_center_id when creating or updating a transaction (format mt_xxxxxxx).
+	Id *string `json:"id,omitempty"`
+
+	// InternalId The internal ID your organization assigned to this cost center in Command Center.
+	InternalId *string `json:"internal_id,omitempty"`
+
+	// Name The cost center name shown in Command Center.
+	Name *string `json:"name,omitempty"`
+}
+
+// CostCenterObjects defines model for cost_center_objects.
+type CostCenterObjects struct {
+	CostCenters *[]CostCenterObject `json:"cost_centers,omitempty"`
+
+	// TotalCount Total number of cost centers.
+	TotalCount *int `json:"total_count,omitempty"`
+}
+
 // CredentialAssetObject defines model for credential_asset_object.
 type CredentialAssetObject struct {
 	CredentialImages *[]CredentialImage                   `json:"credential_images,omitempty"`
@@ -3191,10 +3211,13 @@ type TransactionCreateParams struct {
 	CcRecipientEmails *[]CcRecipientEmail `json:"cc_recipient_emails,omitempty"`
 
 	// ConfigId The ID of the config used for this transaction. This will ensure that the transaction will load as expected in your dashboard if you need to make any edits. Once set this cannot be edited. Available values: ["hybrid_purchase_buyer_loan", "hybrid_refinance", "hybrid_trailing_docs", "identify", "lender_heloc", "lender_loan_mod_borrower", "lender_refinance", "notarization", "other", "purchase_buyer", "purchase_buyer_loan", "purchase_seller", "real_estate_identify", "real_estate_sign", "real_estate_verify", "sign", "title_heloc", "title_loan_mod_borrower", "trailing_docs", "verify"]
-	ConfigId *string         `json:"config_id,omitempty"`
-	Contacts *[]Contact      `json:"contacts,omitempty"`
-	Cosigner *Cosigner       `json:"cosigner,omitempty"`
-	Document *DocumentParams `json:"document,omitempty"`
+	ConfigId *string    `json:"config_id,omitempty"`
+	Contacts *[]Contact `json:"contacts,omitempty"`
+	Cosigner *Cosigner  `json:"cosigner,omitempty"`
+
+	// CostCenterId The ID of the cost center to attribute this transaction to. Returned by the List Cost Centers endpoint. Must be enabled for your organization, and required to send a transaction if your organization requires cost centers.
+	CostCenterId *string         `json:"cost_center_id,omitempty"`
+	Document     *DocumentParams `json:"document,omitempty"`
 
 	// DocumentUrlVersion Optional param to test v2 document urls.
 	DocumentUrlVersion *TransactionCreateParamsDocumentUrlVersion `json:"document_url_version,omitempty"`
@@ -3318,6 +3341,9 @@ type TransactionObject struct {
 	// Cost Cost of the transaction.
 	Cost *float32 `json:"cost,omitempty"`
 
+	// CostCenterId The cost center attributed to this transaction, if any.
+	CostCenterId *string `json:"cost_center_id,omitempty"`
+
 	// DateCreated Date Transaction was created/uploaded.
 	DateCreated *time.Time `json:"date_created,omitempty"`
 
@@ -3432,6 +3458,9 @@ type TransactionParams struct {
 	ConfigId *string    `json:"config_id,omitempty"`
 	Contacts *[]Contact `json:"contacts,omitempty"`
 	Cosigner *Cosigner  `json:"cosigner,omitempty"`
+
+	// CostCenterId The ID of the cost center to attribute this transaction to. Returned by the List Cost Centers endpoint. Omitting the parameter or sending null leaves the current value unchanged; a cost center cannot be removed.
+	CostCenterId *string `json:"cost_center_id,omitempty"`
 
 	// DocumentUrlVersion Optional param to test v2 document urls.
 	DocumentUrlVersion *TransactionParamsDocumentUrlVersion `json:"document_url_version,omitempty"`
@@ -3823,6 +3852,15 @@ type Witness struct {
 	FirstName        *string                  `json:"first_name,omitempty"`
 	LastName         *string                  `json:"last_name,omitempty"`
 	MiddleName       *string                  `json:"middle_name,omitempty"`
+}
+
+// GetAllRealEstateCostCentersParams defines parameters for GetAllRealEstateCostCenters.
+type GetAllRealEstateCostCentersParams struct {
+	// Limit How many results to return. Default is 10; max is 1000.
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Offset Offset request by given # of items. Default is 0.
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty"`
 }
 
 // PatchMortgageDocumentsParams defines parameters for PatchMortgageDocuments.
@@ -4310,6 +4348,9 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// GetAllRealEstateCostCenters request
+	GetAllRealEstateCostCenters(ctx context.Context, params *GetAllRealEstateCostCentersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetAllMortgageNotaries request
 	GetAllMortgageNotaries(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -4471,6 +4512,18 @@ type ClientInterface interface {
 
 	// GetMortgageWebhookEventsV2 request
 	GetMortgageWebhookEventsV2(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) GetAllRealEstateCostCenters(ctx context.Context, params *GetAllRealEstateCostCentersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAllRealEstateCostCentersRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) GetAllMortgageNotaries(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -5179,6 +5232,71 @@ func (c *Client) GetMortgageWebhookEventsV2(ctx context.Context, id string, reqE
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewGetAllRealEstateCostCentersRequest generates requests for GetAllRealEstateCostCenters
+func NewGetAllRealEstateCostCentersRequest(server string, params *GetAllRealEstateCostCentersParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/mortgage/v1/cost_centers")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Offset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "offset", *params.Offset, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
 }
 
 // NewGetAllMortgageNotariesRequest generates requests for GetAllMortgageNotaries
@@ -7771,6 +7889,9 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// GetAllRealEstateCostCentersWithResponse request
+	GetAllRealEstateCostCentersWithResponse(ctx context.Context, params *GetAllRealEstateCostCentersParams, reqEditors ...RequestEditorFn) (*GetAllRealEstateCostCentersResponse, error)
+
 	// GetAllMortgageNotariesWithResponse request
 	GetAllMortgageNotariesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAllMortgageNotariesResponse, error)
 
@@ -7932,6 +8053,30 @@ type ClientWithResponsesInterface interface {
 
 	// GetMortgageWebhookEventsV2WithResponse request
 	GetMortgageWebhookEventsV2WithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetMortgageWebhookEventsV2Response, error)
+}
+
+type GetAllRealEstateCostCentersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *CostCenterObjects
+	JSON400      *ErrorsObject
+	JSON422      *ErrorsObject
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAllRealEstateCostCentersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAllRealEstateCostCentersResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type GetAllMortgageNotariesResponse struct {
@@ -8982,6 +9127,15 @@ func (r GetMortgageWebhookEventsV2Response) StatusCode() int {
 	return 0
 }
 
+// GetAllRealEstateCostCentersWithResponse request returning *GetAllRealEstateCostCentersResponse
+func (c *ClientWithResponses) GetAllRealEstateCostCentersWithResponse(ctx context.Context, params *GetAllRealEstateCostCentersParams, reqEditors ...RequestEditorFn) (*GetAllRealEstateCostCentersResponse, error) {
+	rsp, err := c.GetAllRealEstateCostCenters(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAllRealEstateCostCentersResponse(rsp)
+}
+
 // GetAllMortgageNotariesWithResponse request returning *GetAllMortgageNotariesResponse
 func (c *ClientWithResponses) GetAllMortgageNotariesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAllMortgageNotariesResponse, error) {
 	rsp, err := c.GetAllMortgageNotaries(ctx, reqEditors...)
@@ -9496,6 +9650,46 @@ func (c *ClientWithResponses) GetMortgageWebhookEventsV2WithResponse(ctx context
 		return nil, err
 	}
 	return ParseGetMortgageWebhookEventsV2Response(rsp)
+}
+
+// ParseGetAllRealEstateCostCentersResponse parses an HTTP response from a GetAllRealEstateCostCentersWithResponse call
+func ParseGetAllRealEstateCostCentersResponse(rsp *http.Response) (*GetAllRealEstateCostCentersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAllRealEstateCostCentersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CostCenterObjects
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorsObject
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorsObject
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseGetAllMortgageNotariesResponse parses an HTTP response from a GetAllMortgageNotariesWithResponse call

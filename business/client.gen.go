@@ -261,14 +261,17 @@ func (e OpenidConnectTransactionRequestParameterName) Valid() bool {
 
 // Defines values for OpenidConnectTransactionWorkflowId.
 const (
-	ProofCaDefault  OpenidConnectTransactionWorkflowId = "proof.ca.default"
-	ProofKbaDefault OpenidConnectTransactionWorkflowId = "proof.kba.default"
+	ProofCaDefault   OpenidConnectTransactionWorkflowId = "proof.ca.default"
+	ProofIal2Default OpenidConnectTransactionWorkflowId = "proof.ial2.default"
+	ProofKbaDefault  OpenidConnectTransactionWorkflowId = "proof.kba.default"
 )
 
 // Valid indicates whether the value is a known member of the OpenidConnectTransactionWorkflowId enum.
 func (e OpenidConnectTransactionWorkflowId) Valid() bool {
 	switch e {
 	case ProofCaDefault:
+		return true
+	case ProofIal2Default:
 		return true
 	case ProofKbaDefault:
 		return true
@@ -1933,6 +1936,26 @@ type Cosigner struct {
 // CosignerSigningRequirement Override the document signing requirement for an individual signer.
 type CosignerSigningRequirement string
 
+// CostCenterObject defines model for cost_center_object.
+type CostCenterObject struct {
+	// Id ID to pass as cost_center_id when creating or updating a transaction (format mt_xxxxxxx).
+	Id *string `json:"id,omitempty"`
+
+	// InternalId The internal ID your organization assigned to this cost center in Command Center.
+	InternalId *string `json:"internal_id,omitempty"`
+
+	// Name The cost center name shown in Command Center.
+	Name *string `json:"name,omitempty"`
+}
+
+// CostCenterObjects defines model for cost_center_objects.
+type CostCenterObjects struct {
+	CostCenters *[]CostCenterObject `json:"cost_centers,omitempty"`
+
+	// TotalCount Total number of cost centers.
+	TotalCount *int `json:"total_count,omitempty"`
+}
+
 // CredentialAssetObject defines model for credential_asset_object.
 type CredentialAssetObject struct {
 	CredentialImages *[]CredentialImage                   `json:"credential_images,omitempty"`
@@ -2641,6 +2664,9 @@ type Signer struct {
 	SigningRequirement *SignerSigningRequirement `json:"signing_requirement,omitempty"`
 	SigningStatus      *SignerSigningStatus      `json:"signing_status,omitempty"`
 
+	// SkipLandingPage If true, skip the landing page the user will see before beginning verification
+	SkipLandingPage *bool `json:"skip_landing_page,omitempty"`
+
 	// SuppressCommunications Suppress Proof communications to this signer. Only "all" is currently supported.
 	SuppressCommunications *SignerSuppressCommunications `json:"suppress_communications,omitempty"`
 
@@ -2743,6 +2769,9 @@ type Signers struct {
 	// SigningRequirement Override the document signing requirement for an individual signer.
 	SigningRequirement *SignersSigningRequirement `json:"signing_requirement,omitempty"`
 	SigningStatus      *SignersSigningStatus      `json:"signing_status,omitempty"`
+
+	// SkipLandingPage If true, skip the landing page the user will see before beginning verification
+	SkipLandingPage *bool `json:"skip_landing_page,omitempty"`
 
 	// SuppressCommunications Suppress Proof communications to this signer. Only "all" is currently supported.
 	SuppressCommunications *SignersSuppressCommunications `json:"suppress_communications,omitempty"`
@@ -2862,6 +2891,9 @@ type TransactionCreateParams struct {
 	ConfigId *string   `json:"config_id,omitempty"`
 	Cosigner *Cosigner `json:"cosigner,omitempty"`
 
+	// CostCenterId The ID of the cost center to attribute this transaction to. Returned by the List Cost Centers endpoint. Must be enabled for your organization, and required to send a transaction if your organization requires cost centers.
+	CostCenterId *string `json:"cost_center_id,omitempty"`
+
 	// Document Documents to be signed or notarized. Accepted as an array of document objects or simple document["resource"] field values. Maximum size of an individual document is 50MB, or approximately 70M characters encoded in base64.
 	Document *string `json:"document,omitempty"`
 
@@ -2963,6 +2995,9 @@ type TransactionObject struct {
 	// Cost Cost of the transaction.
 	Cost *float32 `json:"cost,omitempty"`
 
+	// CostCenterId The cost center attributed to this transaction, if any.
+	CostCenterId *string `json:"cost_center_id,omitempty"`
+
 	// DateCreated Date Transaction was created/uploaded.
 	DateCreated *time.Time `json:"date_created,omitempty"`
 
@@ -3054,6 +3089,9 @@ type TransactionParams struct {
 	// ConfigId The ID of the config used for this transaction. This will ensure that the transaction will load as expected in your dashboard if you need to make any edits. Once set this cannot be edited. Available values: ["hybrid_purchase_buyer_loan", "hybrid_refinance", "hybrid_trailing_docs", "identify", "lender_heloc", "lender_loan_mod_borrower", "lender_refinance", "notarization", "other", "purchase_buyer", "purchase_buyer_loan", "purchase_seller", "real_estate_identify", "real_estate_sign", "real_estate_verify", "sign", "title_heloc", "title_loan_mod_borrower", "trailing_docs", "verify"]
 	ConfigId *string   `json:"config_id,omitempty"`
 	Cosigner *Cosigner `json:"cosigner,omitempty"`
+
+	// CostCenterId The ID of the cost center to attribute this transaction to. Returned by the List Cost Centers endpoint. Omitting the parameter or sending null leaves the current value unchanged; a cost center cannot be removed.
+	CostCenterId *string `json:"cost_center_id,omitempty"`
 
 	// DocumentUrlVersion Optional param to test v2 document urls.
 	DocumentUrlVersion *TransactionParamsDocumentUrlVersion `json:"document_url_version,omitempty"`
@@ -3428,6 +3466,15 @@ type Witness struct {
 	FirstName        *string                  `json:"first_name,omitempty"`
 	LastName         *string                  `json:"last_name,omitempty"`
 	MiddleName       *string                  `json:"middle_name,omitempty"`
+}
+
+// GetAllCostCentersParams defines parameters for GetAllCostCenters.
+type GetAllCostCentersParams struct {
+	// Limit How many results to return. Default is 10; max is 1000.
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Offset Offset request by given # of items. Default is 0.
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty"`
 }
 
 // PatchDocumentsParams defines parameters for PatchDocuments.
@@ -3942,6 +3989,9 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// GetAllCostCenters request
+	GetAllCostCenters(ctx context.Context, params *GetAllCostCentersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// DeleteDocument request
 	DeleteDocument(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -4111,6 +4161,18 @@ type ClientInterface interface {
 
 	// GetWebhookEventsV2 request
 	GetWebhookEventsV2(ctx context.Context, id string, params *GetWebhookEventsV2Params, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) GetAllCostCenters(ctx context.Context, params *GetAllCostCentersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAllCostCentersRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) DeleteDocument(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -4867,6 +4929,71 @@ func (c *Client) GetWebhookEventsV2(ctx context.Context, id string, params *GetW
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewGetAllCostCentersRequest generates requests for GetAllCostCenters
+func NewGetAllCostCentersRequest(server string, params *GetAllCostCentersParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/cost_centers")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Offset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "offset", *params.Offset, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
 }
 
 // NewDeleteDocumentRequest generates requests for DeleteDocument
@@ -7255,6 +7382,9 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// GetAllCostCentersWithResponse request
+	GetAllCostCentersWithResponse(ctx context.Context, params *GetAllCostCentersParams, reqEditors ...RequestEditorFn) (*GetAllCostCentersResponse, error)
+
 	// DeleteDocumentWithResponse request
 	DeleteDocumentWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteDocumentResponse, error)
 
@@ -7424,6 +7554,30 @@ type ClientWithResponsesInterface interface {
 
 	// GetWebhookEventsV2WithResponse request
 	GetWebhookEventsV2WithResponse(ctx context.Context, id string, params *GetWebhookEventsV2Params, reqEditors ...RequestEditorFn) (*GetWebhookEventsV2Response, error)
+}
+
+type GetAllCostCentersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *CostCenterObjects
+	JSON400      *ErrorsObject
+	JSON422      *ErrorsObject
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAllCostCentersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAllCostCentersResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type DeleteDocumentResponse struct {
@@ -8457,6 +8611,15 @@ func (r GetWebhookEventsV2Response) StatusCode() int {
 	return 0
 }
 
+// GetAllCostCentersWithResponse request returning *GetAllCostCentersResponse
+func (c *ClientWithResponses) GetAllCostCentersWithResponse(ctx context.Context, params *GetAllCostCentersParams, reqEditors ...RequestEditorFn) (*GetAllCostCentersResponse, error) {
+	rsp, err := c.GetAllCostCenters(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAllCostCentersResponse(rsp)
+}
+
 // DeleteDocumentWithResponse request returning *DeleteDocumentResponse
 func (c *ClientWithResponses) DeleteDocumentWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteDocumentResponse, error) {
 	rsp, err := c.DeleteDocument(ctx, id, reqEditors...)
@@ -9003,6 +9166,46 @@ func (c *ClientWithResponses) GetWebhookEventsV2WithResponse(ctx context.Context
 		return nil, err
 	}
 	return ParseGetWebhookEventsV2Response(rsp)
+}
+
+// ParseGetAllCostCentersResponse parses an HTTP response from a GetAllCostCentersWithResponse call
+func ParseGetAllCostCentersResponse(rsp *http.Response) (*GetAllCostCentersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAllCostCentersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CostCenterObjects
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorsObject
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorsObject
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseDeleteDocumentResponse parses an HTTP response from a DeleteDocumentWithResponse call
