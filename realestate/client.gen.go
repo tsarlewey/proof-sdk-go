@@ -834,12 +834,9 @@ const (
 	Disclosure                 SigningDesignationType = "disclosure"
 	Dob                        SigningDesignationType = "dob"
 	Email                      SigningDesignationType = "email"
-	FirstName                  SigningDesignationType = "first_name"
 	FreeText                   SigningDesignationType = "free_text"
 	FullName                   SigningDesignationType = "full_name"
 	Initials                   SigningDesignationType = "initials"
-	LastName                   SigningDesignationType = "last_name"
-	MiddleName                 SigningDesignationType = "middle_name"
 	MonthSigned                SigningDesignationType = "month_signed"
 	NotaryCity                 SigningDesignationType = "notary_city"
 	NotaryId                   SigningDesignationType = "notary_id"
@@ -885,17 +882,11 @@ func (e SigningDesignationType) Valid() bool {
 		return true
 	case Email:
 		return true
-	case FirstName:
-		return true
 	case FreeText:
 		return true
 	case FullName:
 		return true
 	case Initials:
-		return true
-	case LastName:
-		return true
-	case MiddleName:
 		return true
 	case MonthSigned:
 		return true
@@ -3107,7 +3098,7 @@ type SigningDesignation struct {
 	SignerIdentifier        *string                  `json:"signer_identifier,omitempty"`
 	SigningDesignationGroup *SigningDesignationGroup `json:"signing_designation_group,omitempty"`
 
-	// Type The type of field designation. Accepted values for signers: dob, email, address_line1, address_line2, address_zip5, address_state, address_city, representative_capacity_type. Accepted values for notaries: disclosure, notary_id, seal, commission_expiration_date, commission_state, county, commission_county, principal_id_type, notary_city. Universal types: date_signed, day_signed, month_signed, year_signed, first_name, middle_name, last_name, full_name, signature, initials, checkmark, radio_checkmark, free_text, signature_and_date
+	// Type The type of field designation. Accepted values for signers: dob, email, address_line1, address_line2, address_zip5, address_state, address_city, representative_capacity_type. Accepted values for notaries: disclosure, notary_id, seal, commission_expiration_date, commission_state, county, commission_county, principal_id_type, notary_city. Universal types: date_signed, day_signed, month_signed, year_signed, full_name, signature, initials, checkmark, radio_checkmark, free_text, signature_and_date
 	Type *SigningDesignationType `json:"type,omitempty"`
 
 	// Width Width
@@ -3120,7 +3111,7 @@ type SigningDesignation struct {
 	Y *int `json:"y,omitempty"`
 }
 
-// SigningDesignationType The type of field designation. Accepted values for signers: dob, email, address_line1, address_line2, address_zip5, address_state, address_city, representative_capacity_type. Accepted values for notaries: disclosure, notary_id, seal, commission_expiration_date, commission_state, county, commission_county, principal_id_type, notary_city. Universal types: date_signed, day_signed, month_signed, year_signed, first_name, middle_name, last_name, full_name, signature, initials, checkmark, radio_checkmark, free_text, signature_and_date
+// SigningDesignationType The type of field designation. Accepted values for signers: dob, email, address_line1, address_line2, address_zip5, address_state, address_city, representative_capacity_type. Accepted values for notaries: disclosure, notary_id, seal, commission_expiration_date, commission_state, county, commission_county, principal_id_type, notary_city. Universal types: date_signed, day_signed, month_signed, year_signed, full_name, signature, initials, checkmark, radio_checkmark, free_text, signature_and_date
 type SigningDesignationType string
 
 // SigningDesignationGroup defines model for signing_designation_group.

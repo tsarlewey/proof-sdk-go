@@ -243,16 +243,16 @@ func (e NotaryStatuses) Valid() bool {
 
 // Defines values for OpenidConnectTransactionRequestParameterName.
 const (
-	OpenidConnectTransactionRequestParameterNameFirstName OpenidConnectTransactionRequestParameterName = "first_name"
-	OpenidConnectTransactionRequestParameterNameLastName  OpenidConnectTransactionRequestParameterName = "last_name"
+	FirstName OpenidConnectTransactionRequestParameterName = "first_name"
+	LastName  OpenidConnectTransactionRequestParameterName = "last_name"
 )
 
 // Valid indicates whether the value is a known member of the OpenidConnectTransactionRequestParameterName enum.
 func (e OpenidConnectTransactionRequestParameterName) Valid() bool {
 	switch e {
-	case OpenidConnectTransactionRequestParameterNameFirstName:
+	case FirstName:
 		return true
-	case OpenidConnectTransactionRequestParameterNameLastName:
+	case LastName:
 		return true
 	default:
 		return false
@@ -837,103 +837,94 @@ func (e SignersVestingType) Valid() bool {
 
 // Defines values for SigningDesignationType.
 const (
-	SigningDesignationTypeAddressCity                SigningDesignationType = "address_city"
-	SigningDesignationTypeAddressLine1               SigningDesignationType = "address_line1"
-	SigningDesignationTypeAddressLine2               SigningDesignationType = "address_line2"
-	SigningDesignationTypeAddressState               SigningDesignationType = "address_state"
-	SigningDesignationTypeAddressZip5                SigningDesignationType = "address_zip5"
-	SigningDesignationTypeCheckmark                  SigningDesignationType = "checkmark"
-	SigningDesignationTypeCommissionCounty           SigningDesignationType = "commission_county"
-	SigningDesignationTypeCommissionExpirationDate   SigningDesignationType = "commission_expiration_date"
-	SigningDesignationTypeCommissionState            SigningDesignationType = "commission_state"
-	SigningDesignationTypeCounty                     SigningDesignationType = "county"
-	SigningDesignationTypeDateSigned                 SigningDesignationType = "date_signed"
-	SigningDesignationTypeDaySigned                  SigningDesignationType = "day_signed"
-	SigningDesignationTypeDisclosure                 SigningDesignationType = "disclosure"
-	SigningDesignationTypeDob                        SigningDesignationType = "dob"
-	SigningDesignationTypeEmail                      SigningDesignationType = "email"
-	SigningDesignationTypeFirstName                  SigningDesignationType = "first_name"
-	SigningDesignationTypeFreeText                   SigningDesignationType = "free_text"
-	SigningDesignationTypeFullName                   SigningDesignationType = "full_name"
-	SigningDesignationTypeInitials                   SigningDesignationType = "initials"
-	SigningDesignationTypeLastName                   SigningDesignationType = "last_name"
-	SigningDesignationTypeMiddleName                 SigningDesignationType = "middle_name"
-	SigningDesignationTypeMonthSigned                SigningDesignationType = "month_signed"
-	SigningDesignationTypeNotaryCity                 SigningDesignationType = "notary_city"
-	SigningDesignationTypeNotaryId                   SigningDesignationType = "notary_id"
-	SigningDesignationTypePrincipalIdType            SigningDesignationType = "principal_id_type"
-	SigningDesignationTypeRadioCheckmark             SigningDesignationType = "radio_checkmark"
-	SigningDesignationTypeRepresentativeCapacityType SigningDesignationType = "representative_capacity_type"
-	SigningDesignationTypeSeal                       SigningDesignationType = "seal"
-	SigningDesignationTypeSignature                  SigningDesignationType = "signature"
-	SigningDesignationTypeSignatureAndDate           SigningDesignationType = "signature_and_date"
-	SigningDesignationTypeYearSigned                 SigningDesignationType = "year_signed"
+	AddressCity                SigningDesignationType = "address_city"
+	AddressLine1               SigningDesignationType = "address_line1"
+	AddressLine2               SigningDesignationType = "address_line2"
+	AddressState               SigningDesignationType = "address_state"
+	AddressZip5                SigningDesignationType = "address_zip5"
+	Checkmark                  SigningDesignationType = "checkmark"
+	CommissionCounty           SigningDesignationType = "commission_county"
+	CommissionExpirationDate   SigningDesignationType = "commission_expiration_date"
+	CommissionState            SigningDesignationType = "commission_state"
+	County                     SigningDesignationType = "county"
+	DateSigned                 SigningDesignationType = "date_signed"
+	DaySigned                  SigningDesignationType = "day_signed"
+	Disclosure                 SigningDesignationType = "disclosure"
+	Dob                        SigningDesignationType = "dob"
+	Email                      SigningDesignationType = "email"
+	FreeText                   SigningDesignationType = "free_text"
+	FullName                   SigningDesignationType = "full_name"
+	Initials                   SigningDesignationType = "initials"
+	MonthSigned                SigningDesignationType = "month_signed"
+	NotaryCity                 SigningDesignationType = "notary_city"
+	NotaryId                   SigningDesignationType = "notary_id"
+	PrincipalIdType            SigningDesignationType = "principal_id_type"
+	RadioCheckmark             SigningDesignationType = "radio_checkmark"
+	RepresentativeCapacityType SigningDesignationType = "representative_capacity_type"
+	Seal                       SigningDesignationType = "seal"
+	Signature                  SigningDesignationType = "signature"
+	SignatureAndDate           SigningDesignationType = "signature_and_date"
+	YearSigned                 SigningDesignationType = "year_signed"
 )
 
 // Valid indicates whether the value is a known member of the SigningDesignationType enum.
 func (e SigningDesignationType) Valid() bool {
 	switch e {
-	case SigningDesignationTypeAddressCity:
+	case AddressCity:
 		return true
-	case SigningDesignationTypeAddressLine1:
+	case AddressLine1:
 		return true
-	case SigningDesignationTypeAddressLine2:
+	case AddressLine2:
 		return true
-	case SigningDesignationTypeAddressState:
+	case AddressState:
 		return true
-	case SigningDesignationTypeAddressZip5:
+	case AddressZip5:
 		return true
-	case SigningDesignationTypeCheckmark:
+	case Checkmark:
 		return true
-	case SigningDesignationTypeCommissionCounty:
+	case CommissionCounty:
 		return true
-	case SigningDesignationTypeCommissionExpirationDate:
+	case CommissionExpirationDate:
 		return true
-	case SigningDesignationTypeCommissionState:
+	case CommissionState:
 		return true
-	case SigningDesignationTypeCounty:
+	case County:
 		return true
-	case SigningDesignationTypeDateSigned:
+	case DateSigned:
 		return true
-	case SigningDesignationTypeDaySigned:
+	case DaySigned:
 		return true
-	case SigningDesignationTypeDisclosure:
+	case Disclosure:
 		return true
-	case SigningDesignationTypeDob:
+	case Dob:
 		return true
-	case SigningDesignationTypeEmail:
+	case Email:
 		return true
-	case SigningDesignationTypeFirstName:
+	case FreeText:
 		return true
-	case SigningDesignationTypeFreeText:
+	case FullName:
 		return true
-	case SigningDesignationTypeFullName:
+	case Initials:
 		return true
-	case SigningDesignationTypeInitials:
+	case MonthSigned:
 		return true
-	case SigningDesignationTypeLastName:
+	case NotaryCity:
 		return true
-	case SigningDesignationTypeMiddleName:
+	case NotaryId:
 		return true
-	case SigningDesignationTypeMonthSigned:
+	case PrincipalIdType:
 		return true
-	case SigningDesignationTypeNotaryCity:
+	case RadioCheckmark:
 		return true
-	case SigningDesignationTypeNotaryId:
+	case RepresentativeCapacityType:
 		return true
-	case SigningDesignationTypePrincipalIdType:
+	case Seal:
 		return true
-	case SigningDesignationTypeRadioCheckmark:
+	case Signature:
 		return true
-	case SigningDesignationTypeRepresentativeCapacityType:
+	case SignatureAndDate:
 		return true
-	case SigningDesignationTypeSeal:
-		return true
-	case SigningDesignationTypeSignature:
-		return true
-	case SigningDesignationTypeSignatureAndDate:
-		return true
-	case SigningDesignationTypeYearSigned:
+	case YearSigned:
 		return true
 	default:
 		return false
@@ -2826,7 +2817,7 @@ type SigningDesignation struct {
 	SignerIdentifier        *string                  `json:"signer_identifier,omitempty"`
 	SigningDesignationGroup *SigningDesignationGroup `json:"signing_designation_group,omitempty"`
 
-	// Type The type of field designation. Accepted values for signers: dob, email, address_line1, address_line2, address_zip5, address_state, address_city, representative_capacity_type. Accepted values for notaries: disclosure, notary_id, seal, commission_expiration_date, commission_state, county, commission_county, principal_id_type, notary_city. Universal types: date_signed, day_signed, month_signed, year_signed, first_name, middle_name, last_name, full_name, signature, initials, checkmark, radio_checkmark, free_text, signature_and_date
+	// Type The type of field designation. Accepted values for signers: dob, email, address_line1, address_line2, address_zip5, address_state, address_city, representative_capacity_type. Accepted values for notaries: disclosure, notary_id, seal, commission_expiration_date, commission_state, county, commission_county, principal_id_type, notary_city. Universal types: date_signed, day_signed, month_signed, year_signed, full_name, signature, initials, checkmark, radio_checkmark, free_text, signature_and_date
 	Type *SigningDesignationType `json:"type,omitempty"`
 
 	// Width Width
@@ -2839,7 +2830,7 @@ type SigningDesignation struct {
 	Y *int `json:"y,omitempty"`
 }
 
-// SigningDesignationType The type of field designation. Accepted values for signers: dob, email, address_line1, address_line2, address_zip5, address_state, address_city, representative_capacity_type. Accepted values for notaries: disclosure, notary_id, seal, commission_expiration_date, commission_state, county, commission_county, principal_id_type, notary_city. Universal types: date_signed, day_signed, month_signed, year_signed, first_name, middle_name, last_name, full_name, signature, initials, checkmark, radio_checkmark, free_text, signature_and_date
+// SigningDesignationType The type of field designation. Accepted values for signers: dob, email, address_line1, address_line2, address_zip5, address_state, address_city, representative_capacity_type. Accepted values for notaries: disclosure, notary_id, seal, commission_expiration_date, commission_state, county, commission_county, principal_id_type, notary_city. Universal types: date_signed, day_signed, month_signed, year_signed, full_name, signature, initials, checkmark, radio_checkmark, free_text, signature_and_date
 type SigningDesignationType string
 
 // SigningDesignationGroup defines model for signing_designation_group.
